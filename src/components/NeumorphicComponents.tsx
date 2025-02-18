@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { CustomTheme } from '../theme/theme';
 
 interface NeumorphicViewProps {
   style?: ViewStyle;
@@ -16,7 +17,7 @@ interface NeumorphicButtonProps extends NeumorphicViewProps {
 }
 
 export const NeumorphicView: React.FC<NeumorphicViewProps> = ({ style, children }) => {
-  const theme = useTheme();
+  const theme = useTheme<CustomTheme>();
 
   return (
     <View
@@ -24,7 +25,7 @@ export const NeumorphicView: React.FC<NeumorphicViewProps> = ({ style, children 
         styles.neumorphicView,
         {
           backgroundColor: theme.colors.background,
-          shadowColor: theme.dark ? '#000000' : '#FFFFFF',
+          shadowColor: theme.colors.shadowDark,
         },
         style,
       ]}
@@ -42,7 +43,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
   icon,
   iconPosition = 'left',
 }) => {
-  const theme = useTheme();
+  const theme = useTheme<CustomTheme>();
 
   const renderContent = () => {
     if (!text && !icon) return null;
@@ -52,7 +53,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       <Text
         style={[
           styles.buttonText,
-          { color: theme.colors.onBackground },
+          { color: theme.colors.onSurface },
           textStyle,
         ]}
       >
@@ -64,7 +65,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       <Text
         style={[
           styles.buttonText,
-          { color: theme.colors.onBackground },
+          { color: theme.colors.onSurface },
           textStyle,
         ]}
       >
@@ -87,7 +88,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
         styles.neumorphicButton,
         {
           backgroundColor: theme.colors.background,
-          shadowColor: theme.dark ? '#000000' : '#FFFFFF',
+          shadowColor: theme.colors.shadowDark,
         },
         style,
       ]}

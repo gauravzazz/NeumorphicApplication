@@ -12,7 +12,9 @@ interface SubjectCardProps {
   onPress: () => void;
 }
 
-const CARD_WIDTH = Dimensions.get('window').width * 0.85;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const SCALE_FACTOR = Math.min(SCREEN_WIDTH / 375, SCREEN_HEIGHT / 812);
+const getFontSize = (size: number) => Math.round(size * SCALE_FACTOR);
 
 export const SubjectCard: React.FC<SubjectCardProps> = ({
   title,
@@ -27,7 +29,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
     <TouchableOpacity onPress={onPress} style={styles.container}>
       <NeumorphicView style={styles.card}>
         <View style={styles.iconContainer}>
-          <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={32} color={theme.colors.primary} />
+          <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={getFontSize(32)} color={theme.colors.primary} />
         </View>
         <View style={styles.contentContainer}>
           <Text style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
@@ -59,42 +61,38 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
-    marginHorizontal: 8,
+    flex: 1,
+    width: '100%',
   },
   card: {
-    padding: 24,
-    borderRadius: 28,
-    height: 240,
+    padding: 16,
+    borderRadius: 20,
+    height: undefined,
+    aspectRatio: 1.2,
   },
   iconContainer: {
-    marginBottom: 20,
+    marginBottom: getFontSize(12),
     backgroundColor: 'rgba(103, 80, 164, 0.12)',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: getFontSize(48),
+    height: getFontSize(48),
+    borderRadius: getFontSize(24),
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 28,
+    fontSize: getFontSize(18),
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: getFontSize(8),
     letterSpacing: 0.5,
   },
   description: {
-    fontSize: 16,
-    marginBottom: 16,
-    lineHeight: 22,
+    fontSize: getFontSize(14),
+    marginBottom: getFontSize(8),
+    lineHeight: getFontSize(18),
   },
   progressContainer: {
     marginTop: 'auto',

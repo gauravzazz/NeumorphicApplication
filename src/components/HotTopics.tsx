@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { HotTopicCard } from './HotTopicCard';
+import { QuizConfigModal } from './QuizConfigModal';
 import { mockHotTopics } from '../data/mockData';
 
 interface HotTopic {
@@ -10,32 +11,62 @@ interface HotTopic {
   category: string;
   icon: string;
   participants: number;
+  questions?: any[];
 }
 
-export const HotTopics: React.FC = () => {
+interface HotTopicsProps {
+  topics: HotTopic[];
+  onTopicPress: (topicId: string, config?: { mode: 'test' | 'practice', questionCount: number }) => void;
+}
+
+export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) => {
   const theme = useTheme();
+  const [selectedTopic, setSelectedTopic] = useState<HotTopic | null>(null);
+  const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
+
+  const handleTopicPress = (topic: HotTopic) => {
+    if (topic.questions && topic.questions.length > 0) {
+      setSelectedTopic(topic);
+      setQuizConfigVisible(true);
+    } else {
+      console.warn(`No questions available for topic ${topic.title}`);
+    }
+  };
+
+  const handleQuizStart = (config: { mode: 'test' | 'practice', questionCount: number }) => {
+    if (selectedTopic) {
+      onTopicPress(selectedTopic.id, config);
+    }
+    setQuizConfigVisible(false);
+  };
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-        Hot Topics
+        🔥 Hot Topics
       </Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {mockHotTopics.map((topic) => (
+        {topics.map((topic) => (
           <HotTopicCard
             key={topic.id}
             title={topic.title}
             category={topic.category}
             icon={topic.icon}
             participants={topic.participants}
-            onPress={() => {}}
+            onPress={() => handleTopicPress(topic)}
           />
         ))}
       </ScrollView>
+      <QuizConfigModal
+        visible={isQuizConfigVisible}
+        onDismiss={() => setQuizConfigVisible(false)}
+        onStart={handleQuizStart}
+        questionCount={selectedTopic?.questions?.length || 0}
+      />
     </View>
   );
 };

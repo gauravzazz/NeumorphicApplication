@@ -24,6 +24,7 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
 
   const handleStartQuiz = (questionCount: number, mode: 'test' | 'practice') => {
     onPress(topic.id, questionCount, mode);
+    setModalVisible(false);
   };
 
   return (

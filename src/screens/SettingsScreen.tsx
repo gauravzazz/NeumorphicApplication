@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useThemeContext } from '../theme/ThemeContext';
 import { NeumorphicView } from '../components/NeumorphicComponents';
 
 interface SettingsProps {}
@@ -11,6 +12,7 @@ interface SettingsProps {}
 export const SettingsScreen: React.FC<SettingsProps> = () => {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { isDarkMode, toggleTheme } = useThemeContext();
   const [settings, setSettings] = useState({
     darkMode: false,
     language: 'Gujarati',
@@ -39,10 +41,14 @@ export const SettingsScreen: React.FC<SettingsProps> = () => {
   ];
 
   const toggleSetting = (key: keyof typeof settings) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    if (key === 'darkMode') {
+      toggleTheme();
+    } else {
+      setSettings(prev => ({
+        ...prev,
+        [key]: !prev[key]
+      }));
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -80,10 +86,10 @@ export const SettingsScreen: React.FC<SettingsProps> = () => {
               </View>
             </View>
             <View
-              style={[styles.toggle, { backgroundColor: settings.darkMode ? theme.colors.primary : '#E0E0E0' }]}
+              style={[styles.toggle, { backgroundColor: isDarkMode ? theme.colors.primary : '#E0E0E0' }]}
               onTouchEnd={() => toggleSetting('darkMode')}
             >
-              <View style={[styles.toggleKnob, { transform: [{ translateX: settings.darkMode ? 20 : 0 }] }]} />
+              <View style={[styles.toggleKnob, { transform: [{ translateX: isDarkMode ? 20 : 0 }] }]} />
             </View>
           </NeumorphicView>
 

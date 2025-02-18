@@ -30,19 +30,7 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.onSurface }]}>Popular Topics</Text>
-        {topics.length > 9 && (
-          <TouchableOpacity 
-            onPress={() => {
-              setShowAll(!showAll);
-              onSeeMorePress();
-            }}
-          >
-            <Text style={[styles.seeMore, { color: theme.colors.primary }]}>
-              {showAll ? 'Show Less' : `Show More (${topics.length - 9} more)`}
-            </Text>
-          </TouchableOpacity>
-        )}
+        <Text style={[styles.title, { color: theme.colors.onSurface }]}>⭐ Popular Topics</Text>
       </View>
       <View style={styles.grid}>
         {visibleTopics.map((topic) => (
@@ -80,6 +68,21 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
           </TouchableOpacity>
         ))}
       </View>
+      {topics.length > 9 && (
+        <TouchableOpacity 
+          onPress={() => {
+            setShowAll(!showAll);
+            onSeeMorePress();
+          }}
+          style={styles.seeMoreContainer}
+        >
+          <NeumorphicView style={styles.seeMoreButton}>
+            <Text style={[styles.seeMoreText, { color: theme.colors.primary }]}>
+              {showAll ? 'Show Less' : `Show More (${topics.length - 9} more)`}
+            </Text>
+          </NeumorphicView>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -89,23 +92,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
   },
-  seeMore: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+    marginBottom: 16,
   },
   gridItem: {
     width: '31%',
@@ -135,5 +132,20 @@ const styles = StyleSheet.create({
   questionsCount: {
     fontSize: 12,
     textAlign: 'center',
+  },
+  seeMoreContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  seeMoreButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    minWidth: 160,
+  },
+  seeMoreText: {
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

@@ -11,15 +11,26 @@ import { RecentSubjects } from '../components/RecentSubjects';
 import { HotTopics } from '../components/HotTopics';
 import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
+import { QuizConfigModal } from '../components/QuizConfigModal';
 
 export const HomeScreen: React.FC = () => {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const [selectedTopic, setSelectedTopic] = useState<any>(null);
+  const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
 
   const handleTopicPress = (topicId: string) => {
-    // Handle topic press
-    console.log('Topic pressed:', topicId);
+    const topic = mockHotTopics.find(topic => topic.id === topicId);
+    if (!topic) {
+      console.warn(`Topic with ID ${topicId} not found`);
+      return;
+    }
+    navigation.navigate('Quiz', {
+      topicId,
+      mode: 'practice',
+      questions: topic.questions || []
+    });
   };
 
   const handleSubjectPress = (subject: Subject) => {
@@ -32,8 +43,38 @@ export const HomeScreen: React.FC = () => {
   };
 
   const handleTopicGridPress = (topicId: string) => {
-    // Handle topic press
-    console.log('Topic pressed:', topicId);
+    const topic = mockHotTopics.find(topic => topic.id === topicId);
+    if (!topic) {
+      console.warn(`Topic with ID ${topicId} not found`);
+      return;
+    }
+    
+    if (topic.questions && topic.questions.length > 0) {
+      setSelectedTopic(topic);
+      setQuizConfigVisible(true);
+    } else {
+      console.warn(`No questions available for topic ${topic.title}`);
+    }
+  };
+
+  const handleQuizStart = (config: { mode: 'test' | 'practice', questionCount: number }) => {
+    if (selectedTopic && selectedTopic.questions) {
+      navigation.navigate('Quiz', {
+        topicId: selectedTopic.id,
+        mode: config.mode,
+        questionCount: Math.min(config.questionCount, selectedTopic.questions.length),
+        timeLimit: config.mode === 'test' ? 30 : 0,
+        questions: selectedTopic.questions.map(q => ({
+          id: q.id,
+          topicId: q.topicId,
+          question: q.question,
+          options: q.options,
+          correctOption: q.correctOption,
+          explanation: q.explanation
+        }))
+      });
+    }
+    setQuizConfigVisible(false);
   };
 
   return (
@@ -63,6 +104,12 @@ export const HomeScreen: React.FC = () => {
           />
         </View>
       </ScrollView>
+      <QuizConfigModal
+        visible={isQuizConfigVisible}
+        onDismiss={() => setQuizConfigVisible(false)}
+        onStart={handleQuizStart}
+        questionCount={selectedTopic?.questions?.length || 0}
+      />
     </SafeAreaView>
   );
 }; 

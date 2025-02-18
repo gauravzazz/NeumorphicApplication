@@ -60,7 +60,7 @@ export const HotTopicCard: React.FC<HotTopicCardProps> = ({
             onPress={onPress}
           >
             <Text style={[styles.joinButtonText, { color: theme.colors.onPrimaryContainer }]}>
-              Join Discussion
+              Start Now
             </Text>
           </TouchableOpacity>
         </View>

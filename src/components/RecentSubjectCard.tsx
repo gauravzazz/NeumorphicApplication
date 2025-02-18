@@ -12,7 +12,9 @@ interface RecentSubjectCardProps {
   onPress: () => void;
 }
 
-const CARD_WIDTH = Dimensions.get('window').width * 0.7;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = SCREEN_WIDTH < 375 ? SCREEN_WIDTH * 0.85 : SCREEN_WIDTH * 0.7;
+const CARD_HEIGHT = SCREEN_WIDTH < 375 ? 140 : 160;
 
 export const RecentSubjectCard: React.FC<RecentSubjectCardProps> = ({
   title,
@@ -97,11 +99,12 @@ const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
     margin: 8,
+    maxWidth: 400,
   },
   card: {
-    padding: 16,
+    padding: SCREEN_WIDTH < 375 ? 12 : 16,
     borderRadius: 20,
-    height: 160,
+    height: CARD_HEIGHT,
   },
   contentRow: {
     flexDirection: 'row',
@@ -109,24 +112,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: SCREEN_WIDTH < 375 ? 40 : 48,
+    height: SCREEN_WIDTH < 375 ? 40 : 48,
+    borderRadius: SCREEN_WIDTH < 375 ? 12 : 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SCREEN_WIDTH < 375 ? 8 : 12,
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: SCREEN_WIDTH < 375 ? 16 : 18,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: SCREEN_WIDTH < 375 ? 2 : 4,
   },
   description: {
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: SCREEN_WIDTH < 375 ? 12 : 14,
+    lineHeight: SCREEN_WIDTH < 375 ? 16 : 18,
   },
   progressSection: {
     flexDirection: 'row',
@@ -149,15 +152,15 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontSize: 12,
+    fontSize: SCREEN_WIDTH < 375 ? 10 : 12,
   },
   continueButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingHorizontal: SCREEN_WIDTH < 375 ? 12 : 16,
+    paddingVertical: SCREEN_WIDTH < 375 ? 6 : 8,
+    borderRadius: SCREEN_WIDTH < 375 ? 10 : 12,
   },
   continueText: {
-    fontSize: 14,
+    fontSize: SCREEN_WIDTH < 375 ? 12 : 14,
     fontWeight: '600',
   },
 });

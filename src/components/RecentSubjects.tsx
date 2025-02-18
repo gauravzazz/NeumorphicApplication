@@ -38,7 +38,7 @@ export const RecentSubjects: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-        Recent Subjects
+        📚 Recent Subjects
       </Text>
       <ScrollView
         horizontal
@@ -62,17 +62,15 @@ export const RecentSubjects: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    margin: 16,
-    padding: 10,
+    marginVertical: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-    paddingHorizontal: 16,
+    marginLeft: 16,
   },
   scrollContent: {
     paddingHorizontal: 8,
-    paddingBottom: 16,
   },
 });

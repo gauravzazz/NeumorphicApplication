@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchQueryChange
   const navigation = useNavigation<DrawerNavigationProp<any>>();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerContent}>
         <Avatar size={48} onPress={() => navigation.openDrawer()} />
         <NotificationIcon size={48} unreadCount={3} onPress={() => {}} />
@@ -41,7 +41,6 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     gap: 20,
-    backgroundColor: '#E0E5EC',
   },
   headerContent: {
     flexDirection: 'row',

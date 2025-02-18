@@ -37,7 +37,7 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>Subjects</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>📖 Subjects</Text>
       <View style={styles.grid}>
         {visibleSubjects.map((subject) => (
           <View 
@@ -85,11 +85,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: CARD_MARGIN,
+    justifyContent: 'space-between',
+    marginHorizontal: -CARD_MARGIN/2,
   },
   cardContainer: {
-    width: (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARD_MARGIN * (CARDS_PER_ROW - 1))) / CARDS_PER_ROW,
+    width: (SCREEN_WIDTH - (2 * GRID_PADDING)) / CARDS_PER_ROW - CARD_MARGIN,
+    marginHorizontal: CARD_MARGIN/2,
     marginBottom: CARD_MARGIN,
   },
   seeMoreContainer: {
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     minWidth: 160,
   },
   seeMoreText: {
-    fontSize: 16,
+    textAlign: 'center',
     fontWeight: '600',
   },
 });
