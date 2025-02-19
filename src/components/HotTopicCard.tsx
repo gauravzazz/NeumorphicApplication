@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -12,7 +12,11 @@ interface HotTopicCardProps {
   onPress: () => void;
 }
 
-const CARD_WIDTH = Dimensions.get('window').width * 0.6;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const SCALE_FACTOR = Math.min(SCREEN_WIDTH / 375, SCREEN_HEIGHT / 812);
+const CARD_WIDTH = SCREEN_WIDTH < 375 ? SCREEN_WIDTH * 0.92 : SCREEN_WIDTH * 0.7;
+const CARD_HEIGHT = SCREEN_WIDTH < 375 ? Math.round(120 * SCALE_FACTOR) : 200;
+const getFontSize = (size: number) => Math.round(size * (SCREEN_WIDTH < 375 ? SCALE_FACTOR : 1));
 
 export const HotTopicCard: React.FC<HotTopicCardProps> = ({
   title,
@@ -25,7 +29,7 @@ export const HotTopicCard: React.FC<HotTopicCardProps> = ({
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <NeumorphicView style={styles.card}>
+      <NeumorphicView style={[styles.card, { height: CARD_HEIGHT }] as unknown as ViewStyle}>
         <View style={styles.header}>
           <View style={[styles.categoryBadge, { backgroundColor: theme.colors.primary }]}>
             <Text style={[styles.categoryText, { color: theme.colors.surface }]}>
@@ -33,7 +37,7 @@ export const HotTopicCard: React.FC<HotTopicCardProps> = ({
             </Text>
           </View>
           <View style={styles.participantsContainer}>
-            <Ionicons name="people" size={16} color={theme.colors.primary} />
+            <Ionicons name="people" size={getFontSize(16)} color={theme.colors.primary} />
             <Text style={[styles.participantsText, { color: theme.colors.onSurfaceVariant }]}>
               {participants}
             </Text>
@@ -43,7 +47,7 @@ export const HotTopicCard: React.FC<HotTopicCardProps> = ({
           <View style={styles.iconContainer}>
             <Ionicons 
               name={icon as keyof typeof Ionicons.glyphMap} 
-              size={36} 
+              size={getFontSize(36)} 
               color={theme.colors.primary} 
             />
           </View>
@@ -75,23 +79,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   card: {
-    padding: 16,
-    borderRadius: 20,
-    height: 200,
+    padding: Math.max(8, Math.round(16 * SCALE_FACTOR)),
+    borderRadius: Math.max(12, Math.round(20 * SCALE_FACTOR)),
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: SCREEN_WIDTH < 375 ? 8 : 16,
   },
   categoryBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: Math.max(6, Math.round(12 * SCALE_FACTOR)),
+    paddingVertical: Math.max(2, Math.round(4 * SCALE_FACTOR)),
+    borderRadius: Math.max(6, Math.round(12 * SCALE_FACTOR)),
   },
   categoryText: {
-    fontSize: 12,
+    fontSize: getFontSize(11),
     fontWeight: '600',
   },
   participantsContainer: {
@@ -99,35 +102,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   participantsText: {
-    fontSize: 12,
+    fontSize: getFontSize(11),
     marginLeft: 4,
   },
   contentContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 16,
+    marginVertical: Math.max(8, Math.round(16 * SCALE_FACTOR)),
   },
   iconContainer: {
-    marginBottom: 12,
+    marginBottom: SCREEN_WIDTH < 375 ? 6 : 12,
   },
   title: {
-    fontSize: 18,
+    fontSize: getFontSize(16),
     fontWeight: 'bold',
     textAlign: 'center',
+    paddingHorizontal: SCREEN_WIDTH < 375 ? 6 : 16,
   },
   footer: {
     marginTop: 'auto',
   },
   joinButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 16,
+    paddingHorizontal: Math.max(10, Math.round(20 * SCALE_FACTOR)),
+    paddingVertical: Math.max(6, Math.round(10 * SCALE_FACTOR)),
+    borderRadius: Math.max(8, Math.round(16 * SCALE_FACTOR)),
     alignItems: 'center',
     width: '100%',
   },
   joinButtonText: {
-    fontSize: 14,
+    fontSize: getFontSize(12),
     fontWeight: '600',
   },
 });

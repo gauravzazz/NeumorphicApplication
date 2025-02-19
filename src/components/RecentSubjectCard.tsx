@@ -13,8 +13,8 @@ interface RecentSubjectCardProps {
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = SCREEN_WIDTH < 375 ? SCREEN_WIDTH * 0.85 : SCREEN_WIDTH * 0.7;
-const CARD_HEIGHT = SCREEN_WIDTH < 375 ? 140 : 160;
+const CARD_WIDTH = SCREEN_WIDTH < 375 ? SCREEN_WIDTH * 0.9 : SCREEN_WIDTH * 0.7;
+const CARD_HEIGHT = SCREEN_WIDTH < 375 ? 130 : 160;
 
 export const RecentSubjectCard: React.FC<RecentSubjectCardProps> = ({
   title,
@@ -37,7 +37,7 @@ export const RecentSubjectCard: React.FC<RecentSubjectCardProps> = ({
           >
             <Ionicons 
               name={icon as keyof typeof Ionicons.glyphMap} 
-              size={28} 
+              size={SCREEN_WIDTH < 375 ? 24 : 28} 
               color={theme.colors.primary} 
             />
           </View>
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     maxWidth: 400,
   },
   card: {
-    padding: SCREEN_WIDTH < 375 ? 12 : 16,
-    borderRadius: 20,
+    padding: SCREEN_WIDTH < 375 ? 10 : 16,
+    borderRadius: SCREEN_WIDTH < 375 ? 16 : 20,
     height: CARD_HEIGHT,
   },
   contentRow: {
@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconContainer: {
-    width: SCREEN_WIDTH < 375 ? 40 : 48,
-    height: SCREEN_WIDTH < 375 ? 40 : 48,
-    borderRadius: SCREEN_WIDTH < 375 ? 12 : 16,
+    width: SCREEN_WIDTH < 375 ? 36 : 48,
+    height: SCREEN_WIDTH < 375 ? 36 : 48,
+    borderRadius: SCREEN_WIDTH < 375 ? 10 : 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SCREEN_WIDTH < 375 ? 8 : 12,
@@ -123,13 +123,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: SCREEN_WIDTH < 375 ? 16 : 18,
-    fontWeight: 'bold',
+    fontSize: SCREEN_WIDTH < 375 ? 15 : 18,
+    fontWeight: '600',
     marginBottom: SCREEN_WIDTH < 375 ? 2 : 4,
   },
   description: {
-    fontSize: SCREEN_WIDTH < 375 ? 12 : 14,
-    lineHeight: SCREEN_WIDTH < 375 ? 16 : 18,
+    fontSize: SCREEN_WIDTH < 375 ? 11 : 14,
+    lineHeight: SCREEN_WIDTH < 375 ? 15 : 18,
   },
   progressSection: {
     flexDirection: 'row',
@@ -152,7 +152,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontSize: SCREEN_WIDTH < 375 ? 10 : 12,
+    fontSize: SCREEN_WIDTH < 375 ? 9 : 12,
+    fontWeight: '400',
   },
   continueButton: {
     paddingHorizontal: SCREEN_WIDTH < 375 ? 12 : 16,
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: SCREEN_WIDTH < 375 ? 10 : 12,
   },
   continueText: {
-    fontSize: SCREEN_WIDTH < 375 ? 12 : 14,
-    fontWeight: '600',
+    fontSize: SCREEN_WIDTH < 375 ? 11 : 14,
+    fontWeight: '500',
   },
 });

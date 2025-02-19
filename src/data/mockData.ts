@@ -95,7 +95,7 @@ export const mockSubjects: Subject[] = [
     id: '2',
     name: 'Physics',
     description: 'Core physics concepts and quantum mechanics',
-    icon: 'atom-outline',
+    icon: 'flask-outline',
     progress: 60,
     topicsCount: 10,
     questionsCount: 120,
@@ -287,7 +287,7 @@ export const mockHotTopics = [
     id: '1',
     title: 'Understanding Quantum Mechanics',
     category: 'Physics',
-    icon: 'atom',
+    icon: 'flask',
     participants: 156,
   },
   {

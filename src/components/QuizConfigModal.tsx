@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView, NeumorphicButton } from './NeumorphicComponents';
@@ -13,6 +13,8 @@ interface QuizConfigModalProps {
   maxQuestions: number;
 }
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   visible,
   onClose,
@@ -21,11 +23,25 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   maxQuestions,
 }) => {
   const theme = useTheme();
-  const [questionCount, setQuestionCount] = useState(5);
+  const [questionCount, setQuestionCount] = useState<number>(5);
   const [mode, setMode] = useState<'test' | 'practice'>('practice');
+
+  const handleQuestionCountChange = (value: number) => {
+    setQuestionCount(Math.min(Math.max(Math.round(value), 5), maxQuestions));
+  };
+
+  const handleModeChange = (newMode: 'test' | 'practice') => {
+    setMode(newMode);
+  };
 
   const handleStartQuiz = () => {
     onStart(questionCount, mode);
+    onClose();
+  };
+
+  const handleModalClose = () => {
+    setQuestionCount(5);
+    setMode('practice');
     onClose();
   };
 
@@ -34,68 +50,92 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={handleModalClose}
+      statusBarTranslucent={true}
     >
-      <View style={styles.modalOverlay}>
-        <NeumorphicView style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>{topicTitle}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color={theme.colors.onSurface} />
-            </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}
+        activeOpacity={1}
+        onPress={handleModalClose}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={(e) => e.stopPropagation()}
+        >
+          <View style={styles.modalContainer}>
+            <NeumorphicView
+              style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
+                  {topicTitle}
+                </Text>
+                <TouchableOpacity
+                  onPress={handleModalClose}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Ionicons name="close" size={24} color={theme.colors.onSurface} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalBody}>
+                <View style={styles.sliderSection}>
+                  <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+                    Number of Questions: {questionCount}
+                  </Text>
+                  <Slider
+                    style={styles.slider}
+                    minimumValue={5}
+                    maximumValue={maxQuestions}
+                    step={1}
+                    value={questionCount}
+                    onValueChange={handleQuestionCountChange}
+                    minimumTrackTintColor={theme.colors.primary}
+                    maximumTrackTintColor={theme.colors.onSurfaceVariant}
+                    thumbTintColor={theme.colors.primary}
+                  />
+                </View>
+
+                <View style={styles.modeSection}>
+                  <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+                    Select Mode:
+                  </Text>
+                  <View style={styles.modeButtonsContainer}>
+                    <NeumorphicButton
+                      style={[styles.modeButton, { backgroundColor: mode === 'practice' ? '#E0E5EC' : '#F0F0F3' }]}
+                      onPress={() => handleModeChange('practice')}
+                    >
+                      <Text style={[styles.modeButtonText, { color: '#333' }]}>
+                        Practice
+                      </Text>
+                    </NeumorphicButton>
+
+                    <NeumorphicButton
+                      style={[styles.modeButton, { backgroundColor: mode === 'test' ? '#E0E5EC' : '#F0F0F3' }]}
+                      onPress={() => handleModeChange('test')}
+                    >
+                      <Text style={[styles.modeButtonText, { color: '#333' }]}>
+                        Test
+                      </Text>
+                    </NeumorphicButton>
+                  </View>
+                </View>
+
+                <View style={styles.startButtonContainer}>
+                  <NeumorphicButton
+                    style={[styles.startButton, { backgroundColor: '#F0F0F3' }]}
+                    onPress={handleStartQuiz}
+                  >
+                    <Text style={[styles.startButtonText, { color: '#333' }]}>
+                      Start Quiz
+                    </Text>
+                  </NeumorphicButton>
+                </View>
+              </View>
+            </NeumorphicView>
           </View>
-
-          <View style={styles.modalBody}>
-            <Text style={[styles.sliderLabel, { color: theme.colors.onSurface }]}>
-              Number of Questions: {questionCount}
-            </Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={5}
-              maximumValue={maxQuestions}
-              step={1}
-              value={questionCount}
-              onValueChange={setQuestionCount}
-              minimumTrackTintColor={theme.colors.primary}
-              maximumTrackTintColor={theme.colors.onSurfaceVariant}
-              thumbTintColor={theme.colors.primary}
-            />
-
-            <Text style={[styles.modeLabel, { color: theme.colors.onSurface }]}>Select Mode:</Text>
-            <View style={styles.modeContainer}>
-              <NeumorphicButton
-                style={[
-                  styles.modeButton,
-                  mode === 'practice' && { backgroundColor: theme.colors.primary }
-                ]}
-                onPress={() => setMode('practice')}
-                text="Practice"
-                textStyle={{
-                  color: mode === 'practice' ? theme.colors.onPrimary : theme.colors.onSurface
-                }}
-              />
-              <NeumorphicButton
-                style={[
-                  styles.modeButton,
-                  mode === 'test' && { backgroundColor: theme.colors.primary }
-                ]}
-                onPress={() => setMode('test')}
-                text="Test"
-                textStyle={{
-                  color: mode === 'test' ? theme.colors.onPrimary : theme.colors.onSurface
-                }}
-              />
-            </View>
-
-            <NeumorphicButton
-              style={styles.startButton}
-              onPress={handleStartQuiz}
-              text="Start Quiz"
-              textStyle={{ color: theme.colors.onPrimary }}
-            />
-          </View>
-        </NeumorphicView>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 };
@@ -103,13 +143,16 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: SCREEN_WIDTH * 0.9,
+    maxWidth: 400,
+    padding: 16,
   },
   modalContent: {
-    width: '90%',
-    maxWidth: 400,
     borderRadius: 24,
     padding: 24,
   },
@@ -122,36 +165,54 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    flex: 1,
+    marginRight: 16,
   },
   modalBody: {
-    gap: 20,
+    gap: 24,
   },
-  sliderLabel: {
+  sliderSection: {
+    marginBottom: 8,
+  },
+  modeSection: {
+    marginBottom: 16,
+  },
+  sectionLabel: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 12,
   },
   slider: {
     width: '100%',
     height: 40,
   },
-  modeLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  modeContainer: {
+  modeButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    gap: 16,
   },
   modeButton: {
     flex: 1,
-    marginHorizontal: 8,
     paddingVertical: 12,
   },
-  startButton: {
+  modeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  startButtonContainer: {
+    alignItems: 'center',
+    width: '100%',
     marginTop: 8,
-    backgroundColor: '#6200ee',
+  },
+  startButton: {
+    width: '100%',
     paddingVertical: 12,
+    backgroundColor: '#F0F0F3',
+  },
+  startButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

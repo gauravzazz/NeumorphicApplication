@@ -11,9 +11,25 @@ import { NotificationIcon } from './NotificationIcon';
 interface HeaderProps {
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
+  notifications?: Array<{
+    id: string;
+    title: string;
+    message: string;
+    timestamp: string;
+    read: boolean;
+    type?: 'info' | 'success' | 'warning' | 'error';
+  }>;
+  onNotificationPress?: (notification: any) => void;
+  onClearAllNotifications?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchQueryChange }) => {
+export const Header: React.FC<HeaderProps> = ({
+  searchQuery,
+  onSearchQueryChange,
+  notifications = [],
+  onNotificationPress = () => {},
+  onClearAllNotifications = () => {},
+}) => {
   const theme = useTheme();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
 
@@ -21,7 +37,13 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchQueryChange
     <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerContent}>
         <Avatar size={48} onPress={() => navigation.openDrawer()} />
-        <NotificationIcon size={48} unreadCount={3} onPress={() => {}} />
+        <NotificationIcon
+          size={48}
+          unreadCount={notifications.filter(n => !n.read).length}
+          notifications={notifications}
+          onNotificationPress={onNotificationPress}
+          onClearAll={onClearAllNotifications}
+        />
       </View>
       <NeumorphicView style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={theme.colors.onSurfaceVariant} />

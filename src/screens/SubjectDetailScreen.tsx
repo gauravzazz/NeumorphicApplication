@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, ScrollView, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { RecentTopics } from '../components/RecentTopics';
 import { SubjectTopicsGrid } from '../components/SubjectTopicsGrid';
 import { Subject } from '../types';
 import { mockHotTopics } from '../data/mockData';
+import { addRecentSubject } from '../utils/recentSubjectsStorage';
 
 type SubjectDetailRouteProp = RouteProp<{ SubjectDetail: { subject: Subject } }, 'SubjectDetail'>;
 
@@ -17,6 +18,11 @@ export const SubjectDetailScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<SubjectDetailRouteProp>();
   const { subject } = route.params;
+
+  useEffect(() => {
+    // Add the subject to recent subjects when the screen is opened
+    addRecentSubject(subject);
+  }, [subject]);
 
   const handleTopicPress = (topicId: string, questionCount?: number, mode?: 'test' | 'practice') => {
     if (!topicId) {

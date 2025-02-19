@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -19,9 +19,9 @@ const DrawerItem: React.FC<DrawerItemProps> = ({ label, icon, onPress, isActive 
     <TouchableOpacity onPress={onPress}>
       <NeumorphicView
         style={[
-          styles.drawerItem,
-          isActive && { backgroundColor: `${theme.colors.primary}10` },
-        ]}
+                  styles.drawerItem,
+                  isActive && { backgroundColor: `${theme.colors.primary}10` },
+              ] as unknown as ViewStyle}
       >
         <Ionicons
           name={icon as keyof typeof Ionicons.glyphMap}

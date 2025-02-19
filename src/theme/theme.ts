@@ -7,6 +7,9 @@ export interface CustomTheme extends MD3Theme {
     shadowDark: string;
     highlightLight: string;
     highlightDark: string;
+    success: string;
+    warning: string;
+    info: string;
   };
 }
 
@@ -23,6 +26,9 @@ export const lightTheme: CustomTheme = {
     onSurfaceVariant: '#666666',
     backdrop: 'rgba(0, 0, 0, 0.5)',
     error: '#f50057',
+    success: '#4caf50',
+    warning: '#ff9800',
+    info: '#2196f3',
     shadowLight: '#FFFFFF',
     shadowDark: '#A3B1C6',
     highlightLight: 'rgba(255, 255, 255, 0.3)',
@@ -43,6 +49,9 @@ export const darkTheme: CustomTheme = {
     onSurfaceVariant: '#999999',
     backdrop: 'rgba(0, 0, 0, 0.5)',
     error: '#cf6679',
+    success: '#81c784',
+    warning: '#ffb74d',
+    info: '#64b5f6',
     shadowLight: '#353B46',
     shadowDark: '#23282F',
     highlightLight: 'rgba(255, 255, 255, 0.05)',

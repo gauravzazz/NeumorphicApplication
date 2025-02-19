@@ -44,7 +44,7 @@ export interface NotificationItem {
   message: string;
   timestamp: string;
   read: boolean;
-  type: 'update' | 'reminder' | 'achievement';
+  type: 'update' | 'reminder' | 'achievement' | 'success'| 'info' | 'warning' |'error';
 }
 
 export interface Settings {

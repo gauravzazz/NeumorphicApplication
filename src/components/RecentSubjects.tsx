@@ -1,39 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RecentSubjectCard } from './RecentSubjectCard';
-import { mockSubjects } from '../data/mockData';
+import { getRecentSubjects } from '../utils/recentSubjectsStorage';
+import { Subject } from '../types';
 
-const recentSubjects = [
-  {
-    id: '1',
-    name: mockSubjects[0].name,
-    description: mockSubjects[0].description,
-    icon: mockSubjects[0].icon,
-    progress: mockSubjects[0].progress,
-    topicsCount: mockSubjects[0].topicsCount,
-    questionsCount: mockSubjects[0].questionsCount,
-  },
-  {
-    id: '2',
-    name: mockSubjects[1].name,
-    description: mockSubjects[1].description,
-    icon: mockSubjects[1].icon,
-    progress: mockSubjects[1].progress,
-    topicsCount: mockSubjects[1].topicsCount,
-    questionsCount: mockSubjects[1].questionsCount,
-  },
-];
-
-export const RecentSubjects: React.FC = () => {
+export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const theme = useTheme();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const [recentSubjects, setRecentSubjects] = useState<Subject[]>([]);
 
-  const handleSubjectPress = (subject: any) => {
+  useFocusEffect(
+    React.useCallback(() => {
+      loadRecentSubjects();
+    }, [])
+  );
+
+  const loadRecentSubjects = async () => {
+    const subjects = await getRecentSubjects();
+    setRecentSubjects(subjects);
+  };
+
+  const handleSubjectPress = (subject: Subject) => {
     navigation.navigate('SubjectDetail', { subject });
   };
+
+  const filteredSubjects = recentSubjects.filter(subject => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      subject.name.toLowerCase().includes(query) ||
+      subject.description.toLowerCase().includes(query)
+    );
+  });
+
+  if (filteredSubjects.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
@@ -45,7 +50,7 @@ export const RecentSubjects: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {recentSubjects.map((subject) => (
+        {filteredSubjects.map((subject) => (
           <RecentSubjectCard
             key={subject.id}
             title={subject.name}

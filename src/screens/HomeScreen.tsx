@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TextInput, FlatList, Text } from 'react-native';
-import { useTheme, IconButton } from 'react-native-paper';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import { HotTopics } from '../components/HotTopics';
 import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
 import { QuizConfigModal } from '../components/QuizConfigModal';
+import { dummyNotifications } from '../data/notificationData';
 
 export const HomeScreen: React.FC = () => {
   const theme = useTheme();
@@ -64,7 +65,7 @@ export const HomeScreen: React.FC = () => {
         mode: config.mode,
         questionCount: Math.min(config.questionCount, selectedTopic.questions.length),
         timeLimit: config.mode === 'test' ? 30 : 0,
-        questions: selectedTopic.questions.map(q => ({
+        questions: selectedTopic.questions.map((q: { id: string; topicId: string; question: string; options: string[]; correctOption: number; explanation: string }) => ({
           id: q.id,
           topicId: q.topicId,
           question: q.question,
@@ -77,28 +78,68 @@ export const HomeScreen: React.FC = () => {
     setQuizConfigVisible(false);
   };
 
+  function handleNotificationPress(notification: any): void {
+    throw new Error('Function not implemented.');
+  }
+
+  function handleClearAllNotifications(): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerContainer}>
-        <Header searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} />
+        <Header
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        notifications={dummyNotifications}
+        onNotificationPress={handleNotificationPress}
+        onClearAllNotifications={handleClearAllNotifications}
+      />
       </View>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.contentContainer}>
-          <RecentSubjects />
-          <HotTopics topics={mockHotTopics} onTopicPress={handleTopicPress} />
+          <RecentSubjects searchQuery={searchQuery} />
+          <HotTopics 
+            topics={mockHotTopics.filter(topic => {
+              if (!searchQuery) return true;
+              const query = searchQuery.toLowerCase();
+              return (
+                topic.title.toLowerCase().includes(query) ||
+                topic.category.toLowerCase().includes(query)
+              );
+            })} 
+            onTopicPress={handleTopicPress} 
+          />
           <SubjectGrid
-            subjects={mockSubjects}
+            subjects={mockSubjects.filter(subject => {
+              if (!searchQuery) return true;
+              const query = searchQuery.toLowerCase();
+              return (
+                subject.name.toLowerCase().includes(query) ||
+                subject.description.toLowerCase().includes(query)
+              );
+            })}
             onSubjectPress={handleSubjectPress}
             onSeeMorePress={handleSeeMorePress}
           />
           <TopicGrid
-            topics={mockHotTopics.map(topic => ({
-              id: topic.id,
-              name: topic.title,
-              description: topic.category,
-              questionsCount: topic.participants,
-              icon: topic.icon
-            }))}
+            topics={mockHotTopics
+              .filter(topic => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
+                return (
+                  topic.title.toLowerCase().includes(query) ||
+                  topic.category.toLowerCase().includes(query)
+                );
+              })
+              .map(topic => ({
+                id: topic.id,
+                name: topic.title,
+                description: topic.category,
+                questionsCount: topic.participants,
+                icon: topic.icon
+              }))}
             onTopicPress={handleTopicGridPress}
             onSeeMorePress={handleSeeMorePress}
           />

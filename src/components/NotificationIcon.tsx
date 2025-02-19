@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -14,7 +14,7 @@ interface NotificationIconProps {
 export const NotificationIcon: React.FC<NotificationIconProps> = ({
   size = 40,
   unreadCount = 0,
-  onPress,
+  onPress = () => {},
 }) => {
   const theme = useTheme() as CustomTheme;
 
@@ -28,7 +28,12 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
             height: size,
             borderRadius: size / 2,
             backgroundColor: theme.colors.primary,
-          },
+            shadowColor: theme.colors.primary,
+            shadowOpacity: 0.3,
+            shadowOffset: { width: 3, height: 3 },
+            shadowRadius: 6,
+            elevation: 8
+          } as ViewStyle,
         ]}
       >
         <Ionicons

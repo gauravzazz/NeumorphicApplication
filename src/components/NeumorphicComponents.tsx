@@ -44,6 +44,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
   iconPosition = 'left',
 }) => {
   const theme = useTheme<CustomTheme>();
+  const [isPressed, setIsPressed] = React.useState(false);
 
   const renderContent = () => {
     if (!text && !icon) return null;
@@ -53,7 +54,13 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       <Text
         style={[
           styles.buttonText,
-          { color: theme.colors.onSurface },
+          { 
+            color: theme.colors.primary,
+            textShadowColor: theme.colors.shadowDark,
+            textShadowOffset: { width: 1, height: 1 },
+            textShadowRadius: 2,
+            opacity: isPressed ? 0.8 : 1
+          },
           textStyle,
         ]}
       >
@@ -65,7 +72,13 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       <Text
         style={[
           styles.buttonText,
-          { color: theme.colors.onSurface },
+          { 
+            color: theme.colors.primary,
+            textShadowColor: theme.colors.shadowDark,
+            textShadowOffset: { width: 1, height: 1 },
+            textShadowRadius: 2,
+            opacity: isPressed ? 0.8 : 1
+          },
           textStyle,
         ]}
       >
@@ -74,7 +87,15 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
     );
 
     return (
-      <View style={[styles.buttonContent, { flexDirection: iconPosition === 'left' ? 'row' : 'row-reverse' }]}>
+      <View 
+        style={[
+          styles.buttonContent, 
+          { 
+            flexDirection: iconPosition === 'left' ? 'row' : 'row-reverse',
+            opacity: isPressed ? 0.8 : 1
+          }
+        ]}
+      >
         {icon}
         {textComponent}
       </View>
@@ -84,11 +105,26 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      activeOpacity={1}
       style={[
         styles.neumorphicButton,
         {
           backgroundColor: theme.colors.background,
+          borderWidth: 1,
+          borderColor: isPressed ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)',
           shadowColor: theme.colors.shadowDark,
+          transform: [{ scale: isPressed ? 0.98 : 1 }],
+        },
+        isPressed && {
+          shadowOffset: {
+            width: 2,
+            height: 2,
+          },
+          shadowOpacity: 0.2,
+          shadowRadius: 2,
+          elevation: 2,
         },
         style,
       ]}
@@ -96,6 +132,7 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       {renderContent()}
     </TouchableOpacity>
   );
+
 };
 
 const styles = StyleSheet.create({

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -18,6 +18,16 @@ interface TopicGridProps {
   onSeeMorePress: () => void;
 }
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const GRID_PADDING = 16;
+const CARD_MARGIN = 12;
+const CARDS_PER_ROW = 3;
+
+const getFontSize = (baseSize: number) => {
+  const scaleFactor = Math.min(SCREEN_WIDTH / 375, 1.2); // 375 is base iPhone width
+  return Math.round(baseSize * scaleFactor);
+};
+
 export const TopicGrid: React.FC<TopicGridProps> = ({
   topics,
   onTopicPress,
@@ -27,16 +37,18 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
   const [showAll, setShowAll] = useState(false);
   const visibleTopics = showAll ? topics : topics.slice(0, 9);
 
+  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARDS_PER_ROW - 1) * CARD_MARGIN) / CARDS_PER_ROW;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.onSurface }]}>⭐ Popular Topics</Text>
+        <Text style={[styles.title, { color: theme.colors.onSurface, fontSize: getFontSize(20) }]}>⭐ Popular Topics</Text>
       </View>
       <View style={styles.grid}>
         {visibleTopics.map((topic) => (
           <TouchableOpacity
             key={topic.id}
-            style={styles.gridItem}
+            style={[styles.gridItem, { width: cardWidth }]}
             onPress={() => onTopicPress(topic.id)}
           >
             <NeumorphicView style={styles.topicCard}>
@@ -48,18 +60,30 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
               >
                 <Ionicons 
                   name={topic.icon as keyof typeof Ionicons.glyphMap} 
-                  size={24} 
+                  size={getFontSize(24)} 
                   color={theme.colors.primary} 
                 />
               </View>
               <Text 
-                style={[styles.topicName, { color: theme.colors.onSurface }]}
-                numberOfLines={1}
+                style={[
+                  styles.topicName, 
+                  { 
+                    color: theme.colors.onSurface,
+                    fontSize: getFontSize(14)
+                  }
+                ]}
+                numberOfLines={2}
               >
                 {topic.name}
               </Text>
               <Text 
-                style={[styles.questionsCount, { color: theme.colors.onSurfaceVariant }]}
+                style={[
+                  styles.questionsCount, 
+                  { 
+                    color: theme.colors.onSurfaceVariant,
+                    fontSize: getFontSize(12)
+                  }
+                ]}
                 numberOfLines={1}
               >
                 {topic.questionsCount} Questions
@@ -77,7 +101,15 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
           style={styles.seeMoreContainer}
         >
           <NeumorphicView style={styles.seeMoreButton}>
-            <Text style={[styles.seeMoreText, { color: theme.colors.primary }]}>
+            <Text 
+              style={[
+                styles.seeMoreText, 
+                { 
+                  color: theme.colors.primary,
+                  fontSize: getFontSize(14)
+                }
+              ]}
+            >
               {showAll ? 'Show Less' : `Show More (${topics.length - 9} more)`}
             </Text>
           </NeumorphicView>
@@ -89,23 +121,21 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: GRID_PADDING,
   },
   header: {
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
     fontWeight: 'bold',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: CARD_MARGIN,
     marginBottom: 16,
   },
   gridItem: {
-    width: '31%',
     aspectRatio: 0.9,
   },
   topicCard: {
@@ -124,13 +154,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   topicName: {
-    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 4,
   },
   questionsCount: {
-    fontSize: 12,
     textAlign: 'center',
   },
   seeMoreContainer: {
@@ -146,6 +174,5 @@ const styles = StyleSheet.create({
   seeMoreText: {
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 14,
   },
 });

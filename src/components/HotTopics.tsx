@@ -33,10 +33,14 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
     }
   };
 
-  const handleQuizStart = (config: { mode: 'test' | 'practice', questionCount: number }) => {
+  const handleQuizStart = (questionCount: number, mode: 'test' | 'practice') => {
     if (selectedTopic) {
-      onTopicPress(selectedTopic.id, config);
+      onTopicPress(selectedTopic.id, { mode, questionCount });
     }
+    setQuizConfigVisible(false);
+  };
+
+  const handleModalClose = () => {
     setQuizConfigVisible(false);
   };
 
@@ -61,12 +65,15 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
           />
         ))}
       </ScrollView>
-      <QuizConfigModal
-        visible={isQuizConfigVisible}
-        onDismiss={() => setQuizConfigVisible(false)}
-        onStart={handleQuizStart}
-        questionCount={selectedTopic?.questions?.length || 0}
-      />
+      {selectedTopic && (
+        <QuizConfigModal
+          visible={isQuizConfigVisible}
+          onClose={handleModalClose}
+          onStart={handleQuizStart}
+          topicTitle={selectedTopic.title}
+          maxQuestions={selectedTopic.questions?.length || 0}
+        />
+      )}
     </View>
   );
 };

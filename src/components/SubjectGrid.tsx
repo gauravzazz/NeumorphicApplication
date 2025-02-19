@@ -19,8 +19,8 @@ interface SubjectGridProps {
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const GRID_PADDING = 16;
-const CARD_MARGIN = 8;
+const GRID_PADDING = 20;
+const CARD_MARGIN = 10;
 const CARDS_PER_ROW = 2;
 const INITIAL_VISIBLE_SUBJECTS = 6;
 
@@ -33,7 +33,7 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
   const [showAll, setShowAll] = useState(false);
   const visibleSubjects = showAll ? subjects : subjects.slice(0, INITIAL_VISIBLE_SUBJECTS);
 
-  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARD_MARGIN * (CARDS_PER_ROW - 1))) / CARDS_PER_ROW;
+  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARDS_PER_ROW - 1) * CARD_MARGIN * 2) / CARDS_PER_ROW;
 
   return (
     <View style={styles.container}>
@@ -76,6 +76,7 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
 const styles = StyleSheet.create({
   container: {
     padding: GRID_PADDING,
+    width: '100%',
   },
   sectionTitle: {
     fontSize: 24,
@@ -86,12 +87,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginHorizontal: -CARD_MARGIN/2,
+    width: '100%',
   },
   cardContainer: {
-    width: (SCREEN_WIDTH - (2 * GRID_PADDING)) / CARDS_PER_ROW - CARD_MARGIN,
-    marginHorizontal: CARD_MARGIN/2,
-    marginBottom: CARD_MARGIN,
+    width: '48%',
+    marginBottom: CARD_MARGIN * 2,
   },
   seeMoreContainer: {
     width: '100%',
