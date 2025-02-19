@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-nati
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
+import { typography } from '../theme/typography';
 
 interface SubjectCardProps {
   title: string;
@@ -32,9 +33,9 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={getFontSize(32)} color={theme.colors.primary} />
         </View>
         <View style={styles.contentContainer}>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]} numberOfLines={1}>{title}</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }, typography.titleLarge]} numberOfLines={1}>{title}</Text>
           <Text 
-            style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
+            style={[styles.description, { color: theme.colors.onSurfaceVariant }, typography.bodyMedium]}
             numberOfLines={2}
           >
             {description}
@@ -49,7 +50,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
                 }
               ]}
             />
-            <Text style={[styles.progressText, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style={[styles.progressText, { color: theme.colors.onSurfaceVariant }, typography.labelSmall]}>
               {progress}% Complete
             </Text>
           </View>

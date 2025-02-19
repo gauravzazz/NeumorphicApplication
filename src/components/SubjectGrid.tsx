@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, useWindowDimensions, FlatList } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SubjectCard } from './SubjectCard';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -18,10 +18,6 @@ interface SubjectGridProps {
   onSeeMorePress: () => void;
 }
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const GRID_PADDING = 20;
-const CARD_MARGIN = 10;
-const CARDS_PER_ROW = 2;
 const INITIAL_VISIBLE_SUBJECTS = 6;
 
 export const SubjectGrid: React.FC<SubjectGridProps> = ({
@@ -30,32 +26,33 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
   onSeeMorePress,
 }) => {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
   const [showAll, setShowAll] = useState(false);
+  const numColumns = width > 600 ? 3 : 2;
   const visibleSubjects = showAll ? subjects : subjects.slice(0, INITIAL_VISIBLE_SUBJECTS);
-
-  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARDS_PER_ROW - 1) * CARD_MARGIN * 2) / CARDS_PER_ROW;
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>📖 Subjects</Text>
-      <View style={styles.grid}>
-        {visibleSubjects.map((subject) => (
-          <View 
-            key={subject.id} 
-            style={[styles.cardContainer, { width: cardWidth }]}
-          >
+      <FlatList
+        data={visibleSubjects}
+        keyExtractor={(item) => item.id}
+        numColumns={numColumns}
+        renderItem={({ item }) => (
+          <View style={[styles.cardContainer, { flex: 1 / numColumns }]}> 
             <SubjectCard
-              title={subject.name}
-              description={subject.description}
-              icon={subject.icon}
-              progress={subject.progress}
-              onPress={() => onSubjectPress(subject)}
+              title={item.name}
+              description={item.description}
+              icon={item.icon}
+              progress={item.progress}
+              onPress={() => onSubjectPress(item)}
             />
           </View>
-        ))}
-      </View>
+        )}
+        columnWrapperStyle={numColumns > 1 ? styles.row : null}
+      />
       {subjects.length > INITIAL_VISIBLE_SUBJECTS && (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => {
             setShowAll(!showAll);
             onSeeMorePress();
@@ -63,7 +60,7 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
           style={styles.seeMoreContainer}
         >
           <NeumorphicView style={styles.seeMoreButton}>
-            <Text style={[styles.seeMoreText, { color: theme.colors.primary }]}>
+            <Text style={[styles.seeMoreText, { color: theme.colors.primary }]}> 
               {showAll ? 'Show Less' : `Show More (${subjects.length - INITIAL_VISIBLE_SUBJECTS} more)`}
             </Text>
           </NeumorphicView>
@@ -75,7 +72,7 @@ export const SubjectGrid: React.FC<SubjectGridProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: GRID_PADDING,
+    padding: 20,
     width: '100%',
   },
   sectionTitle: {
@@ -83,15 +80,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  row: {
     justifyContent: 'space-between',
-    width: '100%',
   },
   cardContainer: {
-    width: '48%',
-    marginBottom: CARD_MARGIN * 2,
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
   seeMoreContainer: {
     width: '100%',

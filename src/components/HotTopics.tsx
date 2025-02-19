@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, FlatList, useWindowDimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { scale, spacing } from '../theme/scaling';
 import { getTextStyle } from '../theme/typography';
 import { HotTopicCard } from './HotTopicCard';
 import { QuizConfigModal } from './QuizConfigModal';
-import { mockHotTopics } from '../data/mockData';
 
 interface HotTopic {
   id: string;
@@ -23,6 +22,7 @@ interface HotTopicsProps {
 
 export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) => {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
   const [selectedTopic, setSelectedTopic] = useState<HotTopic | null>(null);
   const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
 
@@ -48,25 +48,23 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-        🔥 Hot Topics
-      </Text>
-      <ScrollView
+      <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>🔥 Hot Topics</Text>
+      <FlatList
+        data={topics}
         horizontal
+        keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {topics.map((topic) => (
+        contentContainerStyle={[styles.scrollContent, { minWidth: width }]}
+        renderItem={({ item }) => (
           <HotTopicCard
-            key={topic.id}
-            title={topic.title}
-            category={topic.category}
-            icon={topic.icon}
-            participants={topic.participants}
-            onPress={() => handleTopicPress(topic)}
+            title={item.title}
+            category={item.category}
+            icon={item.icon}
+            participants={item.participants}
+            onPress={() => handleTopicPress(item)}
           />
-        ))}
-      </ScrollView>
+        )}
+      />
       {selectedTopic && (
         <QuizConfigModal
           visible={isQuizConfigVisible}

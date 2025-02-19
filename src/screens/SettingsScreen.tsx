@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../theme/ThemeContext';
 import { NeumorphicView } from '../components/NeumorphicComponents';
-import { QuizConfigModal } from '../components/QuizConfigModal';
 import { TouchableOpacity, Modal } from 'react-native';
 import Slider from '@react-native-community/slider';
 

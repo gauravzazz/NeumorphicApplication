@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { NeumorphicView } from './NeumorphicComponents';
 import { CustomTheme } from '../theme/theme';
@@ -11,11 +11,15 @@ interface AvatarProps {
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
-  size = 40,
+  size,
   imageUrl,
   onPress,
 }) => {
   const theme = useTheme() as CustomTheme;
+  const { width, height } = Dimensions.get('window');
+
+  // Calculate responsive size based on screen width
+  const responsiveSize = size ? PixelRatio.roundToNearestPixel(size) : PixelRatio.roundToNearestPixel(width * 0.1);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
@@ -23,9 +27,9 @@ export const Avatar: React.FC<AvatarProps> = ({
         style={[
           styles.container,
           {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
+            width: responsiveSize,
+            height: responsiveSize,
+            borderRadius: responsiveSize / 2,
             backgroundColor: theme.colors.primary,
           },
         ]}
@@ -37,9 +41,9 @@ export const Avatar: React.FC<AvatarProps> = ({
               : require('../../assets/default-avatar.jpeg')
           }
           style={{
-            width: size - 16,
-            height: size - 16,
-            borderRadius: (size - 16) / 2,
+            width: responsiveSize - 16,
+            height: responsiveSize - 16,
+            borderRadius: (responsiveSize - 16) / 2,
           }}
         />
       </NeumorphicView>

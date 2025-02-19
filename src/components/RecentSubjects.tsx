@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -10,6 +10,7 @@ import { Subject } from '../types';
 export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const theme = useTheme();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const { width } = useWindowDimensions();
   const [recentSubjects, setRecentSubjects] = useState<Subject[]>([]);
 
   useFocusEffect(
@@ -41,14 +42,12 @@ export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-        📚 Recent Subjects
-      </Text>
+    <View style={[styles.container, { paddingHorizontal: width > 600 ? 24 : 16 }]}> 
+      <Text style={[styles.title, { color: theme.colors.onSurface }]}>📚 Recent Subjects</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: width > 600 ? 16 : 8 }]}
       >
         {filteredSubjects.map((subject) => (
           <RecentSubjectCard
@@ -73,9 +72,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-    marginLeft: 16,
   },
   scrollContent: {
-    paddingHorizontal: 8,
+    flexDirection: 'row',
   },
 });

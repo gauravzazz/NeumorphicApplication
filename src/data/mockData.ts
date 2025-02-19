@@ -186,7 +186,7 @@ export const mockSubjects: Subject[] = [
 export const mockHotTopics = [
   {
     id: 'topic4',
-    title: 'Advanced Algorithms',
+    title: 'Algorithms',
     category: 'Computer Science',
     icon: 'code',
     participants: 450,

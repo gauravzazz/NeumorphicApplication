@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions } from
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
+import { typography } from '../theme/typography';
 
 interface Topic {
   id: string;
@@ -21,10 +22,16 @@ interface TopicGridProps {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_PADDING = 16;
 const CARD_MARGIN = 12;
-const CARDS_PER_ROW = 3;
+
+// Dynamically calculate columns based on screen width
+const getColumns = () => {
+  if (SCREEN_WIDTH >= 768) return 4; // Tablets
+  if (SCREEN_WIDTH >= 480) return 3; // Large phones
+  return 2; // Small phones
+};
 
 const getFontSize = (baseSize: number) => {
-  const scaleFactor = Math.min(SCREEN_WIDTH / 375, 1.2); // 375 is base iPhone width
+  const scaleFactor = Math.min(SCREEN_WIDTH / 375, 1.2); // Base on iPhone 375 width
   return Math.round(baseSize * scaleFactor);
 };
 
@@ -37,14 +44,19 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
   const [showAll, setShowAll] = useState(false);
   const visibleTopics = showAll ? topics : topics.slice(0, 9);
 
-  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (CARDS_PER_ROW - 1) * CARD_MARGIN) / CARDS_PER_ROW;
+  const columns = getColumns();
+  const cardWidth = (SCREEN_WIDTH - (2 * GRID_PADDING) - (columns - 1) * CARD_MARGIN) / columns;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.onSurface, fontSize: getFontSize(20) }]}>⭐ Popular Topics</Text>
+        <Text 
+          style={[styles.title, { color: theme.colors.onSurface }, typography.headlineMedium]}
+        >
+          ⭐ Popular Topics
+        </Text>
       </View>
-      <View style={styles.grid}>
+      <View style={[styles.grid, { justifyContent: columns === 2 ? 'center' : 'flex-start' }]}>
         {visibleTopics.map((topic) => (
           <TouchableOpacity
             key={topic.id}
@@ -67,10 +79,8 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
               <Text 
                 style={[
                   styles.topicName, 
-                  { 
-                    color: theme.colors.onSurface,
-                    fontSize: getFontSize(14)
-                  }
+                  { color: theme.colors.onSurface },
+                  typography.titleSmall
                 ]}
                 numberOfLines={2}
               >
@@ -79,10 +89,8 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
               <Text 
                 style={[
                   styles.questionsCount, 
-                  { 
-                    color: theme.colors.onSurfaceVariant,
-                    fontSize: getFontSize(12)
-                  }
+                  { color: theme.colors.onSurfaceVariant },
+                  typography.labelMedium
                 ]}
                 numberOfLines={1}
               >
@@ -104,10 +112,8 @@ export const TopicGrid: React.FC<TopicGridProps> = ({
             <Text 
               style={[
                 styles.seeMoreText, 
-                { 
-                  color: theme.colors.primary,
-                  fontSize: getFontSize(14)
-                }
+                { color: theme.colors.primary },
+                typography.labelLarge
               ]}
             >
               {showAll ? 'Show Less' : `Show More (${topics.length - 9} more)`}
@@ -128,6 +134,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   grid: {
     flexDirection: 'row',
@@ -136,19 +143,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   gridItem: {
-    aspectRatio: 0.9,
+    aspectRatio: 1, // Ensures square-like items
   },
   topicCard: {
     flex: 1,
-    padding: 12,
+    padding: 14,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -176,3 +183,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+

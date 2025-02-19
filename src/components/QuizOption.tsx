@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { NeumorphicButton } from './NeumorphicComponents';
+import { typography } from '../theme/typography';
 
 interface QuizOptionProps {
   option: string;
@@ -48,6 +49,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
             style={[
               styles.optionLabelText,
               { color: isSelected ? theme.colors.primary : theme.colors.onSurface },
+              typography.titleMedium
             ]}
           >
             {String.fromCharCode(65 + index)}
@@ -57,6 +59,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
           style={[
             styles.optionText,
             { color: isSelected ? theme.colors.background : theme.colors.onSurface },
+            typography.titleMedium
           ]}
         >
           {option}
