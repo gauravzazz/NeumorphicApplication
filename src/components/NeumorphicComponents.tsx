@@ -1,16 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { CustomTheme } from '../theme/theme';
 
 interface NeumorphicViewProps {
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
 interface NeumorphicButtonProps extends NeumorphicViewProps {
   onPress: () => void;
-  textStyle?: TextStyle;
+  textStyle?: StyleProp<TextStyle>;
   text?: string;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
@@ -132,7 +132,6 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
       {renderContent()}
     </TouchableOpacity>
   );
-
 };
 
 const styles = StyleSheet.create({

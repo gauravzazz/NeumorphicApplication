@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { scale, spacing } from '../theme/scaling';
+import { getTextStyle } from '../theme/typography';
 import { HotTopicCard } from './HotTopicCard';
 import { QuizConfigModal } from './QuizConfigModal';
 import { mockHotTopics } from '../data/mockData';
@@ -80,15 +82,14 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: spacing.md,
   },
   sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    marginLeft: 16,
+    ...getTextStyle('headlineSmall'),
+    marginBottom: spacing.md,
+    marginLeft: spacing.md,
   },
   scrollContent: {
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.xs,
   },
 });

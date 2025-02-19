@@ -28,11 +28,11 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       <NeumorphicView style={styles.card}>
-        <View style={styles.iconContainer}>
+        <View style={[styles.iconContainer, { backgroundColor: 'rgba(103, 80, 164, 0.12)' }]}>
           <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={getFontSize(32)} color={theme.colors.primary} />
         </View>
         <View style={styles.contentContainer}>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]} numberOfLines={1}>{title}</Text>
           <Text 
             style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
             numberOfLines={2}
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: getFontSize(6),
-    backgroundColor: 'rgba(103, 80, 164, 0.12)',
     width: SCREEN_WIDTH < 375 ? getFontSize(32) : getFontSize(48),
     height: SCREEN_WIDTH < 375 ? getFontSize(32) : getFontSize(48),
     borderRadius: SCREEN_WIDTH < 375 ? getFontSize(16) : getFontSize(24),

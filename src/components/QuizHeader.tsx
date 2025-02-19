@@ -3,6 +3,8 @@ import { StyleSheet, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { NeumorphicButton, NeumorphicView } from './NeumorphicComponents';
 import { formatTime } from '../utils/timeUtils';
+import { getTextStyle } from '../theme/typography';
+import { CustomTheme } from '../theme/theme';
 
 interface QuizHeaderProps {
   timeRemaining: number;
@@ -19,21 +21,25 @@ export const QuizHeader: React.FC<QuizHeaderProps> = ({
   totalQuestions,
   onSubmit,
 }) => {
-  const theme = useTheme();
+  const theme = useTheme() as CustomTheme;
+  const labelStyle = getTextStyle('label');
+  const h2Style = getTextStyle('h2');
+  const buttonStyle = getTextStyle('button');
+
   return (
     <View>
       <NeumorphicView style={styles.headerContainer}>
         <View style={styles.headerContent}>
           <View style={styles.headerSection}>
-            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Time Remaining</Text>
-            <Text style={[styles.value, { color: theme.colors.onSurface }]}>
+            <Text style={[styles.label, labelStyle, { color: theme.colors.onSurfaceVariant }]}>Time Remaining</Text>
+            <Text style={[styles.value, h2Style, { color: theme.colors.onSurface }]}>
               {formatTime(timeRemaining)}
             </Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.headerSection}>
-            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Question</Text>
-            <Text style={[styles.value, { color: theme.colors.onSurface }]}>
+            <Text style={[styles.label, labelStyle, { color: theme.colors.onSurfaceVariant }]}>Question</Text>
+            <Text style={[styles.value, h2Style, { color: theme.colors.onSurface }]}>
               {currentQuestionIndex + 1}/{totalQuestions}
             </Text>
           </View>
@@ -41,10 +47,10 @@ export const QuizHeader: React.FC<QuizHeaderProps> = ({
       </NeumorphicView>
       <View style={styles.submitButtonContainer}>
         <NeumorphicButton
-          style={[styles.submitButton, { backgroundColor: '#4CAF50' }]}
+          style={[styles.submitButton, { backgroundColor: theme.colors.success }]}
           onPress={onSubmit}
         >
-          <Text style={[styles.submitButtonText, { color: '#FFFFFF' }]}>Submit</Text>
+          <Text style={[styles.submitButtonText, buttonStyle, { color: theme.colors.surface }]}>Submit</Text>
         </NeumorphicButton>
       </View>
     </View>
@@ -71,13 +77,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 14,
     marginBottom: 4,
-    fontWeight: '500',
   },
   value: {
-    fontSize: 24,
-    fontWeight: '700',
+    textAlign: 'center',
   },
   divider: {
     width: 1,
@@ -97,8 +100,6 @@ const styles = StyleSheet.create({
     borderRadius: 12
   },
   submitButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
     textAlign: 'center',
   },
 });

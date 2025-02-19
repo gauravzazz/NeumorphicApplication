@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ViewStyle } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
@@ -29,7 +29,7 @@ export const HotTopicCard: React.FC<HotTopicCardProps> = ({
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <NeumorphicView style={[styles.card, { height: CARD_HEIGHT }] as unknown as ViewStyle}>
+      <NeumorphicView style={[styles.card, { height: CARD_HEIGHT }]}>
         <View style={styles.header}>
           <View style={[styles.categoryBadge, { backgroundColor: theme.colors.primary }]}>
             <Text style={[styles.categoryText, { color: theme.colors.surface }]}>
