@@ -8,6 +8,7 @@ import { useThemeContext } from '../theme/ThemeContext';
 import { NeumorphicView } from '../components/NeumorphicComponents';
 import { TouchableOpacity, Modal } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { RoundButton } from '../components/ui/RoundButton';
 
 interface SettingsProps {}
 
@@ -93,15 +94,12 @@ export const SettingsScreen: React.FC<SettingsProps> = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <NeumorphicView style={styles.backButton}>
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={theme.colors.primary}
-            />
-          </NeumorphicView>
-        </TouchableOpacity>
+      <RoundButton
+          icon="chevron-back"
+          onPress={() => navigation.goBack()}
+          size={40}
+          style={styles.backButton}
+        />
         <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Settings</Text>
       </View>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Alert, View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { CustomAlert } from '../../components/ui/CustomAlert';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
@@ -67,37 +68,21 @@ export const QuizScreen = () => {
     }
   };
 
+  const answeredQuestions = Object.keys(answers).length;
+
   const handleSubmit = () => {
-    const answeredQuestions = Object.keys(answers).length;
     const isComplete = answeredQuestions === questions.length;
     const timeSpent = Math.max(0, timeLimit * questionCount * 60 - timeRemaining);
+    setShowSubmitAlert(true);
+  };
 
-    const navigateToResult = () => {
-      navigation.navigate('Result', {
-        answers,
-        questions,
-        timeSpent,
-        mode
-      });
-    };
-
-    Alert.alert(
-      'Submit Quiz',
-      isComplete
-        ? 'Are you sure you want to submit your quiz?'
-        : `You have answered ${answeredQuestions} out of ${questions.length} questions. Are you sure you want to submit?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: 'Submit',
-          style: 'default',
-          onPress: navigateToResult
-        }
-      ]
-    );
+  const navigateToResult = () => {
+    navigation.navigate('Result', {
+      answers,
+      questions,
+      timeSpent: Math.max(0, timeLimit * questionCount * 60 - timeRemaining),
+      mode
+    });
   };
 
   const handlePreviousQuestion = () => {
@@ -129,6 +114,7 @@ export const QuizScreen = () => {
   };
 
   const [filterSkipped, setFilterSkipped] = useState(false);
+  const [showSubmitAlert, setShowSubmitAlert] = useState(false);
 
   const filteredQuestions = filterSkipped
     ? questions.filter((_, index) => !answers[questions[index].id])
@@ -227,6 +213,21 @@ export const QuizScreen = () => {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <CustomAlert
+        visible={showSubmitAlert}
+        title="Submit Quiz"
+        message={answeredQuestions === questions.length
+          ? 'Are you sure you want to submit your quiz?'
+          : `You have answered ${Object.keys(answers).length} out of ${questions.length} questions. Are you sure you want to submit?`}
+        onConfirm={() => {
+          setShowSubmitAlert(false);
+          navigateToResult();
+        }}
+        onCancel={() => setShowSubmitAlert(false)}
+        confirmText="Submit"
+        cancelText="Cancel"
+      />
     </SafeAreaView>
   );
 };

@@ -1,8 +1,10 @@
-import React from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, Animated } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NeumorphicView, NeumorphicButton } from '../components/NeumorphicComponents';
+import { RoundButton } from '../components/ui/RoundButton';
+import { Ionicons } from '@expo/vector-icons';
 
 type ResultScreenRouteProp = RouteProp<{
   Result: {
@@ -24,6 +26,24 @@ export const ResultScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<ResultScreenRouteProp>();
   const { answers, questions, timeSpent, mode } = route.params;
+
+  const scoreAnimation = new Animated.Value(0);
+  const fadeAnimation = new Animated.Value(0);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(scoreAnimation, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true
+      }),
+      Animated.timing(fadeAnimation, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true
+      })
+    ]).start();
+  }, []);
 
   const calculateScore = () => {
     let correct = 0;
@@ -49,43 +69,61 @@ export const ResultScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <RoundButton
+          icon="chevron-back"
+          onPress={() => navigation.goBack()}
+          size={40}
+          style={styles.backButton}
+        />
+        <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Quiz Results</Text>
+      </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <NeumorphicView style={styles.scoreContainer}>
-          <Text style={[styles.scoreTitle, { color: theme.colors.onSurfaceVariant }]}>
-            Quiz Complete!
-          </Text>
-          <Text style={[styles.scorePercentage, { color: theme.colors.primary }]}>
-            {score.percentage}%
-          </Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
-                {score.correct}
-              </Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Correct
+        <Animated.View style={[{ transform: [{ scale: scoreAnimation }], opacity: fadeAnimation }]}>
+          <NeumorphicView style={styles.scoreContainer}>
+            <View style={styles.resultHeader}>
+              <Ionicons 
+                name={score.percentage >= 70 ? "trophy" : "school"} 
+                size={32} 
+                color={theme.colors.primary} 
+              />
+              <Text style={[styles.scoreTitle, { color: theme.colors.onSurfaceVariant }]}>
+                {score.percentage >= 70 ? "Excellent!" : "Quiz Complete!"}
               </Text>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
-                {score.total - score.correct}
-              </Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Incorrect
-              </Text>
+            <Text style={[styles.scorePercentage, { color: theme.colors.primary }]}>
+              {score.percentage}%
+            </Text>
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
+                  {score.correct}
+                </Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Correct
+                </Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
+                  {score.total - score.correct}
+                </Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Incorrect
+                </Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
+                  {formatTime(timeSpent)}
+                </Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Time Taken
+                </Text>
+              </View>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
-                {formatTime(timeSpent)}
-              </Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
-                Time Taken
-              </Text>
-            </View>
-          </View>
-        </NeumorphicView>
+          </NeumorphicView>
+        </Animated.View>
 
         <View style={styles.actionsContainer}>
           <NeumorphicButton
@@ -115,6 +153,30 @@ export const ResultScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginLeft: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
   container: {
     flex: 1,
     padding: 20,
