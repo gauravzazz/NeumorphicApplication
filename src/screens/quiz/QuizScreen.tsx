@@ -37,8 +37,29 @@ export const QuizScreen = () => {
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
+    const resetQuizState = () => {
+      setCurrentQuestionIndex(0);
+      setSelectedOption(null);
+      setAnswers({});
+      setTimeRemaining(mode === 'test' ? timeLimit * 60 : 0);
+      setIsQuestionTrayVisible(false);
+      setShowSubmitAlert(false);
+    };
+
+    // Reset states when component mounts
+    resetQuizState();
+
+    // Cleanup function to reset states when component unmounts
+    return () => {
+      resetQuizState();
+    };
+  }, [mode, timeLimit, questions]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
     if (mode === 'test' && timeRemaining > 0) {
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
@@ -48,9 +69,13 @@ export const QuizScreen = () => {
           return prev - 1;
         });
       }, 1000);
-
-      return () => clearInterval(timer);
     }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [mode, timeRemaining]);
 
   const handleOptionSelect = (optionIndex: number) => {
@@ -74,6 +99,12 @@ export const QuizScreen = () => {
     const isComplete = answeredQuestions === questions.length;
     const timeSpent = Math.max(0, timeLimit * questionCount * 60 - timeRemaining);
     setShowSubmitAlert(true);
+    
+    // Reset quiz state when submitting
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    setAnswers({});
+    setTimeRemaining(0);
   };
 
   const navigateToResult = () => {
