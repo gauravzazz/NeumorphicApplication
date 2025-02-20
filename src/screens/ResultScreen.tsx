@@ -1,25 +1,33 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, Animated, TouchableOpacity, Dimensions } from 'react-native';
+import { Confetti } from '../components/ui/Confetti';
 import { useTheme } from 'react-native-paper';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NeumorphicView, NeumorphicButton } from '../components/NeumorphicComponents';
 import { RoundButton } from '../components/ui/RoundButton';
 import { Ionicons } from '@expo/vector-icons';
+import Markdown from 'react-native-markdown-display';
+import { QuestionFilters } from './result/components/QuestionFilters';
+
+interface Question {
+  id: string;
+  question: string;
+  options: string[];
+  correctOption: number;
+  explanation: string;
+  difficulty?: 'easy' | 'hard' | null;
+  isBookmarked?: boolean;
+}
 
 type ResultScreenRouteProp = RouteProp<{
   Result: {
     answers: { [key: string]: number };
-    questions: Array<{
-      id: string;
-      question: string;
-      options: string[];
-      correctOption: number;
-      explanation: string;
-    }>;
+    questions: Array<Question>;
     timeSpent: number;
     mode: 'test' | 'practice';
   };
 }, 'Result'>;
+
 
 export const ResultScreen: React.FC = () => {
   const theme = useTheme();
@@ -27,23 +35,45 @@ export const ResultScreen: React.FC = () => {
   const route = useRoute<ResultScreenRouteProp>();
   const { answers, questions, timeSpent, mode } = route.params;
 
-  const scoreAnimation = new Animated.Value(0);
-  const fadeAnimation = new Animated.Value(0);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'correct' | 'incorrect' | 'skipped'>('all');
+  const [expandedExplanations, setExpandedExplanations] = useState<{ [key: string]: boolean }>({});
+  const [questionDifficulties, setQuestionDifficulties] = useState<{ [key: string]: 'easy' | 'hard' | null }>({});
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<{ [key: string]: boolean }>({});
 
+  // Add animation variables
+  const [scoreAnimation] = useState(new Animated.Value(0.3));
+  const [fadeAnimation] = useState(new Animated.Value(0));
+
+  // Initialize animations
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(scoreAnimation, {
+      Animated.spring(scoreAnimation, {
         toValue: 1,
-        duration: 1000,
+        tension: 20,
+        friction: 7,
         useNativeDriver: true
       }),
       Animated.timing(fadeAnimation, {
         toValue: 1,
-        duration: 800,
+        duration: 1000,
         useNativeDriver: true
       })
     ]).start();
   }, []);
+
+  const handleDifficultyChange = (questionId: string, difficulty: 'easy' | 'hard') => {
+    setQuestionDifficulties(prev => ({
+      ...prev,
+      [questionId]: prev[questionId] === difficulty ? null : difficulty
+    }));
+  };
+
+  const handleBookmarkToggle = (questionId: string) => {
+    setBookmarkedQuestions(prev => ({
+      ...prev,
+      [questionId]: !prev[questionId]
+    }));
+  };
 
   const calculateScore = () => {
     let correct = 0;
@@ -60,6 +90,30 @@ export const ResultScreen: React.FC = () => {
   };
 
   const score = calculateScore();
+
+  const toggleExplanation = (questionId: string) => {
+    setExpandedExplanations(prev => ({
+      ...prev,
+      [questionId]: !prev[questionId]
+    }));
+  };
+
+  const filteredQuestions = questions.filter(question => {
+    const userAnswer = answers[question.id];
+    const isCorrect = userAnswer === question.correctOption;
+    const isSkipped = userAnswer === undefined;
+
+    switch (selectedFilter) {
+      case 'correct':
+        return isCorrect;
+      case 'incorrect':
+        return !isCorrect && !isSkipped;
+      case 'skipped':
+        return isSkipped;
+      default:
+        return true;
+    }
+  });
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -78,22 +132,33 @@ export const ResultScreen: React.FC = () => {
         />
         <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Quiz Results</Text>
       </View>
+      <Confetti isVisible={score.percentage >= 70} />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Animated.View style={[{ transform: [{ scale: scoreAnimation }], opacity: fadeAnimation }]}>
+        <Animated.View 
+          style={[{ 
+            transform: [{ scale: scoreAnimation }], 
+            opacity: fadeAnimation,
+            marginBottom: 24
+          }]}
+        >
           <NeumorphicView style={styles.scoreContainer}>
             <View style={styles.resultHeader}>
               <Ionicons 
                 name={score.percentage >= 70 ? "trophy" : "school"} 
-                size={32} 
+                size={40} 
                 color={theme.colors.primary} 
               />
               <Text style={[styles.scoreTitle, { color: theme.colors.onSurfaceVariant }]}>
                 {score.percentage >= 70 ? "Excellent!" : "Quiz Complete!"}
               </Text>
             </View>
-            <Text style={[styles.scorePercentage, { color: theme.colors.primary }]}>
-              {score.percentage}%
-            </Text>
+            
+            <View style={styles.scoreCircle}>
+              <Text style={[styles.scorePercentage, { color: theme.colors.primary }]}>
+                {score.percentage}%
+              </Text>
+            </View>
+
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
                 <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>
@@ -125,117 +190,400 @@ export const ResultScreen: React.FC = () => {
           </NeumorphicView>
         </Animated.View>
 
-        <View style={styles.actionsContainer}>
-          <NeumorphicButton
-            style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => {
-              // Navigate to answer review screen
-              console.log('Review answers');
-            }}
-          >
-            <Text style={[styles.actionButtonText, { color: theme.colors.onPrimary }]}>
-              Review Answers
-            </Text>
-          </NeumorphicButton>
+        <View style={styles.questionsContainer}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface, paddingHorizontal: SCREEN_WIDTH * 0.02 }]}>Detailed Results</Text>
+          
+          <QuestionFilters
+            selectedFilter={selectedFilter}
+            onFilterChange={setSelectedFilter}
+          />
 
-          <NeumorphicButton
-            style={styles.actionButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={[styles.actionButtonText, { color: theme.colors.onSurface }]}>
-              Back to Topic
-            </Text>
-          </NeumorphicButton>
+          {filteredQuestions.map((question, index) => {
+            const userAnswer = answers[question.id];
+            const isCorrect = userAnswer === question.correctOption;
+            const isSkipped = userAnswer === undefined;
+            const isExpanded = expandedExplanations[question.id];
+          
+            return (
+              <NeumorphicView key={question.id} style={styles.questionCard}>
+                <View style={styles.questionHeader}>
+                  <Text style={[styles.questionNumber, { color: theme.colors.onSurface }]}>
+                    Question {index + 1}
+                  </Text>
+                  <View style={[styles.resultBadge, { 
+                    backgroundColor: isCorrect 
+                      ? 'rgba(75, 181, 67, 0.1)' 
+                      : isSkipped
+                      ? 'rgba(255, 165, 0, 0.1)'
+                      : 'rgba(255, 76, 76, 0.1)' 
+                  }]}>
+                    <Ionicons
+                      name={isCorrect ? 'checkmark-circle' : isSkipped ? 'help-circle' : 'close-circle'}
+                      size={20}
+                      color={isCorrect ? '#4BB543' : isSkipped ? '#FFA500' : '#FF4C4C'}
+                    />
+                    <Text style={[styles.resultBadgeText, { 
+                      color: isCorrect ? '#4BB543' : isSkipped ? '#FFA500' : '#FF4C4C' 
+                    }]}>
+                      {isCorrect ? 'Correct' : isSkipped ? 'Skipped' : 'Incorrect'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.questionContent}>
+                  <Markdown style={{
+                    body: { color: theme.colors.onSurface, fontSize: 16, lineHeight: 24 },
+                    paragraph: { marginVertical: 0 }
+                  }}>
+                    {question.question}
+                  </Markdown>
+                </View>
+
+                <View style={styles.optionsContainer}>
+                  {question.options.map((option, optionIndex) => (
+                    <TouchableOpacity
+                      key={optionIndex}
+                      style={[
+                        styles.optionItem,
+                        optionIndex === userAnswer && styles.selectedOption,
+                        optionIndex === question.correctOption && styles.correctOption,
+                        optionIndex === userAnswer && optionIndex !== question.correctOption && styles.incorrectOption,
+                        !isSkipped && optionIndex === question.correctOption && styles.correctOptionHighlight
+                      ]}
+                      disabled
+                    >
+                      <Text style={[
+                        styles.optionText,
+                        { color: theme.colors.onSurface },
+                        optionIndex === question.correctOption && styles.correctOptionText,
+                        optionIndex === userAnswer && optionIndex !== question.correctOption && styles.incorrectOptionText
+                      ]}>
+                        {String.fromCharCode(65 + optionIndex)}. {option}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <View style={styles.explanationContainer}>
+                  <View style={styles.explanationRow}>
+                    <Text style={[styles.explanationTitle, { color: theme.colors.primary }]}>Explanation: </Text>
+                    <View style={styles.explanationTextContainer}>
+                      <View style={styles.explanationInlineContainer}>
+                        <Text 
+                          numberOfLines={isExpanded ? undefined : 2}
+                          style={[styles.explanationText, { color: theme.colors.onSurface, flex: 1 }]}
+                        >
+                          {question.explanation}
+                        </Text>
+                        {!isExpanded && (
+                          <TouchableOpacity
+                            onPress={() => toggleExplanation(question.id)}
+                            style={styles.showMoreButton}
+                          >
+                            <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
+                              Show More
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                      {isExpanded && (
+                        <TouchableOpacity
+                          onPress={() => toggleExplanation(question.id)}
+                          style={styles.showLessButton}
+                        >
+                          <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
+                            Show Less
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.questionActions}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, question.difficulty === 'easy' && styles.actionButtonActive]}
+                    onPress={() => handleDifficultyChange(question.id, 'easy')}
+                  >
+                    <Ionicons
+                      name="thumbs-up"
+                      size={24}
+                      color={question.difficulty === 'easy' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.actionButton, question.difficulty === 'hard' && styles.actionButtonActive]}
+                    onPress={() => handleDifficultyChange(question.id, 'hard')}
+                  >
+                    <Ionicons
+                      name="thumbs-down"
+                      size={24}
+                      color={question.difficulty === 'hard' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.actionButton, question.isBookmarked && styles.actionButtonActive]}
+                    onPress={() => handleBookmarkToggle(question.id)}
+                  >
+                    <Ionicons
+                      name={question.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                      size={24}
+                      color={question.isBookmarked ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </NeumorphicView>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: SCREEN_WIDTH * 0.03,
+  },
+  selectedOption: {
+    backgroundColor: 'rgba(98, 0, 238, 0.08)',
+    borderColor: 'rgba(98, 0, 238, 0.3)',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 8,
+    marginBottom: SCREEN_WIDTH * 0.03,
+    paddingHorizontal: SCREEN_WIDTH * 0.01,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginLeft: 16,
+    fontSize: SCREEN_WIDTH * 0.05,
+    fontWeight: '700',
+    marginLeft: SCREEN_WIDTH * 0.03,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: SCREEN_WIDTH * 0.09,
+    height: SCREEN_WIDTH * 0.09,
+    borderRadius: SCREEN_WIDTH * 0.045,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  resultHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
   },
   content: {
     flex: 1,
   },
   scoreContainer: {
-    padding: 24,
-    borderRadius: 20,
+    padding: SCREEN_WIDTH * 0.04,
+    borderRadius: SCREEN_WIDTH * 0.04,
     alignItems: 'center',
   },
+  resultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SCREEN_WIDTH * 0.02,
+    marginBottom: SCREEN_WIDTH * 0.04,
+  },
   scoreTitle: {
-    fontSize: 24,
+    fontSize: SCREEN_WIDTH * 0.06,
     fontWeight: '700',
-    marginBottom: 16,
+  },
+  scoreCircle: {
+    width: SCREEN_WIDTH * 0.25,
+    height: SCREEN_WIDTH * 0.25,
+    borderRadius: SCREEN_WIDTH * 0.125,
+    backgroundColor: 'rgba(98, 0, 238, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SCREEN_WIDTH * 0.04,
   },
   scorePercentage: {
-    fontSize: 48,
+    fontSize: SCREEN_WIDTH * 0.08,
     fontWeight: '800',
-    marginBottom: 24,
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    paddingHorizontal: 16,
+    paddingHorizontal: SCREEN_WIDTH * 0.02,
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: SCREEN_WIDTH * 0.05,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: SCREEN_WIDTH * 0.01,
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: SCREEN_WIDTH * 0.03,
     fontWeight: '500',
   },
   statDivider: {
     width: 1,
-    height: 40,
-    backgroundColor: '#E0E5EC',
-    marginHorizontal: 16,
+    height: SCREEN_WIDTH * 0.08,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginHorizontal: SCREEN_WIDTH * 0.02,
   },
-  actionsContainer: {
-    marginTop: 32,
-    gap: 16,
+  questionsContainer: {
+    marginTop: SCREEN_WIDTH * 0.04,
+    paddingHorizontal: SCREEN_WIDTH * 0.01,
+  },
+  sectionTitle: {
+    fontSize: SCREEN_WIDTH * 0.045,
+    fontWeight: '700',
+    marginBottom: SCREEN_WIDTH * 0.03,
+  },
+  questionCard: {
+    marginBottom: SCREEN_WIDTH * 0.02,
+    padding: SCREEN_WIDTH * 0.03,
+    borderRadius: SCREEN_WIDTH * 0.02,
+  },
+  questionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SCREEN_WIDTH * 0.015,
+  },
+  questionNumber: {
+    fontSize: SCREEN_WIDTH * 0.032,
+    fontWeight: '600',
+  },
+  resultBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SCREEN_WIDTH * 0.015,
+    paddingVertical: SCREEN_WIDTH * 0.008,
+    borderRadius: SCREEN_WIDTH * 0.03,
+    gap: SCREEN_WIDTH * 0.008,
+  },
+  resultBadgeText: {
+    fontSize: SCREEN_WIDTH * 0.028,
+    fontWeight: '600',
+  },
+  questionContent: {
+    marginBottom: SCREEN_WIDTH * 0.015,
+  },
+  optionsContainer: {
+    gap: SCREEN_WIDTH * 0.015,
+  },
+  optionItem: {
+    padding: SCREEN_WIDTH * 0.025,
+    borderRadius: SCREEN_WIDTH * 0.015,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  optionText: {
+    fontSize: SCREEN_WIDTH * 0.032,
+    fontWeight: '500',
+    lineHeight: SCREEN_WIDTH * 0.042,
+  },
+  explanationContainer: {
+    marginTop: SCREEN_WIDTH * 0.02,
+    backgroundColor: 'rgba(98, 0, 238, 0.03)',
+    borderRadius: SCREEN_WIDTH * 0.02,
+    borderWidth: 1,
+    borderColor: 'rgba(98, 0, 238, 0.15)',
+    padding: SCREEN_WIDTH * 0.035,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  explanationTitle: {
+    fontSize: SCREEN_WIDTH * 0.034,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+    marginBottom: SCREEN_WIDTH * 0.01,
+  },
+  explanationText: {
+    fontSize: SCREEN_WIDTH * 0.032,
+    lineHeight: SCREEN_WIDTH * 0.045,
+    opacity: 0.95,
+    letterSpacing: 0.2,
+    fontWeight: '400',
+  },
+  showMoreText: {
+    fontSize: SCREEN_WIDTH * 0.03,
+    fontWeight: '600',
+    marginLeft: SCREEN_WIDTH * 0.01,
+    color: 'rgba(98, 0, 238, 0.8)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  showMoreButton: {
+    paddingLeft: SCREEN_WIDTH * 0.015,
+    paddingVertical: SCREEN_WIDTH * 0.01,
+    backgroundColor: 'rgba(98, 0, 238, 0.05)',
+    borderRadius: SCREEN_WIDTH * 0.01,
+  },
+  showLessButton: {
+    alignSelf: 'flex-end',
+    marginTop: SCREEN_WIDTH * 0.015,
+    paddingHorizontal: SCREEN_WIDTH * 0.02,
+    paddingVertical: SCREEN_WIDTH * 0.01,
+    backgroundColor: 'rgba(98, 0, 238, 0.05)',
+    borderRadius: SCREEN_WIDTH * 0.01,
+  },
+  correctOption: {
+    backgroundColor: 'rgba(75, 181, 67, 0.08)',
+    borderColor: 'rgba(75, 181, 67, 0.3)',
+  },
+  incorrectOption: {
+    backgroundColor: 'rgba(255, 76, 76, 0.08)',
+    borderColor: 'rgba(255, 76, 76, 0.3)',
+  },
+  correctOptionHighlight: {
+    borderWidth: 2,
+  },
+  correctOptionText: {
+    color: '#4BB543',
+    fontWeight: '600',
+  },
+  incorrectOptionText: {
+    color: '#FF4C4C',
+    fontWeight: '600',
+  },
+  questionActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: SCREEN_WIDTH * 0.02,
+    gap: SCREEN_WIDTH * 0.02,
   },
   actionButton: {
-    paddingVertical: 16,
-    borderRadius: 12,
+    padding: SCREEN_WIDTH * 0.015,
+    borderRadius: SCREEN_WIDTH * 0.015,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+  actionButtonActive: {
+    backgroundColor: 'rgba(98, 0, 238, 0.1)',
+  },
+  explanationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SCREEN_WIDTH * 0.01,
+  },
+  explanationTextContainer: {
+    flex: 1,
+  },
+  explanationInlineContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SCREEN_WIDTH * 0.01,
   },
 });

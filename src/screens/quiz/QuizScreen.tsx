@@ -31,7 +31,7 @@ export const QuizScreen = () => {
   const navigation = useNavigation();
   const { mode, questionCount, timeLimit, questions } = route.params;
 
-  const [timeRemaining, setTimeRemaining] = useState(100);
+  const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
