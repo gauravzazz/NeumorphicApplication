@@ -8,6 +8,7 @@ import { RoundButton } from '../components/ui/RoundButton';
 import { Ionicons } from '@expo/vector-icons';
 import Markdown from 'react-native-markdown-display';
 import { QuestionFilters } from './result/components/QuestionFilters';
+import { saveQuizHistory } from '../utils/quizHistoryStorage';
 
 interface Question {
   id: string;
@@ -59,6 +60,31 @@ export const ResultScreen: React.FC = () => {
         useNativeDriver: true
       })
     ]).start();
+
+    // Save quiz result to history
+    const saveResult = async () => {
+      try {
+        const historyItem = {
+          id: Date.now().toString(),
+          date: new Date().toISOString(),
+          topicId: 'topic-1', // This should come from quiz context
+          topicName: 'Quiz Topic', // This should come from quiz context
+          mode,
+          score: calculateScore(),
+          timeSpent,
+          questions,
+          answers
+        };
+        const saved = await saveQuizHistory(historyItem);
+        if (!saved) {
+          console.error('Failed to save quiz history');
+          // You might want to show an error message to the user here
+        }
+      } catch (error) {
+        console.error('Error in saveResult:', error);
+      }
+    };
+    saveResult();
   }, []);
 
   const handleDifficultyChange = (questionId: string, difficulty: 'easy' | 'hard') => {

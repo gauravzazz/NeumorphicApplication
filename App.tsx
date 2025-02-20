@@ -14,6 +14,7 @@ import {ProgressScreen} from './src/screens/ProgressScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { QuizScreen } from './src/screens/quiz/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
+import { QuizHistoryScreen } from './src/screens/QuizHistoryScreen';
 const Drawer = createDrawerNavigator();
 
 const AppContent = () => {
@@ -38,7 +39,7 @@ const AppContent = () => {
           <Drawer.Screen name="Home" component={HomeScreen} />
           <Drawer.Screen name="SubjectDetail" component={SubjectDetailScreen} />
           <Drawer.Screen name="Bookmarks" component={BookmarksScreen} />
-          <Drawer.Screen name="History" component={HistoryScreen} />
+          <Drawer.Screen name="History" component={QuizHistoryScreen} />
           <Drawer.Screen name="Progress" component={ProgressScreen} />
           <Drawer.Screen name="Settings" component={SettingsScreen} />
           <Drawer.Screen name="Quiz" component={QuizScreen} />
