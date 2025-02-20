@@ -45,6 +45,181 @@ export const mockQuestions: Question[] = [
     options: ['Queue', 'Stack', 'Tree', 'Graph'],
     correctOption: 1,
     explanation: 'Stack follows Last In First Out principle'
+  },
+  {
+    id: '6',
+    topicId: '1',
+    question: 'What is the integral of 2x?',
+    options: ['x²', 'x² + C', '2x²', 'x²/2'],
+    correctOption: 1,
+    explanation: 'The integral of 2x is x² + C, where C is the constant of integration'
+  },
+  {
+    id: '7',
+    topicId: '2',
+    question: 'What is the SI unit of force?',
+    options: ['Watt', 'Newton', 'Joule', 'Pascal'],
+    correctOption: 1,
+    explanation: 'The Newton (N) is the SI unit of force'
+  },
+  {
+    id: '8',
+    topicId: '3',
+    question: 'What is the charge of an electron?',
+    options: ['Positive', 'Negative', 'Neutral', 'Variable'],
+    correctOption: 1,
+    explanation: 'An electron carries a negative electrical charge'
+  },
+  {
+    id: '9',
+    topicId: '1',
+    question: 'What is the limit of sin(x)/x as x approaches 0?',
+    options: ['0', '1', 'Undefined', 'Infinity'],
+    correctOption: 1,
+    explanation: 'The limit of sin(x)/x as x approaches 0 is 1'
+  },
+  {
+    id: '10',
+    topicId: '2',
+    question: 'What is the formula for kinetic energy?',
+    options: ['mv', '½mv²', 'ma', 'mgh'],
+    correctOption: 1,
+    explanation: 'Kinetic energy is equal to ½mv², where m is mass and v is velocity'
+  },
+  {
+    id: '11',
+    topicId: '3',
+    question: 'What is the atomic number of Oxygen?',
+    options: ['6', '7', '8', '9'],
+    correctOption: 2,
+    explanation: 'Oxygen has 8 protons in its nucleus'
+  },
+  {
+    id: '12',
+    topicId: '1',
+    question: 'What is the derivative of e^x?',
+    options: ['x·e^x', 'e^x', 'ln(x)', '1/x'],
+    correctOption: 1,
+    explanation: 'The derivative of e^x is e^x'
+  },
+  {
+    id: '13',
+    topicId: '5',
+    question: 'What is the time complexity of quicksort in the average case?',
+    options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'],
+    correctOption: 1,
+    explanation: 'Quicksort has an average time complexity of O(n log n)'
+  },
+  {
+    id: '14',
+    topicId: '5',
+    question: 'Which of the following is not a valid HTTP method?',
+    options: ['GET', 'POST', 'FETCH', 'DELETE'],
+    correctOption: 2,
+    explanation: 'FETCH is not a standard HTTP method. The standard methods include GET, POST, PUT, DELETE, etc.'
+  },
+  {
+    id: '15',
+    topicId: '5',
+    question: 'What is the purpose of the useState hook in React?',
+    options: [
+      'To handle side effects',
+      'To manage component state',
+      'To optimize performance',
+      'To handle routing'
+    ],
+    correctOption: 1,
+    explanation: 'useState is a React Hook that lets you add state to functional components'
+  },
+  {
+    id: '16',
+    topicId: '4',
+    question: 'What is the function of DNA polymerase?',
+    options: [
+      'Protein synthesis',
+      'DNA replication',
+      'RNA transcription',
+      'ATP production'
+    ],
+    correctOption: 1,
+    explanation: 'DNA polymerase is responsible for DNA replication during cell division'
+  },
+  {
+    id: '17',
+    topicId: '4',
+    question: 'Which organelle is known as the powerhouse of the cell?',
+    options: [
+      'Nucleus',
+      'Mitochondria',
+      'Golgi apparatus',
+      'Endoplasmic reticulum'
+    ],
+    correctOption: 1,
+    explanation: 'Mitochondria are called the powerhouse of the cell as they produce energy in the form of ATP'
+  },
+  {
+    id: '18',
+    topicId: '3',
+    question: 'What is the atomic number of Oxygen?',
+    options: ['6', '7', '8', '9'],
+    correctOption: 2,
+    explanation: 'Oxygen has 8 protons in its nucleus'
+  },
+  {
+    id: '19',
+    topicId: '1',
+    question: 'What is the limit of sin(x)/x as x approaches 0?',
+    options: ['0', '1', 'Undefined', 'Infinity'],
+    correctOption: 1,
+    explanation: 'The limit of sin(x)/x as x approaches 0 is 1'
+  },
+  {
+    id: '20',
+    topicId: '2',
+    question: 'What is the formula for kinetic energy?',
+    options: ['mv', '½mv²', 'ma', 'mgh'],
+    correctOption: 1,
+    explanation: 'Kinetic energy is equal to ½mv², where m is mass and v is velocity'
+  },
+  {
+    id: '21',
+    topicId: '3',
+    question: 'What is the atomic number of Oxygen?',
+    options: ['6', '7', '8', '9'],
+    correctOption: 2,
+    explanation: 'Oxygen has 8 protons in its nucleus'
+  },
+  {
+    id: '22',
+    topicId: '1',
+    question: 'What is the derivative of e^x?',
+    options: ['x·e^x', 'e^x', 'ln(x)', '1/x'],
+    correctOption: 1,
+    explanation: 'The derivative of e^x is e^x'
+  },
+  {
+    id: '23',
+    topicId: '2',
+    question: 'What is the unit of power?',
+    options: ['Joule', 'Newton', 'Watt', 'Pascal'],
+    correctOption: 2,
+    explanation: 'The Watt (W) is the SI unit of power'
+  },
+  {
+    id: '24',
+    topicId: '3',
+    question: 'What is the most abundant element in the Earth\'s crust?',
+    options: ['Carbon', 'Silicon', 'Oxygen', 'Iron'],
+    correctOption: 2,
+    explanation: 'Oxygen is the most abundant element in the Earth\'s crust'
+  },
+  {
+    id: '25',
+    topicId: '1',
+    question: 'What is the value of e to 2 decimal places?',
+    options: ['2.71', '2.72', '2.73', '2.74'],
+    correctOption: 1,
+    explanation: 'e is approximately equal to 2.71828...'
   }
 ];
 

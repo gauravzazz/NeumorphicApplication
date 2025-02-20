@@ -10,6 +10,7 @@ interface QuizNavigationProps {
   onSubmit: () => void;
   isFirstQuestion: boolean;
   isLastQuestion: boolean;
+  style?: any;
 }
 
 export const QuizNavigation: React.FC<QuizNavigationProps> = ({

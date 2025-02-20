@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, ViewStyle, TextStyle, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, ViewStyle, TextStyle, Platform, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ButtonProps {
   onPress: () => void;
@@ -12,6 +13,8 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   children?: React.ReactNode;
+  icon?: string;
+  iconOnly?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -24,6 +27,8 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   children,
+  icon,
+  iconOnly = false,
 }) => {
   const theme = useTheme();
 
@@ -52,6 +57,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const getPadding = () => {
+    if (iconOnly) return 8;
     switch (size) {
       case 'small':
         return 8;
@@ -92,6 +98,7 @@ export const Button: React.FC<ButtonProps> = ({
       borderWidth: variant === 'outline' ? 1 : 0,
       ...getNeumorphicStyle(),
     },
+    iconOnly && styles.iconButton,
     style,
   ];
 
@@ -99,7 +106,7 @@ export const Button: React.FC<ButtonProps> = ({
     styles.text,
     {
       color: getTextColor(),
-      fontSize: size === 'small' ? 14 : size === 'large' ? 18 : 16,
+      fontSize: size === 'small' ? 14 : 16,
     },
     textStyle,
   ];
@@ -111,18 +118,40 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       activeOpacity={0.8}
     >
-      <Text style={textStyles}>{children || title}</Text>
+      {icon && (
+        <View style={iconOnly ? styles.iconOnly : styles.iconWithText}>
+          <Ionicons icon={icon} size={24} color={getTextColor()} />
+        </View>
+      )}
+      {!iconOnly && (title || children) && (
+        <Text style={textStyles}>{title || children}</Text>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   text: {
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    padding: 0,
+  },
+  iconOnly: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconWithText: {
+    marginRight: 8,
   },
 });

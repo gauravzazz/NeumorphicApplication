@@ -6,12 +6,13 @@ import { NeumorphicView, NeumorphicButton } from '../components/NeumorphicCompon
 
 type ResultScreenRouteProp = RouteProp<{
   Result: {
-    answers: { [key: string]: string };
+    answers: { [key: string]: number };
     questions: Array<{
       id: string;
       question: string;
       options: string[];
-      correctOption: string;
+      correctOption: number;
+      explanation: string;
     }>;
     timeSpent: number;
     mode: 'test' | 'practice';
