@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -15,10 +15,41 @@ import { SettingsScreen } from './src/screens/SettingsScreen';
 import { QuizScreen } from './src/screens/quiz/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { QuizHistoryScreen } from './src/screens/QuizHistoryScreen';
+import { SplashScreen } from './src/screens/SplashScreen';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Drawer = createDrawerNavigator();
 
 const AppContent = () => {
   const { theme: contextTheme, isDarkMode } = useThemeContext();
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  React.useEffect(() => {
+    checkOnboardingStatus();
+  }, []);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const hasCompletedOnboarding = await AsyncStorage.getItem('hasCompletedOnboarding');
+      setShowOnboarding(!hasCompletedOnboarding);
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+    }
+  };
+
+  const handleOnboardingComplete = async () => {
+    try {
+      await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
+      setShowOnboarding(false);
+    } catch (error) {
+      console.error('Error saving onboarding status:', error);
+    }
+  };
+
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <PaperProvider theme={contextTheme}>
@@ -51,10 +82,16 @@ const AppContent = () => {
 };
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppContent />
+        {isLoading ? (
+          <SplashScreen onFinish={() => setIsLoading(false)} />
+        ) : (
+          <AppContent />
+        )}
       </ThemeProvider>
     </SafeAreaProvider>
   );
