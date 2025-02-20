@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { QuizConfigModal } from '../components/QuizConfigModal';
-import { QuizHeader } from '../components/QuizHeader';
-import { QuizQuestion } from '../components/QuizQuestion';
-import { QuizOption } from '../components/QuizOption';
+import { QuestionCard } from '../../components/ui/QuestionCard';
+import { QuizHeader } from './components/QuizHeader';
+import { QuizOptions } from './components/QuizOptions';
+import { QuizNavigation } from './components/QuizNavigation';
 
 type QuizScreenRouteProp = RouteProp<{
   Quiz: {
@@ -34,7 +34,6 @@ export const QuizScreen = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
-  const [showConfigModal, setShowConfigModal] = useState(false);
 
   useEffect(() => {
     if (mode === 'test' && timeRemaining > 0) {
@@ -69,14 +68,10 @@ export const QuizScreen = () => {
   };
 
   const handleSubmit = () => {
-    // Validate if all questions have been answered
     const answeredQuestions = Object.keys(answers).length;
     const isComplete = answeredQuestions === questions.length;
-
-    // Calculate time spent, ensuring it's non-negative
     const timeSpent = Math.max(0, timeLimit * questionCount * 60 - timeRemaining);
 
-    // If in practice mode or all questions are answered, proceed to results
     if (mode === 'practice' || isComplete) {
       navigation.navigate('Result', {
         answers,
@@ -85,7 +80,6 @@ export const QuizScreen = () => {
         mode
       });
     } else {
-      // Alert user about unanswered questions in test mode
       Alert.alert(
         'Incomplete Quiz',
         `You have answered ${answeredQuestions} out of ${questions.length} questions. Are you sure you want to submit?`,
@@ -110,70 +104,60 @@ export const QuizScreen = () => {
     }
   };
 
-  const handleCloseModal = () => {
-    setShowConfigModal(false);
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setSelectedOption(answers[questions[currentQuestionIndex - 1].id] ?? null);
+    }
   };
 
-  const handleStartQuiz = (selectedQuestionCount: number, selectedMode: 'test' | 'practice') => {
-    // Update quiz configuration
-    const updatedQuestions = questions.slice(0, selectedQuestionCount);
-    const updatedTimeLimit = selectedMode === 'test' ? timeLimit : 0;
+  const handleSkipQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption(null);
+    } else {
+      handleSubmit();
+    }
+  };
 
-    // Reset quiz state
-    setTimeRemaining(updatedTimeLimit * selectedQuestionCount * 60);
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setAnswers({});
-    setShowConfigModal(false);
-
-    // Update navigation params and trigger state update
-    const updatedParams = {
-      mode: selectedMode,
-      questionCount: selectedQuestionCount,
-      timeLimit: updatedTimeLimit,
-      questions: updatedQuestions
-    };
-
-    // Update route params and trigger re-render
-    navigation.setParams(updatedParams);
+  const handleSummary = () => {
+    Alert.alert(
+      'Question Summary',
+      `Answered: ${Object.keys(answers).length}\nRemaining: ${questions.length - Object.keys(answers).length}`,
+      [{ text: 'OK' }]
+    );
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <QuizHeader
+        currentQuestion={currentQuestionIndex + 1}
+        totalQuestions={questions.length}
         timeRemaining={timeRemaining}
         mode={mode}
-        currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={questions.length}
         onSubmit={handleSubmit}
+        onSummary={handleSummary}
       />
 
-      <View style={styles.content}>
-        <QuizQuestion
-          question={questions[currentQuestionIndex].question}
-          questionNumber={currentQuestionIndex + 1}
-          mode={mode}
-        />
+      <QuestionCard
+        questionNumber={currentQuestionIndex + 1}
+        question={questions[currentQuestionIndex].question}
+        style={styles.questionCard}
+      />
 
-        <View style={styles.optionsContainer}>
-          {questions[currentQuestionIndex].options.map((option, index) => (
-            <QuizOption
-              key={index}
-              option={option}
-              index={index}
-              isSelected={selectedOption === index}
-              onSelect={() => handleOptionSelect(index)}
-            />
-          ))}
-        </View>
-      </View>
+      <QuizOptions
+        options={questions[currentQuestionIndex].options}
+        selectedOption={selectedOption}
+        onOptionSelect={handleOptionSelect}
+      />
 
-      <QuizConfigModal
-        visible={showConfigModal}
-        onClose={handleCloseModal}
-        onStart={handleStartQuiz}
-        topicTitle="Quiz Configuration"
-        maxQuestions={questions.length}
+      <QuizNavigation
+        onPrevious={handlePreviousQuestion}
+        onNext={handleNextQuestion}
+        onSkip={handleSkipQuestion}
+        onSubmit={handleSubmit}
+        isFirstQuestion={currentQuestionIndex === 0}
+        isLastQuestion={currentQuestionIndex === questions.length - 1}
       />
     </SafeAreaView>
   );
@@ -182,24 +166,9 @@ export const QuizScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
     padding: 16,
   },
-  optionsContainer: {
-    marginTop: 24,
-  },
-  timerContainer: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    padding: 12,
-    borderRadius: 12,
-    zIndex: 1,
-  },
-  timerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  questionCard: {
+    marginBottom: 32,
   },
 });

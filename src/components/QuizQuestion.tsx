@@ -28,7 +28,10 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
             <View style={styles.markdownContainer}>
               <Markdown
                 style={{
-                  body: [styles.questionText, { color: theme.colors.onSurface }],
+                  body: {
+                    ...styles.questionText,
+                    color: theme.colors.onSurface
+                  },
                   heading1: { color: theme.colors.onSurface },
                   heading2: { color: theme.colors.onSurface },
                   link: { color: theme.colors.primary },

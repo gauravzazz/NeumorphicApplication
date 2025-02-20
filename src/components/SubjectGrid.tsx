@@ -4,13 +4,7 @@ import { useTheme } from 'react-native-paper';
 import { SubjectCard } from './SubjectCard';
 import { NeumorphicView } from './NeumorphicComponents';
 
-interface Subject {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  progress: number;
-}
+import { Subject } from '../types';
 
 interface SubjectGridProps {
   subjects: Subject[];

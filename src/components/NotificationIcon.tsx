@@ -9,6 +9,16 @@ interface NotificationIconProps {
   size?: number;
   unreadCount?: number;
   onPress?: () => void;
+  notifications?: Array<{
+    id: string;
+    title: string;
+    message: string;
+    timestamp: string;
+    read: boolean;
+    type?: 'info' | 'success' | 'warning' | 'error';
+  }>;
+  onNotificationPress?: (notification: any) => void;
+  onClearAll?: () => void;
 }
 
 export const NotificationIcon: React.FC<NotificationIconProps> = ({

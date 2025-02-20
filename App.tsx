@@ -12,8 +12,7 @@ import { BookmarksScreen } from './src/screens/BookmarksScreen';
 import {HistoryScreen} from './src/screens/HistoryScreen';
 import {ProgressScreen} from './src/screens/ProgressScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import { QuizScreen } from './src/screens/QuizScreen';
-
+import { QuizScreen } from './src/screens/quiz/QuizScreen';
 const Drawer = createDrawerNavigator();
 
 const AppContent = () => {

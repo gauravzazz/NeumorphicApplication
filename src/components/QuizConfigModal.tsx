@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { NeumorphicView, NeumorphicButton } from './NeumorphicComponents';
+import { NeumorphicView } from './NeumorphicComponents';
+import { Button } from './ui/Button';
 import Slider from '@react-native-community/slider';
 
 interface QuizConfigModalProps {
@@ -101,35 +102,29 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
                     Select Mode:
                   </Text>
                   <View style={styles.modeButtonsContainer}>
-                    <NeumorphicButton
-                      style={[styles.modeButton, { backgroundColor: mode === 'practice' ? '#E0E5EC' : '#F0F0F3' }]}
+                    <Button
+                      variant={mode === 'practice' ? 'primary' : 'outline'}
                       onPress={() => handleModeChange('practice')}
-                    >
-                      <Text style={[styles.modeButtonText, { color: '#333' }]}>
-                        Practice
-                      </Text>
-                    </NeumorphicButton>
+                      title="Practice"
+                      style={styles.modeButton}
+                    />
 
-                    <NeumorphicButton
-                      style={[styles.modeButton, { backgroundColor: mode === 'test' ? '#E0E5EC' : '#F0F0F3' }]}
+                    <Button
+                      variant={mode === 'test' ? 'primary' : 'outline'}
                       onPress={() => handleModeChange('test')}
-                    >
-                      <Text style={[styles.modeButtonText, { color: '#333' }]}>
-                        Test
-                      </Text>
-                    </NeumorphicButton>
+                      title="Test"
+                      style={styles.modeButton}
+                    />
                   </View>
                 </View>
 
                 <View style={styles.startButtonContainer}>
-                  <NeumorphicButton
-                    style={[styles.startButton, { backgroundColor: '#F0F0F3' }]}
+                  <Button
+                    variant="primary"
                     onPress={handleStartQuiz}
-                  >
-                    <Text style={[styles.startButtonText, { color: '#333' }]}>
-                      Start Quiz
-                    </Text>
-                  </NeumorphicButton>
+                    title="Start Quiz"
+                    style={styles.startButton}
+                  />
                 </View>
               </View>
             </NeumorphicView>

@@ -454,4 +454,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '90%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  timeSliderContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  timeValue: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 20,
+  },
+  timeSlider: {
+    width: '100%',
+    height: 40,
+  },
 });

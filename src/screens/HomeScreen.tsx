@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, FlatList } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -90,61 +90,67 @@ export const HomeScreen: React.FC = () => {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerContainer}>
         <Header
-        searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
-        notifications={dummyNotifications}
-        onNotificationPress={handleNotificationPress}
-        onClearAllNotifications={handleClearAllNotifications}
-      />
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          notifications={dummyNotifications}
+          onNotificationPress={handleNotificationPress}
+          onClearAllNotifications={handleClearAllNotifications}
+        />
       </View>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.contentContainer}>
-          <RecentSubjects searchQuery={searchQuery} />
-          <HotTopics 
-            topics={mockHotTopics.filter(topic => {
-              if (!searchQuery) return true;
-              const query = searchQuery.toLowerCase();
-              return (
-                topic.title.toLowerCase().includes(query) ||
-                topic.category.toLowerCase().includes(query)
-              );
-            })} 
-            onTopicPress={handleTopicPress} 
-          />
-          <SubjectGrid
-            subjects={mockSubjects.filter(subject => {
-              if (!searchQuery) return true;
-              const query = searchQuery.toLowerCase();
-              return (
-                subject.name.toLowerCase().includes(query) ||
-                subject.description.toLowerCase().includes(query)
-              );
-            })}
-            onSubjectPress={handleSubjectPress}
-            onSeeMorePress={handleSeeMorePress}
-          />
-          <TopicGrid
-            topics={mockHotTopics
-              .filter(topic => {
+      <FlatList
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.contentContainer}
+        data={[1]}
+        renderItem={() => (
+          <>
+            <RecentSubjects searchQuery={searchQuery} />
+            <HotTopics 
+              topics={mockHotTopics.filter(topic => {
                 if (!searchQuery) return true;
                 const query = searchQuery.toLowerCase();
                 return (
                   topic.title.toLowerCase().includes(query) ||
                   topic.category.toLowerCase().includes(query)
                 );
-              })
-              .map(topic => ({
-                id: topic.id,
-                name: topic.title,
-                description: topic.category,
-                questionsCount: topic.participants,
-                icon: topic.icon
-              }))}
-            onTopicPress={handleTopicGridPress}
-            onSeeMorePress={handleSeeMorePress}
-          />
-        </View>
-      </ScrollView>
+              })} 
+              onTopicPress={handleTopicPress} 
+            />
+            <SubjectGrid
+              subjects={mockSubjects.filter(subject => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
+                return (
+                  subject.name.toLowerCase().includes(query) ||
+                  subject.description.toLowerCase().includes(query)
+                );
+              })}
+              onSubjectPress={handleSubjectPress}
+              onSeeMorePress={handleSeeMorePress}
+            />
+            <TopicGrid
+              topics={mockHotTopics
+                .filter(topic => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    topic.title.toLowerCase().includes(query) ||
+                    topic.category.toLowerCase().includes(query)
+                  );
+                })
+                .map(topic => ({
+                  id: topic.id,
+                  name: topic.title,
+                  description: topic.category,
+                  questionsCount: topic.participants,
+                  icon: topic.icon
+                }))}
+              onTopicPress={handleTopicGridPress}
+              onSeeMorePress={handleSeeMorePress}
+            />
+          </>
+        )}
+        keyExtractor={() => 'content'}
+      />
       <QuizConfigModal
         visible={isQuizConfigVisible}
         onDismiss={() => setQuizConfigVisible(false)}

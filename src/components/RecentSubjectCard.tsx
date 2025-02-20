@@ -27,7 +27,11 @@ export const RecentSubjectCard: React.FC<RecentSubjectCardProps> = ({
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <NeumorphicView style={styles.card} depth={10} intensity={0.2}>
+      <NeumorphicView 
+        style={[styles.card, { 
+          backgroundColor: theme.colors.surface
+        }]}
+      >
         <View style={styles.contentRow}>
           <View 
             style={[styles.iconContainer, { backgroundColor: `${theme.colors.primary}30` }]}
