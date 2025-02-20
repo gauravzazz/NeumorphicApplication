@@ -3,12 +3,13 @@ import { StyleSheet, View, Text, ScrollView, SafeAreaView, Animated, TouchableOp
 import { Confetti } from '../components/ui/Confetti';
 import { useTheme } from 'react-native-paper';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { NeumorphicView, NeumorphicButton } from '../components/NeumorphicComponents';
+import { NeumorphicView } from '../components/NeumorphicComponents';
 import { RoundButton } from '../components/ui/RoundButton';
 import { Ionicons } from '@expo/vector-icons';
 import Markdown from 'react-native-markdown-display';
 import { QuestionFilters } from './result/components/QuestionFilters';
 import { saveQuizHistory } from '../utils/quizHistoryStorage';
+import { saveBookmarkedQuestion, getBookmarkedQuestions } from '../utils/bookmarkStorage';
 
 interface Question {
   id: string;
@@ -44,6 +45,28 @@ export const ResultScreen: React.FC = () => {
   // Add animation variables
   const [scoreAnimation] = useState(new Animated.Value(0.3));
   const [fadeAnimation] = useState(new Animated.Value(0));
+
+  // Initialize bookmarked questions state
+  useEffect(() => {
+    const initializeBookmarks = async () => {
+      try {
+        const bookmarkedQuestions = await getBookmarkedQuestions();
+        const bookmarkedMap = bookmarkedQuestions.reduce((acc, question) => {
+          acc[question.id] = true;
+          return acc;
+        }, {} as { [key: string]: boolean });
+        setBookmarkedQuestions(bookmarkedMap);
+      } catch (error) {
+        console.error('Error initializing bookmarks:', error);
+      }
+    };
+    
+    initializeBookmarks();
+
+    // Add focus listener to refresh bookmarks
+    const unsubscribe = navigation.addListener('focus', initializeBookmarks);
+    return unsubscribe;
+  }, [navigation]);
 
   // Initialize animations
   useEffect(() => {
@@ -94,11 +117,35 @@ export const ResultScreen: React.FC = () => {
     }));
   };
 
-  const handleBookmarkToggle = (questionId: string) => {
+  const handleBookmarkToggle = async (questionId: string) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    // Optimistically update the UI
     setBookmarkedQuestions(prev => ({
       ...prev,
       [questionId]: !prev[questionId]
     }));
+
+    const bookmarkedQuestion = {
+      id: question.id,
+      question: question.question,
+      options: question.options,
+      correctOption: question.correctOption,
+      explanation: question.explanation,
+      topicId: 'topic-1',
+      topicName: 'Quiz Topic',
+      dateBookmarked: new Date().toISOString()
+    };
+
+    const { success, bookmarks } = await saveBookmarkedQuestion(bookmarkedQuestion);
+    if (!success) {
+      // Revert the optimistic update if the operation failed
+      setBookmarkedQuestions(prev => ({
+        ...prev,
+        [questionId]: !prev[questionId]
+      }));
+    }
   };
 
   const calculateScore = () => {
@@ -348,13 +395,13 @@ export const ResultScreen: React.FC = () => {
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.actionButton, question.isBookmarked && styles.actionButtonActive]}
+                    style={[styles.actionButton, bookmarkedQuestions[question.id] && styles.actionButtonActive]}
                     onPress={() => handleBookmarkToggle(question.id)}
                   >
                     <Ionicons
-                      name={question.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                      name={bookmarkedQuestions[question.id] ? 'bookmark' : 'bookmark-outline'}
                       size={24}
-                      color={question.isBookmarked ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                      color={bookmarkedQuestions[question.id] ? theme.colors.primary : theme.colors.onSurfaceVariant}
                     />
                   </TouchableOpacity>
                 </View>
