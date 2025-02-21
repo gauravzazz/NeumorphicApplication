@@ -11,6 +11,7 @@ import { DrawerContent } from './src/components/DrawerContent';
 import { BookmarksScreen } from './src/screens/BookmarksScreen';
 import {HistoryScreen} from './src/screens/HistoryScreen';
 import {ProgressScreen} from './src/screens/ProgressScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { QuizScreen } from './src/screens/quiz/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
@@ -72,6 +73,7 @@ const AppContent = () => {
           <Drawer.Screen name="Bookmarks" component={BookmarksScreen} />
           <Drawer.Screen name="History" component={QuizHistoryScreen} />
           <Drawer.Screen name="Progress" component={ProgressScreen} />
+          <Drawer.Screen name="Profile" component={ProfileScreen} />
           <Drawer.Screen name="Settings" component={SettingsScreen} />
           <Drawer.Screen name="Quiz" component={QuizScreen} />
           <Drawer.Screen name="Result" component={ResultScreen} />

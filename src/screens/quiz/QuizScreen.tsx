@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import { CustomAlert } from '../../components/ui/CustomAlert';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { QuestionCard } from '../../components/ui/QuestionCard';
 import { QuizHeader } from './components/QuizHeader';
 import { QuizOptions } from './components/QuizOptions';
 import { QuizNavigation } from './components/QuizNavigation';
+import { QuestionSummaryModal } from '../../components/modals/QuestionSummaryModal';
 
 type QuizScreenRouteProp = RouteProp<{
   Quiz: {
@@ -31,7 +32,7 @@ export const QuizScreen = () => {
   const navigation = useNavigation();
   const { mode, questionCount, timeLimit, questions } = route.params;
 
-  const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60);
+  const [timeRemaining, setTimeRemaining] = useState(mode === 'test' ? timeLimit * 60 : 0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
@@ -53,16 +54,16 @@ export const QuizScreen = () => {
     return () => {
       resetQuizState();
     };
-  }, [mode, timeLimit, questions]);
+  }, [mode, timeLimit]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | null = null;
     
     if (mode === 'test' && timeRemaining > 0) {
       timer = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
-            clearInterval(timer);
+            if (timer) clearInterval(timer);
             handleSubmit();
             return 0;
           }
@@ -186,64 +187,14 @@ export const QuizScreen = () => {
         style={styles.navigationContainer}
       />
 
-      <Modal
+      <QuestionSummaryModal
         visible={isQuestionTrayVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsQuestionTrayVisible(false)}
-        statusBarTranslucent
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsQuestionTrayVisible(false)}
-        >
-          <View style={[styles.questionTray, { backgroundColor: theme.colors.background }]}>
-            <View style={styles.trayHeader}>
-              <Text style={[styles.trayTitle, { color: theme.colors.onSurface }]}>
-                Question Summary
-              </Text>
-              <TouchableOpacity
-                style={[styles.filterButton, filterSkipped && styles.filterButtonActive]}
-                onPress={() => setFilterSkipped(!filterSkipped)}
-              >
-                <Text style={[styles.filterButtonText, { color: filterSkipped ? theme.colors.primary : theme.colors.onSurface }]}>
-                  Show Skipped
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.questionGrid}>
-              <View style={styles.gridContainer}>
-                {filteredQuestions.map((_, index) => {
-                  const isAnswered = answers[questions[index].id] !== undefined;
-                  const isCurrent = index === currentQuestionIndex;
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.questionItem,
-                        isAnswered && styles.answeredQuestion,
-                        isCurrent && styles.currentQuestion,
-                        { borderColor: theme.colors.primary }
-                      ]}
-                      onPress={() => handleQuestionSelect(index)}
-                    >
-                      <Text
-                        style={[
-                          styles.questionNumber,
-                          { color: isAnswered ? theme.colors.primary : theme.colors.onSurface }
-                        ]}
-                      >
-                        {index + 1}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        onClose={() => setIsQuestionTrayVisible(false)}
+        questions={questions}
+        currentQuestionIndex={currentQuestionIndex}
+        answers={answers}
+        onQuestionSelect={handleQuestionSelect}
+      />
 
       <CustomAlert
         visible={showSubmitAlert}
@@ -263,107 +214,42 @@ export const QuizScreen = () => {
   );
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: SCREEN_WIDTH * 0.04,
   },
   optionsContainer: {
-    marginBottom: 10,
+    marginBottom: SCREEN_WIDTH * 0.03,
   },
   questionCard: {
     flex: 1,
-    marginBottom: 24,
-    marginTop: 16,
+    marginBottom: SCREEN_WIDTH * 0.06,
+    marginTop: SCREEN_WIDTH * 0.04,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: SCREEN_WIDTH * 0.04,
   },
   navigationContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-    paddingTop: 16,
+    paddingHorizontal: SCREEN_WIDTH * 0.04,
+    paddingBottom: SCREEN_WIDTH * 0.08,
+    paddingTop: SCREEN_WIDTH * 0.04,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'flex-end',
-  },
-  questionTray: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    maxHeight: '70%',
-    elevation: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: -2,
+      height: -3,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  trayTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  questionGrid: {
-    maxHeight: '80%',
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: 12,
-    paddingBottom: 20,
-  },
-  questionItem: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  questionNumber: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  answeredQuestion: {
-    backgroundColor: 'rgba(98, 0, 238, 0.15)',
-  },
-  currentQuestion: {
-    borderWidth: 3,
-  },
-  trayHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  filterButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  filterButtonActive: {
-    backgroundColor: 'rgba(98, 0, 238, 0.1)',
-    borderColor: 'rgba(98, 0, 238, 0.5)',
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  }
 });

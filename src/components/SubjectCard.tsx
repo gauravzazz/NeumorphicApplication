@@ -4,6 +4,7 @@ import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
 import { typography } from '../theme/typography';
+import { scale, spacing } from '../theme/scaling';
 
 interface SubjectCardProps {
   title: string;
@@ -13,9 +14,7 @@ interface SubjectCardProps {
   onPress: () => void;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const SCALE_FACTOR = Math.min(SCREEN_WIDTH / 375, SCREEN_HEIGHT / 812);
-const getFontSize = (size: number) => Math.round(size * SCALE_FACTOR);
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export const SubjectCard: React.FC<SubjectCardProps> = ({
   title,
@@ -30,7 +29,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
     <TouchableOpacity onPress={onPress} style={styles.container}>
       <NeumorphicView style={styles.card}>
         <View style={[styles.iconContainer, { backgroundColor: 'rgba(103, 80, 164, 0.12)' }]}>
-          <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={getFontSize(32)} color={theme.colors.primary} />
+          <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={scale.icon.lg} color={theme.colors.primary} />
         </View>
         <View style={styles.contentContainer}>
           <Text style={[styles.title, { color: theme.colors.onSurface }, typography.titleLarge]} numberOfLines={1}>{title}</Text>
@@ -67,17 +66,17 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   card: {
-    padding: SCREEN_WIDTH < 375 ? 8 : 16,
-    borderRadius: SCREEN_WIDTH < 375 ? 16 : 20,
-    minHeight: SCREEN_WIDTH < 375 ? 130 : 180,
+    padding: spacing.md,
+    borderRadius: scale.radius.lg,
+    minHeight: scale.size(180),
     height: '100%',
     width: '100%',
   },
   iconContainer: {
-    marginBottom: getFontSize(6),
-    width: SCREEN_WIDTH < 375 ? getFontSize(32) : getFontSize(48),
-    height: SCREEN_WIDTH < 375 ? getFontSize(32) : getFontSize(48),
-    borderRadius: SCREEN_WIDTH < 375 ? getFontSize(16) : getFontSize(24),
+    marginBottom: spacing.sm,
+    width: scale.size(48),
+    height: scale.size(48),
+    borderRadius: scale.radius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -86,27 +85,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: SCREEN_WIDTH < 375 ? getFontSize(13) : getFontSize(18),
+    fontSize: scale.text.lg,
     fontWeight: 'bold',
-    marginBottom: getFontSize(2),
+    marginBottom: spacing.xs,
     letterSpacing: 0.25,
   },
   description: {
-    fontSize: SCREEN_WIDTH < 375 ? getFontSize(10) : getFontSize(14),
-    marginBottom: getFontSize(2),
-    lineHeight: SCREEN_WIDTH < 375 ? getFontSize(13) : getFontSize(18),
+    fontSize: scale.text.md,
+    marginBottom: spacing.xs,
+    lineHeight: scale.text.lg,
   },
   progressContainer: {
     marginTop: 'auto',
-    paddingTop: getFontSize(2),
+    paddingTop: spacing.xs,
   },
   progressBar: {
-    height: SCREEN_WIDTH < 375 ? 3 : 6,
-    borderRadius: SCREEN_WIDTH < 375 ? 1.5 : 3,
-    marginBottom: SCREEN_WIDTH < 375 ? 3 : 6,
+    height: scale.size(6),
+    borderRadius: scale.radius.xs,
+    marginBottom: spacing.xs,
     backgroundColor: 'rgba(103, 80, 164, 0.15)',
   },
   progressText: {
-    fontSize: SCREEN_WIDTH < 375 ? getFontSize(8) : getFontSize(12),
+    fontSize: scale.text.sm,
   },
 });

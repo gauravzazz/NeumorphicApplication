@@ -6,56 +6,142 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const BASE_DEVICE_WIDTH = 375;
 const BASE_DEVICE_HEIGHT = 812;
 
-// Scale factors
-const MIN_SCALE = 0.85;
-const MAX_SCALE = 1.25;
+// Scale factors with more conservative limits for better responsiveness
+const MIN_SCALE = 0.75;
+const MAX_SCALE = 1.1;
 
-// Calculate dynamic scale factors
+// Calculate dynamic scale factors with weighted averaging
 export const horizontalScale = Math.min(
-  Math.max(SCREEN_WIDTH / BASE_DEVICE_WIDTH, MIN_SCALE),
+  Math.max(SCREEN_WIDTH / BASE_DEVICE_WIDTH * 0.8 + 0.2, MIN_SCALE),
   MAX_SCALE
 );
 
 export const verticalScale = Math.min(
-  Math.max(SCREEN_HEIGHT / BASE_DEVICE_HEIGHT, MIN_SCALE),
+  Math.max(SCREEN_HEIGHT / BASE_DEVICE_HEIGHT * 0.8 + 0.2, MIN_SCALE),
   MAX_SCALE
 );
 
-// Use the smaller scale for moderate scaling
+// Use weighted scale factors for different component types
 export const moderateScale = Math.min(horizontalScale, verticalScale);
+const SCALE_FACTOR = moderateScale;
+const SPACING_FACTOR = moderateScale * 0.9; // Slightly reduced spacing
+const FONT_FACTOR = moderateScale * 0.85; // More conservative font scaling
+const IMAGE_FACTOR = moderateScale;
+const BUTTON_FACTOR = moderateScale * 0.95; // Slightly reduced button sizing
+const INPUT_FACTOR = moderateScale * 0.9; // More conservative input scaling
+
+// Border width scaling interface
+interface BorderScale {
+  thin: number;
+  medium: number;
+  thick: number;
+  (size: number): number;
+}
+
+// Shadow interface
+export interface ShadowScale {
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  (size: number): number;
+}
+
+// Radius interface
+export interface IconScale {
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  (size: number): number;
+}
+
+export interface TextScale {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  (size: number): number;
+}
+
+export interface RadiusScale {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  round: number;
+  (size: number): number;
+}
+
+// Scale function implementations
+const textScale: TextScale = Object.assign(
+  (size: number) => Math.round(size * FONT_FACTOR),
+  {
+    xs: 12 * FONT_FACTOR,
+    sm: 14 * FONT_FACTOR,
+    md: 16 * FONT_FACTOR,
+    lg: 20 * FONT_FACTOR,
+    xl: 24 * FONT_FACTOR
+  }
+);
+
+const radiusScale: RadiusScale = Object.assign(
+  (size: number) => Math.round(size * SCALE_FACTOR),
+  {
+    xs: 4 * SCALE_FACTOR,
+    sm: 8 * SCALE_FACTOR,
+    md: 12 * SCALE_FACTOR,
+    lg: 16 * SCALE_FACTOR,
+    xl: 24 * SCALE_FACTOR,
+    round: 999 * SCALE_FACTOR
+  }
+);
+
+const borderScale: BorderScale = Object.assign(
+  (size: number) => Math.round(size * SCALE_FACTOR),
+  {
+    thin: 1 * SCALE_FACTOR,
+    medium: 2 * SCALE_FACTOR,
+    thick: 3 * SCALE_FACTOR
+  }
+);
+
+const shadowScale: ShadowScale = Object.assign(
+  (size: number) => Math.round(size * SCALE_FACTOR),
+  {
+    sm: 4 * SCALE_FACTOR,
+    md: 8 * SCALE_FACTOR,
+    lg: 12 * SCALE_FACTOR,
+    xl: 16 * SCALE_FACTOR
+  }
+);
+
+const iconScale: IconScale = Object.assign(
+  (size: number) => Math.round(size * SCALE_FACTOR),
+  {
+    sm: 16 * SCALE_FACTOR,
+    md: 24 * SCALE_FACTOR,
+    lg: 32 * SCALE_FACTOR,
+    xl: 48 * SCALE_FACTOR
+  }
+);
 
 // Utility functions for different types of scaling
 export const scale = {
-  // Spacing (margin, padding)
-  spacing: (size: number) => Math.round(size * moderateScale),
-
-  // Font sizes
-  font: (size: number) => Math.round(size * moderateScale * 10) / 10,
-
-  // Border radius
-  radius: (size: number) => Math.round(size * moderateScale),
-
-  // Border width
-  border: (size: number) => Math.max(1, Math.round(size * moderateScale)),
-
-  // Shadow properties
-  shadow: (size: number) => Math.round(size * moderateScale),
-
-  // Icon sizes
-  icon: (size: number) => Math.round(size * moderateScale),
-
-  // Image dimensions
-  image: (size: number) => Math.round(size * horizontalScale),
-
-  // Button sizes
-  button: (size: number) => Math.round(size * moderateScale),
-
-  // Input field heights
-  input: (size: number) => Math.round(size * verticalScale),
-
-  // Custom scaling with a factor
-  custom: (size: number, factor: number = 0.5) =>
-    Math.round(size * (1 + factor * (moderateScale - 1)))
+  spacing: (size: number) => size * SPACING_FACTOR,
+  text: textScale,
+  font: (size: number) => size * FONT_FACTOR,
+  radius: radiusScale,
+  border: borderScale,
+  shadow: shadowScale,
+  icon: iconScale,
+  image: (size: number) => size * IMAGE_FACTOR,
+  button: (size: number) => size * BUTTON_FACTOR,
+  input: (size: number) => size * INPUT_FACTOR,
+  custom: (size: number, factor = 1) => size * factor,
+  size: (size: number) => size * SCALE_FACTOR,
 };
 
 // Predefined spacing units
@@ -87,11 +173,11 @@ export const border = {
 };
 
 // Predefined shadow sizes
-export const shadow = {
-  sm: scale.shadow(2),
-  md: scale.shadow(4),
-  lg: scale.shadow(8),
-  xl: scale.shadow(16)
+export const shadows = {
+  sm: scale.shadow.sm,
+  md: scale.shadow.md,
+  lg: scale.shadow.lg,
+  xl: scale.shadow.xl
 };
 
 // Helper function to create dynamic styles

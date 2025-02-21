@@ -5,6 +5,7 @@ import { Card } from '../../../components/ui/Card';
 import { Timer } from '../../../components/Timer';
 import { Button } from '../../../components/ui/Button';
 import { RoundButton } from '../../../components/ui/RoundButton';
+import { scale, shadows, spacing } from '../../../theme/scaling';
 
 interface QuizHeaderProps {
   currentQuestion: number;
@@ -52,10 +53,10 @@ export const QuizHeader: React.FC<QuizHeaderProps> = ({
 
 const styles = StyleSheet.create({
   headerCard: {
-    borderRadius: 16,
-    elevation: 4,
-    padding: 12,
-    height: 60,
+    borderRadius: scale.radius.lg,
+    elevation: shadows.md,
+    padding: spacing.sm,
+    height: scale.custom(60),
     marginTop: 0,
   },
   headerContent: {
@@ -65,15 +66,15 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   summaryButton: {
-    height: 36,
-    width: 36,
+    height: scale.button(36),
+    width: scale.button(36),
   },
   submitButton: {
-    height: 36,
-    minHeight: 36,
+    height: scale.button(36),
+    minHeight: scale.button(36),
     paddingVertical: 0,
     justifyContent: 'center',
     backgroundColor: '#4CAF50',
-    minWidth: 80,
+    minWidth: scale.button(80),
   },
 });

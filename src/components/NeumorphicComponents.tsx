@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { CustomTheme } from '../theme/theme';
+import { scale, spacing } from '../theme/scaling';
 
 interface NeumorphicViewProps {
   style?: StyleProp<ViewStyle>;
@@ -112,36 +113,36 @@ export const NeumorphicButton: React.FC<NeumorphicButtonProps> = ({
 
 const styles = StyleSheet.create({
   neumorphicView: {
-    borderRadius: 12,
-    padding: 16,
-    shadowOffset: { width: 6, height: 6 },
+    borderRadius: scale.radius.md,
+    padding: spacing.md,
+    shadowOffset: { width: scale.shadow(6), height: scale.shadow(6) },
     shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: scale.shadow(8),
+    elevation: scale.shadow(8),
   },
   neumorphicButton: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    shadowOffset: { width: 4, height: 4 },
+    borderRadius: scale.radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    shadowOffset: { width: scale.shadow(4), height: scale.shadow(4) },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowRadius: scale.shadow(4),
+    elevation: scale.shadow(4),
     alignItems: 'center',
     justifyContent: 'center',
   },
   pressedButton: {
-    shadowOffset: { width: 2, height: 2 },
+    shadowOffset: { width: scale.shadow(2), height: scale.shadow(2) },
     shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: scale.shadow(2),
+    elevation: scale.shadow(2),
   },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: scale.text.md,
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { NeumorphicButton } from './NeumorphicComponents';
 import { typography } from '../theme/typography';
+import { scale, spacing, shadows } from '../theme/scaling';
 
 interface QuizOptionProps {
   option: string;
@@ -27,9 +28,9 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
           backgroundColor: theme.colors.primary,
           shadowColor: theme.colors.primary,
           shadowOpacity: 0.3,
-          shadowOffset: { width: 3, height: 3 },
-          shadowRadius: 6,
-          elevation: 8,
+          shadowOffset: { width: scale.shadow(3), height: scale.shadow(3) },
+          shadowRadius: scale.shadow(6),
+          elevation: shadows.md
         },
       ]}
       onPress={onSelect}
@@ -72,43 +73,41 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
 const styles = StyleSheet.create({
   optionButton: {
     padding: 0,
-    borderRadius: 16,
+    borderRadius: scale.radius.lg,
     overflow: 'hidden',
-    marginVertical: 8,
+    marginVertical: spacing.xs,
     backgroundColor: '#F0F0F3',
-    elevation: 5,
+    elevation: shadows.md,
     shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
+    shadowOffset: { width: scale.shadow(2), height: scale.shadow(2) },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: scale.shadow(4),
   },
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    minHeight: 64,
+    padding: spacing.md,
+    minHeight: scale.custom(60),
   },
   optionLabel: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: scale.custom(34),
+    height: scale.custom(34),
+    borderRadius: scale.radius.round,
     backgroundColor: '#F0F0F3',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing.md,
     shadowColor: '#000',
-    shadowOffset: { width: 1, height: 1 },
+    shadowOffset: { width: scale.shadow(1), height: scale.shadow(1) },
     shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: scale.shadow(2),
+    elevation: shadows.sm
   },
   optionLabelText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.titleMedium,
   },
   optionText: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
+    ...typography.titleMedium,
   },
 });

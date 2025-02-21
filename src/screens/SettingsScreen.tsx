@@ -6,8 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../theme/ThemeContext';
 import { NeumorphicView } from '../components/NeumorphicComponents';
-import { TouchableOpacity, Modal } from 'react-native';
-import Slider from '@react-native-community/slider';
+import { TouchableOpacity } from 'react-native';
+import { LanguageSelectionModal } from '../components/modals/LanguageSelectionModal';
+import { TimeSettingModal } from '../components/modals/TimeSettingModal';
 import { RoundButton } from '../components/ui/RoundButton';
 
 interface SettingsProps {}
@@ -145,46 +146,13 @@ export const SettingsScreen: React.FC<SettingsProps> = () => {
             </TouchableOpacity>
           </NeumorphicView>
 
-          {/* Language Modal */}
-          <Modal
+          <LanguageSelectionModal
             visible={showLanguageModal}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setShowLanguageModal(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <NeumorphicView style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Select Language</Text>
-                  <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
-                    <Ionicons name="close" size={24} color={theme.colors.onSurface} />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView>
-                  {languages.map((language) => (
-                    <TouchableOpacity
-                      key={language}
-                      style={[styles.languageItem, 
-                        settings.language === language && styles.selectedLanguageItem
-                      ]}
-                      onPress={() => handleLanguageSelect(language)}
-                    >
-                      <Text style={[styles.languageText, { 
-                        color: settings.language === language 
-                          ? theme.colors.primary 
-                          : theme.colors.onSurface 
-                      }]}>
-                        {language}
-                      </Text>
-                      {settings.language === language && (
-                        <Ionicons name="checkmark" size={24} color={theme.colors.primary} />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </NeumorphicView>
-            </View>
-          </Modal>
+            onClose={() => setShowLanguageModal(false)}
+            selectedLanguage={settings.language}
+            onLanguageSelect={handleLanguageSelect}
+            languages={languages}
+          />
 
           {/* Time per Question Setting */}
           <NeumorphicView style={styles.settingItem}>
@@ -205,40 +173,12 @@ export const SettingsScreen: React.FC<SettingsProps> = () => {
             </TouchableOpacity>
           </NeumorphicView>
 
-          {/* Time Modal */}
-          <Modal
+          <TimeSettingModal
             visible={showTimeModal}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setShowTimeModal(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <NeumorphicView style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Set Time per Question</Text>
-                  <TouchableOpacity onPress={() => setShowTimeModal(false)}>
-                    <Ionicons name="close" size={24} color={theme.colors.onSurface} />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.timeSliderContainer}>
-                  <Text style={[styles.timeValue, { color: theme.colors.onSurface }]}>
-                    {formatTime(settings.timePerQuestion)}
-                  </Text>
-                  <Slider
-                    style={styles.timeSlider}
-                    minimumValue={30}
-                    maximumValue={300}
-                    step={30}
-                    value={settings.timePerQuestion}
-                    onValueChange={handleTimeChange}
-                    minimumTrackTintColor={theme.colors.primary}
-                    maximumTrackTintColor={theme.colors.onSurfaceVariant}
-                    thumbTintColor={theme.colors.primary}
-                  />
-                </View>
-              </NeumorphicView>
-            </View>
-          </Modal>
+            onClose={() => setShowTimeModal(false)}
+            currentTime={settings.timePerQuestion}
+            onTimeChange={handleTimeChange}
+          />
 
           {/* Background Sound Setting */}
           <NeumorphicView style={styles.settingItem}>
@@ -441,48 +381,78 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginVertical: 4,
+    backgroundColor: '#F0F0F3',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   selectedLanguageItem: {
-    backgroundColor: 'rgba(98, 0, 238, 0.1)',
+    backgroundColor: 'rgba(98, 0, 238, 0.15)',
+    shadowColor: '#6200EE',
+    shadowOpacity: 0.2,
+    elevation: 4,
   },
   languageText: {
     fontSize: 16,
     fontWeight: '500',
+    letterSpacing: 0.15,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 16,
   },
   modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: '#F0F0F3',
+    borderRadius: 24,
+    padding: 24,
     width: '90%',
     maxWidth: 400,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    paddingBottom: 16,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
+    letterSpacing: 0.15,
   },
   timeSliderContainer: {
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: 24,
+    width: '100%',
   },
   timeValue: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: '600',
-    marginBottom: 20,
+    marginBottom: 24,
+    letterSpacing: 0.5,
   },
   timeSlider: {
     width: '100%',

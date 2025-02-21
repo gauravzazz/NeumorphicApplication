@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, ScrollView, FlatList, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -13,6 +13,8 @@ import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
 import { QuizConfigModal } from '../components/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export const HomeScreen: React.FC = () => {
   const theme = useTheme();
@@ -172,25 +174,25 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1,
     backgroundColor: 'transparent',
-    paddingTop: 40,
+    paddingTop: SCREEN_WIDTH * 0.1,
     paddingHorizontal: 0,
   },
   scrollContainer: {
     flex: 1,
   },
   contentContainer: {
-    paddingTop: 150,
+    paddingTop: SCREEN_WIDTH * 0.375,
   },
   listContainer: {
-    padding: 16,
+    padding: SCREEN_WIDTH * 0.04,
   },
   subjectCard: {
-    marginBottom: 16,
-    borderRadius: 16,
-    padding: 16,
+    marginBottom: SCREEN_WIDTH * 0.04,
+    borderRadius: SCREEN_WIDTH * 0.04,
+    padding: SCREEN_WIDTH * 0.04,
   },
   subjectContent: {
-    gap: 8,
+    gap: SCREEN_WIDTH * 0.02,
   },
   subjectHeader: {
     flexDirection: 'row',
@@ -198,18 +200,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   subjectName: {
-    fontSize: 18,
+    fontSize: SCREEN_WIDTH * 0.045,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: SCREEN_WIDTH * 0.01,
   },
   subjectDescription: {
-    fontSize: 14,
+    fontSize: SCREEN_WIDTH * 0.035,
   },
   subjectStats: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statsText: {
-    fontSize: 12,
+    fontSize: SCREEN_WIDTH * 0.03,
   },
 });

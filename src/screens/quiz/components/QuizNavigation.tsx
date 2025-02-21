@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { RoundButton } from '../../../components/ui/RoundButton';
+import { scale, spacing } from '../../../theme/scaling';
 
 interface QuizNavigationProps {
   onPrevious: () => void;
@@ -28,24 +29,21 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
           icon="chevron-back"
           onPress={onPrevious}
           disabled={isFirstQuestion}
-          size={44}
+          size={scale.button(44)}
         />
         <Button
           mode="outlined"
           onPress={onSkip}
           style={styles.skipButton}
           title='Skip'
-        >
-          Skip
-        </Button>
+        />
         <RoundButton
           icon="chevron-forward"
           onPress={onNext}
           disabled={isLastQuestion}
-          size={44}
+          size={scale.button(44)}
         />
       </View>
-    
     </View>
   );
 };
@@ -58,18 +56,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 8,
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.sm,
   },
   skipButton: {
-    minWidth: 120,
+    minWidth: scale.button(120),
+    paddingVertical: spacing.sm,
+    borderRadius: scale.radius.md,
   },
   footer: {
-    marginTop: 16,
+    marginTop: spacing.md,
   },
   submitButton: {
     width: '100%',
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: spacing.md,
+    borderRadius: scale.radius.md,
   },
 });
