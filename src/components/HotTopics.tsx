@@ -4,8 +4,7 @@ import { useTheme } from 'react-native-paper';
 import { scale, spacing } from '../theme/scaling';
 import { getTextStyle } from '../theme/typography';
 import { HotTopicCard } from './HotTopicCard';
-import { QuizConfigModal } from './QuizConfigModal';
-
+import { QuizConfigModal } from './modals/QuizConfigModal';
 interface HotTopic {
   id: string;
   title: string;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { RecentSubjectCard } from './RecentSubjectCard';
-import { QuizConfigModal } from './QuizConfigModal';
+import { QuizConfigModal } from './modals/QuizConfigModal';
 
 interface Topic {
   id: string;

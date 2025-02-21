@@ -11,7 +11,7 @@ import { RecentSubjects } from '../components/RecentSubjects';
 import { HotTopics } from '../components/HotTopics';
 import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
-import { QuizConfigModal } from '../components/QuizConfigModal';
+import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

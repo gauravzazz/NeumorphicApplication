@@ -52,10 +52,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <View style={[styles.container, getNeumorphicStyle(), style]}>
       <View style={styles.questionContent}>
-        <Text style={[styles.questionText, { fontSize: calculateFontSize() }]}>
-          Q{questionNumber}.
-        </Text>
-        <Markdown style={markdownStyles}>{question}</Markdown>
+        <Markdown style={markdownStyles}>{`Q${questionNumber}. ${question}`}</Markdown>
       </View>
     </View>
   );

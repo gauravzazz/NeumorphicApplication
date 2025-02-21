@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from './NeumorphicComponents';
-import { QuizConfigModal } from './QuizConfigModal';
+import { QuizConfigModal } from './modals/QuizConfigModal';
 
 interface Topic {
   id: string;

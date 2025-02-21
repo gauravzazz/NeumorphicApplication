@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { NeumorphicView } from './NeumorphicComponents';
-import { Button } from './ui/Button';
+import { NeumorphicView } from '../NeumorphicComponents';
+import { Button } from '../ui//Button';
 import Slider from '@react-native-community/slider';
 
 interface QuizConfigModalProps {
