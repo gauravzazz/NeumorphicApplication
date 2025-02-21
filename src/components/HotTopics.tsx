@@ -34,9 +34,16 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
     }
   };
 
-  const handleQuizStart = (questionCount: number, mode: 'test' | 'practice') => {
+  const handleQuizStart = (config: {
+    questionCount: number;
+    mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
+    timeLimit: number;
+  }) => {
     if (selectedTopic) {
-      onTopicPress(selectedTopic.id, { mode, questionCount });
+      onTopicPress(selectedTopic.id, { mode: config.mode, questionCount: config.questionCount });
     }
     setQuizConfigVisible(false);
   };
@@ -69,7 +76,9 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
           visible={isQuizConfigVisible}
           onClose={handleModalClose}
           onStart={handleQuizStart}
+          topicId={selectedTopic.id}
           topicTitle={selectedTopic.title}
+          subjectName={selectedTopic.category}
           maxQuestions={selectedTopic.questions?.length || 0}
         />
       )}

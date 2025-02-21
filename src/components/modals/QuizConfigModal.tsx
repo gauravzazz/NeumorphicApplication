@@ -9,9 +9,19 @@ import Slider from '@react-native-community/slider';
 interface QuizConfigModalProps {
   visible: boolean;
   onClose: () => void;
-  onStart: (questionCount: number, mode: 'test' | 'practice') => void;
+  onStart: (config: {
+    questionCount: number;
+    mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
+    timeLimit: number;
+  }) => void;
+  topicId: string;
   topicTitle: string;
+  subjectName: string;
   maxQuestions: number;
+  defaultTimeLimit?: number;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -20,12 +30,16 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   visible,
   onClose,
   onStart,
+  topicId,
   topicTitle,
+  subjectName,
   maxQuestions,
+  defaultTimeLimit = 150,
 }) => {
   const theme = useTheme();
   const [questionCount, setQuestionCount] = useState<number>(5);
   const [mode, setMode] = useState<'test' | 'practice'>('practice');
+  const [timeLimit, setTimeLimit] = useState<number>(defaultTimeLimit);
 
   const handleQuestionCountChange = (value: number) => {
     setQuestionCount(Math.min(Math.max(Math.round(value), 5), maxQuestions));
@@ -36,13 +50,21 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   };
 
   const handleStartQuiz = () => {
-    onStart(questionCount, mode);
+    onStart({
+      questionCount,
+      mode,
+      topicId,
+      topicTitle,
+      subjectName,
+      timeLimit,
+    });
     onClose();
   };
 
   const handleModalClose = () => {
     setQuestionCount(5);
     setMode('practice');
+    setTimeLimit(defaultTimeLimit);
     onClose();
   };
 

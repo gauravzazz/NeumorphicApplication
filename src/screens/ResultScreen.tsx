@@ -27,6 +27,9 @@ type ResultScreenRouteProp = RouteProp<{
     questions: Array<Question>;
     timeSpent: number;
     mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
   };
 }, 'Result'>;
 
@@ -35,7 +38,7 @@ export const ResultScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute<ResultScreenRouteProp>();
-  const { answers, questions, timeSpent, mode } = route.params;
+  const { answers, questions, timeSpent, mode, topicId, topicTitle, subjectName } = route.params;
 
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'correct' | 'incorrect' | 'skipped'>('all');
   const [expandedExplanations, setExpandedExplanations] = useState<{ [key: string]: boolean }>({});
@@ -90,23 +93,21 @@ export const ResultScreen: React.FC = () => {
         const historyItem = {
           id: Date.now().toString(),
           date: new Date().toISOString(),
-          topicId: 'topic-1', // This should come from quiz context
-          topicName: 'Quiz Topic', // This should come from quiz context
+          topicId,
+          topicTitle,
+          subjectName,
           mode,
           score: calculateScore(),
           timeSpent,
           questions,
           answers
         };
-        const saved = await saveQuizHistory(historyItem);
-        if (!saved) {
-          console.error('Failed to save quiz history');
-          // You might want to show an error message to the user here
-        }
+        await saveQuizHistory(historyItem);
       } catch (error) {
-        console.error('Error in saveResult:', error);
+        console.error('Error saving quiz history:', error);
       }
     };
+
     saveResult();
   }, []);
 

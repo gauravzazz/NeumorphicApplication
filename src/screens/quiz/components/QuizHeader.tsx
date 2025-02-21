@@ -14,6 +14,8 @@ interface QuizHeaderProps {
   mode: 'test' | 'practice';
   onSubmit: () => void;
   onSummary: () => void;
+  topicTitle: string;
+  subjectName: string;
 }
 
 export const QuizHeader: React.FC<QuizHeaderProps> = ({

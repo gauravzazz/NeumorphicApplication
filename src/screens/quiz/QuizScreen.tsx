@@ -14,6 +14,8 @@ import { QuestionSummaryModal } from '../../components/modals/QuestionSummaryMod
 type QuizScreenRouteProp = RouteProp<{
   Quiz: {
     topicId: string;
+    topicTitle: string;
+    subjectName: string;
     mode: 'test' | 'practice';
     questionCount: number;
     timeLimit: number;
@@ -31,7 +33,7 @@ export const QuizScreen = () => {
   const theme = useTheme();
   const route = useRoute<QuizScreenRouteProp>();
   const navigation = useNavigation();
-  const { mode, timeLimit, questions } = route.params;
+  const { mode, timeLimit, questions, topicId, topicTitle, subjectName } = route.params;
 
   const [timeRemaining, setTimeRemaining] = useState(mode === 'test' ? timeLimit * 60 : 0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -41,7 +43,6 @@ export const QuizScreen = () => {
   const [showSubmitAlert, setShowSubmitAlert] = useState(false);
   const [showToast, setShowToast] = useState(true);
   
-  // Reset all states when component mounts or key dependencies change
   useEffect(() => {
     const initializeQuiz = () => {
       setCurrentQuestionIndex(0);
@@ -55,7 +56,6 @@ export const QuizScreen = () => {
 
     initializeQuiz();
 
-    // Cleanup function to reset states when component unmounts
     return () => {
       setCurrentQuestionIndex(0);
       setSelectedOption(null);
@@ -65,27 +65,19 @@ export const QuizScreen = () => {
       setShowSubmitAlert(false);
       setShowToast(false);
     };
-  }, [mode, timeLimit, questions, route.params.topicId]); // Add topicId to dependencies
+  }, [mode, timeLimit, questions, topicId]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (mode === 'test' && timeRemaining > 0) {
-      timer = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            handleSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (mode === 'test') {
+      setTimeRemaining(timeLimit * 60);
     }
-    return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
-    };
-  }, [mode, timeRemaining]);
+  }, [mode, timeLimit]);
+
+  const handleTimeEnd = () => {
+    if (mode === 'test') {
+      handleSubmit();
+    }
+  };
 
   useEffect(() => {
     const currentAnswer = answers[questions[currentQuestionIndex].id];
@@ -139,7 +131,10 @@ export const QuizScreen = () => {
       answers,
       questions,
       timeSpent: Math.max(0, timeLimit * 60 - timeRemaining),
-      mode
+      mode,
+      topicId,
+      topicTitle,
+      subjectName
     });
   };
 
@@ -149,15 +144,47 @@ export const QuizScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>      
-      <Toast visible={showToast} message={`Starting ${mode} mode quiz`} onHide={() => setShowToast(false)} style={styles.toast} />
-      <QuizHeader currentQuestion={currentQuestionIndex + 1} totalQuestions={questions.length} timeRemaining={timeRemaining} mode={mode} onSubmit={handleSubmit} onSummary={handleSummary} />
+      <Toast visible={showToast} message={`Starting ${mode} mode quiz for ${topicTitle}`} onHide={() => setShowToast(false)} style={styles.toast} />
+      <QuizHeader 
+        currentQuestion={currentQuestionIndex + 1} 
+        totalQuestions={questions.length} 
+        timeRemaining={timeRemaining} 
+        mode={mode} 
+        onSubmit={handleSubmit} 
+        onSummary={handleSummary}
+        topicTitle={topicTitle}
+        subjectName={subjectName}
+      />
       <QuestionCard questionNumber={currentQuestionIndex + 1} question={questions[currentQuestionIndex].question} style={styles.questionCard} />
       <View style={styles.optionsContainer}>
         <QuizOptions options={questions[currentQuestionIndex].options} selectedOption={selectedOption} onOptionSelect={handleOptionSelect} />
       </View>
-      <QuizNavigation onPrevious={handlePreviousQuestion} onNext={handleNextQuestion} onSkip={handleSkipQuestion} onSubmit={handleSubmit} isFirstQuestion={currentQuestionIndex === 0} isLastQuestion={currentQuestionIndex === questions.length - 1} style={styles.navigationContainer} />
-      <QuestionSummaryModal visible={isQuestionTrayVisible} onClose={() => setIsQuestionTrayVisible(false)} questions={questions} currentQuestionIndex={currentQuestionIndex} answers={answers} onQuestionSelect={setCurrentQuestionIndex} />
-      <CustomAlert visible={showSubmitAlert} title="Submit Quiz" message={`You have answered ${Object.keys(answers).length} out of ${questions.length} questions. Are you sure you want to submit?`} onConfirm={() => { setShowSubmitAlert(false); navigateToResult(); }} onCancel={() => setShowSubmitAlert(false)} confirmText="Submit" cancelText="Cancel" />
+      <QuizNavigation 
+        onPrevious={handlePreviousQuestion} 
+        onNext={handleNextQuestion} 
+        onSkip={handleSkipQuestion} 
+        onSubmit={handleSubmit} 
+        isFirstQuestion={currentQuestionIndex === 0} 
+        isLastQuestion={currentQuestionIndex === questions.length - 1} 
+        style={styles.navigationContainer} 
+      />
+      <QuestionSummaryModal 
+        visible={isQuestionTrayVisible} 
+        onClose={() => setIsQuestionTrayVisible(false)} 
+        questions={questions} 
+        currentQuestionIndex={currentQuestionIndex} 
+        answers={answers} 
+        onQuestionSelect={setCurrentQuestionIndex} 
+      />
+      <CustomAlert 
+        visible={showSubmitAlert} 
+        title="Submit Quiz" 
+        message={`You have answered ${Object.keys(answers).length} out of ${questions.length} questions. Are you sure you want to submit?`} 
+        onConfirm={() => { setShowSubmitAlert(false); navigateToResult(); }} 
+        onCancel={() => setShowSubmitAlert(false)} 
+        confirmText="Submit" 
+        cancelText="Cancel" 
+      />
     </SafeAreaView>
   );
 };

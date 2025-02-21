@@ -27,9 +27,16 @@ export const RecentTopics: React.FC<RecentTopicsProps> = ({ topics, onTopicPress
     setModalVisible(true);
   };
 
-  const handleStartQuiz = (questionCount: number, mode: 'test' | 'practice') => {
+  const handleStartQuiz = (config: {
+    questionCount: number;
+    mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
+    timeLimit: number;
+  }) => {
     if (selectedTopic) {
-      onTopicPress(selectedTopic.id, questionCount, mode);
+      onTopicPress(selectedTopic.id, config.questionCount, config.mode);
     }
     setModalVisible(false);
   };
@@ -61,7 +68,9 @@ export const RecentTopics: React.FC<RecentTopicsProps> = ({ topics, onTopicPress
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           onStart={handleStartQuiz}
+          topicId={selectedTopic.id}
           topicTitle={selectedTopic.title}
+          subjectName={selectedTopic.category}
           maxQuestions={selectedTopic.totalQuestions}
         />
       )}

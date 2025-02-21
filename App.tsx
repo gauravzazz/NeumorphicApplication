@@ -9,7 +9,6 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { SubjectDetailScreen } from './src/screens/SubjectDetailScreen';
 import { DrawerContent } from './src/components/DrawerContent';
 import { BookmarksScreen } from './src/screens/BookmarksScreen';
-import {HistoryScreen} from './src/screens/HistoryScreen';
 import {ProgressScreen} from './src/screens/ProgressScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
@@ -57,6 +56,7 @@ const AppContent = () => {
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <NavigationContainer>
         <Drawer.Navigator
+          initialRouteName="Home"
           drawerContent={(props) => <DrawerContent {...props} />}
           screenOptions={{
             drawerType: 'front',

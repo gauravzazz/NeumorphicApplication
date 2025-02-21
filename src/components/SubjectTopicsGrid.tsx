@@ -22,8 +22,15 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleStartQuiz = (questionCount: number, mode: 'test' | 'practice') => {
-    onPress(topic.id, questionCount, mode);
+  const handleStartQuiz = (config: {
+    questionCount: number;
+    mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
+    timeLimit: number;
+  }) => {
+    onPress(topic.id, config.questionCount, config.mode);
     setModalVisible(false);
   };
 
@@ -49,7 +56,9 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onStart={handleStartQuiz}
+        topicId={topic.id}
         topicTitle={topic.title}
+        subjectName={topic.category}
         maxQuestions={topic.totalQuestions}
       />
     </>

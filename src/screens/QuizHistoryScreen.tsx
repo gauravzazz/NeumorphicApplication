@@ -150,14 +150,17 @@ export const QuizHistoryScreen: React.FC = () => {
                     answers: item.answers,
                     questions: item.questions,
                     timeSpent: item.timeSpent,
-                    mode: item.mode
+                    mode: item.mode,
+                    topicId: item.topicId,
+                    topicTitle: item.topicTitle,
+                    subjectName: item.subjectName
                   })}
                 >
                   <NeumorphicView style={styles.historyCard}>
                     <View style={styles.cardHeader}>
                       <View style={styles.topicContainer}>
                         <Text style={[styles.topicName, { color: theme.colors.primary }]}>
-                          {item.topicName}
+                          {item.topicTitle}
                         </Text>
                         <View style={[styles.modeBadge, { 
                           backgroundColor: item.mode === 'test' 

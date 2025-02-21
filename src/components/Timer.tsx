@@ -8,9 +8,10 @@ interface TimerProps {
   isRunning?: boolean;
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BASE_FONT_SIZE = 24;
-const FONT_SCALE = SCREEN_WIDTH / 375; // 375 is the base width for iPhone X
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const MIN_FONT_SIZE = 18;
+const MAX_FONT_SIZE = 32;
+const FONT_SCALE = Math.min(SCREEN_WIDTH / 375, SCREEN_HEIGHT / 812);
 
 export const Timer: React.FC<TimerProps> = ({
   initialTime,
@@ -21,17 +22,22 @@ export const Timer: React.FC<TimerProps> = ({
   const theme = useTheme();
 
   useEffect(() => {
+    setTimeRemaining(initialTime);
+  }, [initialTime]);
+
+  useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     if (isRunning && timeRemaining > 0) {
       intervalId = setInterval(() => {
         setTimeRemaining((prevTime) => {
-          if (prevTime <= 1) {
+          const newTime = prevTime - 1;
+          if (newTime <= 0) {
             clearInterval(intervalId);
             onTimeEnd?.();
             return 0;
           }
-          return prevTime - 1;
+          return newTime;
         });
       }, 1000);
     }
@@ -41,7 +47,7 @@ export const Timer: React.FC<TimerProps> = ({
         clearInterval(intervalId);
       }
     };
-  }, [isRunning, timeRemaining, onTimeEnd]);
+  }, [isRunning, onTimeEnd]);
 
   const formatTime = (seconds: number) => {
     if (typeof seconds !== 'number' || isNaN(seconds)) {
@@ -53,6 +59,7 @@ export const Timer: React.FC<TimerProps> = ({
   };
 
   const isLowTime = timeRemaining < 60;
+  const dynamicFontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(24 * FONT_SCALE)));
 
   return (
     <View style={styles.timerContainer}>
@@ -62,7 +69,7 @@ export const Timer: React.FC<TimerProps> = ({
           {
             color: isLowTime ? theme.colors.error : theme.colors.primary,
             backgroundColor: `${isLowTime ? theme.colors.error : theme.colors.primary}10`,
-            fontSize: Math.round(BASE_FONT_SIZE * FONT_SCALE),
+            fontSize: dynamicFontSize,
           },
         ]}
       >
@@ -76,11 +83,13 @@ const styles = StyleSheet.create({
   timerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 80,
   },
   timerValue: {
     fontWeight: '700',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingHorizontal: Math.round(16 * FONT_SCALE),
+    paddingVertical: Math.round(6 * FONT_SCALE),
     borderRadius: 12,
+    textAlign: 'center',
   },
 });
