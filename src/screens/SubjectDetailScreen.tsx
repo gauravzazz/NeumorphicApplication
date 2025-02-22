@@ -10,7 +10,6 @@ import { SubjectTopicsGrid } from '../components/SubjectTopicsGrid';
 import { Subject } from '../types';
 import { mockHotTopics } from '../data/mockData';
 import { addRecentSubject } from '../utils/recentSubjectsStorage';
-import { SearchBar } from '../components/ui/SearchBar';
 
 type SubjectDetailRouteProp = RouteProp<{ SubjectDetail: { subject: Subject } }, 'SubjectDetail'>;
 
@@ -74,12 +73,7 @@ export const SubjectDetailScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
       <ScrollView style={styles.content}>
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="Search topics..."
-        />
-        <SubjectDetailsCard subject={subject} />
+        <SubjectDetailsCard subject={subject} onSearchChange={setSearchQuery} />
         <RecentTopics topics={filteredTopics} onTopicPress={handleTopicPress} />
         <SubjectTopicsGrid topics={filteredTopics} onTopicPress={handleTopicPress} />
       </ScrollView>

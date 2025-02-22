@@ -7,11 +7,17 @@ import { Subject } from '../types';
 
 interface SubjectDetailsCardProps {
   subject: Subject;
+  onSearchChange: (query: string) => void;
 }
 
-export const SubjectDetailsCard: React.FC<SubjectDetailsCardProps> = ({ subject }) => {
+export const SubjectDetailsCard: React.FC<SubjectDetailsCardProps> = ({ subject, onSearchChange }) => {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text);
+    onSearchChange(text);
+  };
 
   return (
     <NeumorphicView style={styles.card}>
@@ -55,7 +61,7 @@ export const SubjectDetailsCard: React.FC<SubjectDetailsCardProps> = ({ subject 
             placeholder="Search topics..."
             placeholderTextColor={theme.colors.onSurfaceVariant}
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearchChange}
           />
         </NeumorphicView>
       </View>

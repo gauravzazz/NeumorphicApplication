@@ -68,10 +68,16 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
 interface SubjectTopicsGridProps {
   topics: Topic[];
   onTopicPress: (topicId: string, questionCount: number, mode: 'test' | 'practice') => void;
+  searchQuery?: string;
 }
 
-export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, onTopicPress }) => {
+export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, onTopicPress, searchQuery = '' }) => {
   const theme = useTheme();
+
+  const filteredTopics = topics.filter(topic => 
+    topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    topic.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <View style={styles.container}>
@@ -79,7 +85,7 @@ export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, on
         Topics
       </Text>
       <View style={styles.grid}>
-        {topics.map((topic) => (
+        {filteredTopics.map((topic) => (
           <TopicCard key={topic.id} topic={topic} onPress={onTopicPress} />
         ))}
       </View>
