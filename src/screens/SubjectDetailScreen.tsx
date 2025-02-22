@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { SubjectTopicsGrid } from '../components/SubjectTopicsGrid';
 import { Subject } from '../types';
 import { mockHotTopics } from '../data/mockData';
 import { addRecentSubject } from '../utils/recentSubjectsStorage';
+import { SearchBar } from '../components/ui/SearchBar';
 
 type SubjectDetailRouteProp = RouteProp<{ SubjectDetail: { subject: Subject } }, 'SubjectDetail'>;
 
@@ -18,6 +19,12 @@ export const SubjectDetailScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<SubjectDetailRouteProp>();
   const { subject } = route.params;
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredTopics = mockHotTopics.filter(topic =>
+    topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    topic.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     // Add the subject to recent subjects when the screen is opened
@@ -47,7 +54,7 @@ export const SubjectDetailScreen: React.FC = () => {
         topicId,
         questionCount: Math.min(questionCount, questions.length),
         mode,
-        timeLimit: mode === 'test' ? 30 : 0,
+        timeLimit: mode === 'test' ? 30 : 60,
         questions: questions.map(q => ({
           id: q.id,
           topicId: q.topicId,
@@ -67,9 +74,14 @@ export const SubjectDetailScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
       <ScrollView style={styles.content}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search topics..."
+        />
         <SubjectDetailsCard subject={subject} />
-        <RecentTopics topics={mockHotTopics} onTopicPress={handleTopicPress} />
-        <SubjectTopicsGrid topics={mockHotTopics} onTopicPress={handleTopicPress} />
+        <RecentTopics topics={filteredTopics} onTopicPress={handleTopicPress} />
+        <SubjectTopicsGrid topics={filteredTopics} onTopicPress={handleTopicPress} />
       </ScrollView>
     </SafeAreaView>
   );

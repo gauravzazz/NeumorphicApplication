@@ -51,7 +51,7 @@ export const Confetti: React.FC<ConfettiProps> = ({ isVisible }) => {
             useNativeDriver: true,
           }),
           Animated.timing(particle.x, {
-            toValue: particle.x._value + (Math.random() * 200 - 100),
+            toValue: particle.x.getValue() + (Math.random() * 200 - 100),
             duration,
             useNativeDriver: true,
           }),

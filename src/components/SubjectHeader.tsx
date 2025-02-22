@@ -1,8 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import { NeumorphicButton } from './NeumorphicComponents';
+import { RoundButton } from './ui/RoundButton';
 
 interface SubjectHeaderProps {
   title: string;
@@ -14,13 +13,12 @@ export const SubjectHeader: React.FC<SubjectHeaderProps> = ({ title, onBackPress
 
   return (
     <View style={styles.header}>
-      <NeumorphicButton
+      <RoundButton
         style={styles.backButton}
-        text=""
+        icon="arrow-back"
         onPress={onBackPress}
-      >
-        <Ionicons name="arrow-back" size={28} color={theme.colors.primary} />
-      </NeumorphicButton>
+        size={48}
+      />
       <Text style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
     </View>
   );

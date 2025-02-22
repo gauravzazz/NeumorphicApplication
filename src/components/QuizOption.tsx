@@ -10,6 +10,8 @@ interface QuizOptionProps {
   index: number;
   isSelected: boolean;
   onSelect: () => void;
+  isCorrect?: boolean;
+  isDisabled?: boolean;
 }
 
 export const QuizOption: React.FC<QuizOptionProps> = ({

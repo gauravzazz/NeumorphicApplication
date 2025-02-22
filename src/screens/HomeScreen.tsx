@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { Subject } from '../types';
-import { mockSubjects, mockHotTopics } from '../data/mockData';
+import { mockSubjects, mockHotTopics, mockQuestions } from '../data/mockData';
 import { Header} from '../components/Header';
 import { RecentSubjects } from '../components/RecentSubjects';
 import { HotTopics } from '../components/HotTopics';
@@ -13,6 +13,9 @@ import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
 import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
+import { Ionicons } from '@expo/vector-icons';
+import { NeumorphicView } from '../components/NeumorphicComponents';
+import { TouchableOpacity } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -88,6 +91,32 @@ export const HomeScreen: React.FC = () => {
     throw new Error('Function not implemented.');
   }
 
+  const handleVersusQuizPress = () => {
+    // Get first 5 questions from mock data for versus quiz
+    const versusQuizQuestions = mockQuestions.slice(0, 5).map(q => ({
+      id: q.id,
+      question: q.question,
+      options: q.options,
+      correctOption: q.correctOption
+    }));
+
+    navigation.navigate('VersusQuiz', {
+      player1: {
+        id: '1',
+        name: 'Player 1',
+        avatar: '../../../assets/default-avatar.jpeg',
+        score: 0
+      },
+      player2: {
+        id: '2',
+        name: 'Player 2',
+        avatar: '../../../assets/default-avatar.jpeg',
+        score: 0
+      },
+      questions: versusQuizQuestions
+    });
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerContainer}>
@@ -101,7 +130,7 @@ export const HomeScreen: React.FC = () => {
       </View>
       <FlatList
         style={styles.scrollContainer}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: SCREEN_WIDTH * 0.25 }]}
         data={[1]}
         renderItem={() => (
           <>
@@ -159,9 +188,45 @@ export const HomeScreen: React.FC = () => {
         onStart={handleQuizStart}
         questionCount={selectedTopic?.questions?.length || 0}
       />
+      <View style={styles.bottomNavContainer}>
+        <NeumorphicView style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Ionicons name="home" size={24} color={theme.colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate('Progress')}
+          >
+            <Ionicons name="trending-up" size={24} color={theme.colors.onSurfaceVariant} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.versusButton}
+            onPress={handleVersusQuizPress}
+          >
+            <NeumorphicView style={styles.versusButtonInner}>
+              <Ionicons name="people" size={32} color={theme.colors.primary} />
+            </NeumorphicView>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate('Bookmarks')}
+          >
+            <Ionicons name="bookmark" size={24} color={theme.colors.onSurfaceVariant} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Ionicons name="person" size={24} color={theme.colors.onSurfaceVariant} />
+          </TouchableOpacity>
+        </NeumorphicView>
+      </View>
     </SafeAreaView>
   );
-}; 
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -213,5 +278,34 @@ const styles = StyleSheet.create({
   },
   statsText: {
     fontSize: SCREEN_WIDTH * 0.03,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: SCREEN_WIDTH * 0.05,
+    left: SCREEN_WIDTH * 0.05,
+    right: SCREEN_WIDTH * 0.05,
+    alignItems: 'center',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SCREEN_WIDTH * 0.06,
+    paddingVertical: SCREEN_WIDTH * 0.03,
+    borderRadius: SCREEN_WIDTH * 0.08,
+    width: '100%',
+  },
+  navButton: {
+    padding: SCREEN_WIDTH * 0.02,
+  },
+  versusButton: {
+    marginTop: -SCREEN_WIDTH * 0.1,
+  },
+  versusButtonInner: {
+    width: SCREEN_WIDTH * 0.15,
+    height: SCREEN_WIDTH * 0.15,
+    borderRadius: SCREEN_WIDTH * 0.075,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
