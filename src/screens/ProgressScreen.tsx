@@ -1,13 +1,26 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { NeumorphicView } from '../components/NeumorphicComponents';
+import { RoundButton } from '../components/ui/RoundButton';
 
 export const ProgressScreen = () => {
   const theme = useTheme();
+  const navigation = useNavigation();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <RoundButton
+          icon="chevron-back"
+          onPress={() => navigation.goBack()}
+          size={40}
+          style={styles.backButton}
+        />
+        <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Progress</Text>
+      </View>
       <NeumorphicView style={styles.content}>
         <Text style={[styles.title, { color: theme.colors.onSurface }]}>
           Progress
@@ -16,16 +29,34 @@ export const ProgressScreen = () => {
           Your learning progress will appear here
         </Text>
       </NeumorphicView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
+    paddingTop: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 16,
   },
   content: {
+    margin: 16,
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',

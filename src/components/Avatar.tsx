@@ -41,9 +41,9 @@ export const Avatar: React.FC<AvatarProps> = ({
               : require('../../assets/default-avatar.jpeg')
           }
           style={{
-            width: responsiveSize - 16,
-            height: responsiveSize - 16,
-            borderRadius: (responsiveSize - 16) / 2,
+            width: responsiveSize,
+            height: responsiveSize,
+            borderRadius: responsiveSize / 2,
           }}
         />
       </NeumorphicView>

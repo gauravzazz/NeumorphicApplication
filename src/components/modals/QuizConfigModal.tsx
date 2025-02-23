@@ -5,23 +5,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { NeumorphicView } from '../NeumorphicComponents';
 import { Button } from '../ui//Button';
 import Slider from '@react-native-community/slider';
+import { useNavigation } from '@react-navigation/native';
+import { getQuizSettings } from '../../utils/quizSettingsStorage';
 
 interface QuizConfigModalProps {
   visible: boolean;
   onClose: () => void;
-  onStart: (config: {
-    questionCount: number;
-    mode: 'test' | 'practice';
-    topicId: string;
-    topicTitle: string;
-    subjectName: string;
-    timeLimit: number;
-  }) => void;
   topicId: string;
   topicTitle: string;
   subjectName: string;
-  maxQuestions: number;
-  defaultTimeLimit?: number;
+  maxQuestions?: number;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -29,42 +22,45 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   visible,
   onClose,
-  onStart,
   topicId,
   topicTitle,
   subjectName,
-  maxQuestions,
-  defaultTimeLimit = 150,
+  maxQuestions = 10
 }) => {
   const theme = useTheme();
-  const [questionCount, setQuestionCount] = useState<number>(5);
+  const navigation = useNavigation();
+  const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(5);
   const [mode, setMode] = useState<'test' | 'practice'>('practice');
-  const [timeLimit, setTimeLimit] = useState<number>(defaultTimeLimit);
 
   const handleQuestionCountChange = (value: number) => {
-    setQuestionCount(Math.min(Math.max(Math.round(value), 5), maxQuestions));
+    setSelectedQuestionCount(Math.min(Math.max(Math.round(value), 5), maxQuestions));
   };
 
   const handleModeChange = (newMode: 'test' | 'practice') => {
     setMode(newMode);
   };
 
-  const handleStartQuiz = () => {
-    onStart({
-      questionCount,
+  const handleStartQuiz = async () => {
+    let timeLimit = 0;
+    if (mode === 'test') {
+      const settings = await getQuizSettings();
+      timeLimit = selectedQuestionCount * settings.timePerQuestion;
+    }
+    
+    navigation.navigate('Quiz', {
       mode,
+      questionCount: selectedQuestionCount,
       topicId,
       topicTitle,
       subjectName,
-      timeLimit,
+      timeLimit
     });
-    onClose();
+    handleModalClose();
   };
 
   const handleModalClose = () => {
-    setQuestionCount(5);
+    setSelectedQuestionCount(5);
     setMode('practice');
-    setTimeLimit(defaultTimeLimit);
     onClose();
   };
 
@@ -91,7 +87,7 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
             >
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                  {topicTitle}
+                  Configure Quiz
                 </Text>
                 <TouchableOpacity
                   onPress={handleModalClose}
@@ -104,14 +100,14 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
               <View style={styles.modalBody}>
                 <View style={styles.sliderSection}>
                   <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
-                    Number of Questions: {questionCount}
+                    Number of Questions: {selectedQuestionCount}
                   </Text>
                   <Slider
                     style={styles.slider}
                     minimumValue={5}
                     maximumValue={maxQuestions}
                     step={1}
-                    value={questionCount}
+                    value={selectedQuestionCount}
                     onValueChange={handleQuestionCountChange}
                     minimumTrackTintColor={theme.colors.primary}
                     maximumTrackTintColor={theme.colors.onSurfaceVariant}
@@ -173,14 +169,16 @@ const styles = StyleSheet.create({
   modalContent: {
     borderRadius: 28,
     padding: SCREEN_WIDTH * 0.06,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 8,
+      width: 4,
+      height: 4,
     },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 12,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -216,6 +214,7 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: SCREEN_WIDTH * 0.1,
+    transform: [{ scale: 0.95 }],
   },
   modeButtonsContainer: {
     flexDirection: 'row',
@@ -226,6 +225,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: SCREEN_WIDTH * 0.03,
     borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   modeButtonText: {
     fontSize: SCREEN_WIDTH * 0.042,
@@ -242,6 +248,13 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: SCREEN_WIDTH * 0.035,
     borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   startButtonText: {
     fontSize: SCREEN_WIDTH * 0.042,

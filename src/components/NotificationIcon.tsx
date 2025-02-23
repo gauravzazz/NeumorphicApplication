@@ -71,26 +71,41 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
     <>
       <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
         <NeumorphicView
-          style={[
-            styles.container,
-            {
+          style={[{
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: theme.colors.primary,
-              shadowColor: theme.colors.primary,
-              shadowOpacity: 0.3,
-              shadowOffset: { width: 3, height: 3 },
-              shadowRadius: 6,
-              elevation: 8
+              backgroundColor: theme.colors.background,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              shadowColor: theme.colors.shadowDark,
+              shadowOffset: { width: 2, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              elevation: 4,
+              padding: 0,
+              justifyContent: 'center',
+              alignItems: 'center'
             } as ViewStyle,
           ]}
         >
-          <Ionicons
-            name="notifications"
-            size={size - 16}
-            color={theme.colors.onPrimary}
-          />
+          <View
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: size / 2,
+              backgroundColor: theme.colors.primary,
+              justifyContent: 'center',
+              alignItems: 'center',
+              opacity: showPanel ? 0.8 : 1
+            }}
+          >
+            <Ionicons
+              name="notifications"
+              size={size - 16}
+              color={theme.colors.onPrimary}
+            />
+          </View>
           {unreadCount > 0 && (
             <View
               style={[
@@ -161,7 +176,6 @@ const styles = StyleSheet.create({
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 4,

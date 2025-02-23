@@ -112,10 +112,24 @@ export const ResultScreen: React.FC = () => {
   }, []);
 
   const handleDifficultyChange = (questionId: string, difficulty: 'easy' | 'hard') => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+  
     setQuestionDifficulties(prev => ({
       ...prev,
       [questionId]: prev[questionId] === difficulty ? null : difficulty
     }));
+  
+    // Update the question's difficulty in the questions array
+    const updatedQuestions = questions.map(q => {
+      if (q.id === questionId) {
+        return {
+          ...q,
+          difficulty: questionDifficulties[questionId] === difficulty ? null : difficulty
+        };
+      }
+      return q;
+    });
   };
 
   const handleBookmarkToggle = async (questionId: string) => {
@@ -339,60 +353,56 @@ export const ResultScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.explanationContainer}>
-                  <View style={styles.explanationRow}>
-                    <Text style={[styles.explanationTitle, { color: theme.colors.primary }]}>Explanation: </Text>
-                    <View style={styles.explanationTextContainer}>
-                      <View style={styles.explanationInlineContainer}>
-                        <Text 
-                          numberOfLines={isExpanded ? undefined : 2}
-                          style={[styles.explanationText, { color: theme.colors.onSurface, flex: 1 }]}
-                        >
-                          {question.explanation}
+                  <Text style={[styles.explanationTitle, { color: theme.colors.primary }]}>Explanation: </Text>
+                  <View style={styles.explanationTextContainer}>
+                    <Text 
+                      numberOfLines={expandedExplanations[question.id] ? undefined : 2}
+                      style={[styles.explanationText, { color: theme.colors.onSurface }]}
+                    >
+                      {question.explanation}
+                    </Text>
+                    {!expandedExplanations[question.id] && (
+                      <TouchableOpacity
+                        onPress={() => toggleExplanation(question.id)}
+                        style={styles.showMoreButton}
+                      >
+                        <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
+                          Show More
                         </Text>
-                        {!isExpanded && (
-                          <TouchableOpacity
-                            onPress={() => toggleExplanation(question.id)}
-                            style={styles.showMoreButton}
-                          >
-                            <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
-                              Show More
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                      {isExpanded && (
-                        <TouchableOpacity
-                          onPress={() => toggleExplanation(question.id)}
-                          style={styles.showLessButton}
-                        >
-                          <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
-                            Show Less
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                      </TouchableOpacity>
+                    )}
+                    {expandedExplanations[question.id] && (
+                      <TouchableOpacity
+                        onPress={() => toggleExplanation(question.id)}
+                        style={styles.showLessButton}
+                      >
+                        <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
+                          Show Less
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.questionActions}>
                   <TouchableOpacity
-                    style={[styles.actionButton, question.difficulty === 'easy' && styles.actionButtonActive]}
+                    style={[styles.actionButton, questionDifficulties[question.id] === 'easy' && styles.actionButtonActive]}
                     onPress={() => handleDifficultyChange(question.id, 'easy')}
                   >
                     <Ionicons
                       name="thumbs-up"
                       size={24}
-                      color={question.difficulty === 'easy' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                      color={questionDifficulties[question.id] === 'easy' ? theme.colors.primary : theme.colors.onSurfaceVariant}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.actionButton, question.difficulty === 'hard' && styles.actionButtonActive]}
+                    style={[styles.actionButton, questionDifficulties[question.id] === 'hard' && styles.actionButtonActive]}
                     onPress={() => handleDifficultyChange(question.id, 'hard')}
                   >
                     <Ionicons
                       name="thumbs-down"
                       size={24}
-                      color={question.difficulty === 'hard' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                      color={questionDifficulties[question.id] === 'hard' ? theme.colors.primary : theme.colors.onSurfaceVariant}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity

@@ -15,22 +15,14 @@ interface Topic {
 
 interface TopicCardProps {
   topic: Topic;
-  onPress: (topicId: string, questionCount: number, mode: 'test' | 'practice') => void;
+  onPress: () => void;
 }
 
 const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleStartQuiz = (config: {
-    questionCount: number;
-    mode: 'test' | 'practice';
-    topicId: string;
-    topicTitle: string;
-    subjectName: string;
-    timeLimit: number;
-  }) => {
-    onPress(topic.id, config.questionCount, config.mode);
+  const handleModalClose = () => {
     setModalVisible(false);
   };
 
@@ -54,24 +46,21 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic, onPress }) => {
 
       <QuizConfigModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onStart={handleStartQuiz}
+        onClose={handleModalClose}
         topicId={topic.id}
         topicTitle={topic.title}
         subjectName={topic.category}
         maxQuestions={topic.totalQuestions}
+        onSubmit={(questionCount, mode) => {
+          onPress();
+          handleModalClose();
+        }}
       />
     </>
   );
 };
 
-interface SubjectTopicsGridProps {
-  topics: Topic[];
-  onTopicPress: (topicId: string, questionCount: number, mode: 'test' | 'practice') => void;
-  searchQuery?: string;
-}
-
-export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, onTopicPress, searchQuery = '' }) => {
+export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, searchQuery = '', onTopicPress }) => {
   const theme = useTheme();
 
   const filteredTopics = topics.filter(topic => 
@@ -86,7 +75,11 @@ export const SubjectTopicsGrid: React.FC<SubjectTopicsGridProps> = ({ topics, on
       </Text>
       <View style={styles.grid}>
         {filteredTopics.map((topic) => (
-          <TopicCard key={topic.id} topic={topic} onPress={onTopicPress} />
+          <TopicCard 
+            key={topic.id} 
+            topic={topic} 
+            onPress={() => onTopicPress?.(topic.id)} 
+          />
         ))}
       </View>
     </View>

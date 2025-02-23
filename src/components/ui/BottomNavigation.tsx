@@ -1,116 +1,152 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { CustomTheme } from '../../theme/theme';
+import * as Animatable from 'react-native-animatable';
 import { NeumorphicView } from '../NeumorphicComponents';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 interface BottomNavigationProps {
   activeTab: string;
   onTabPress: (tabName: string) => void;
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    height: 60,
+    borderRadius: 24,
+    margin: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+  },
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  activeIconWrapper: {
+    backgroundColor: 'rgba(98, 0, 238, 0.1)',
+    shadowColor: '#6200EE',
+    shadowOffset: { width: -2, height: -2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  centerButton: {
+    marginHorizontal: 16,
+    transform: [{ translateY: -24 }],
+  },
+  centerButtonWrapper: {
+    width: 64,
+    height: 64,
+    padding: 0,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+});
+
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   activeTab,
   onTabPress,
 }) => {
-  const theme = useTheme();
+  const theme = useTheme<CustomTheme>();
 
-  const renderIcon = (name: string, focused: boolean) => {
-    const color = focused ? theme.colors.primary : theme.colors.onSurfaceVariant;
-    const size = focused ? 28 : 24;
+  const containerStyle = [
+    styles.container,
+    {
+      backgroundColor: theme.colors.background,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+  ];
 
-    return <Ionicons icon={name} size={size} color={color} />;
-  };
+  const centerButtonStyle = [
+    styles.centerButtonWrapper,
+    {
+      backgroundColor: theme.colors.primary,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 6,
+      elevation: 8,
+    },
+  ];
+
+  const renderIcon = (name: keyof typeof Ionicons.glyphMap, tabName: string) => (
+    <TouchableOpacity 
+      onPress={() => onTabPress(tabName)}
+      style={styles.iconContainer}
+    >
+      <NeumorphicView 
+        style={[
+          styles.iconWrapper,
+          activeTab === tabName && styles.activeIconWrapper
+        ]}
+      >
+        <Ionicons 
+          name={name} 
+          size={20} 
+          color={activeTab === tabName ? theme.colors.primary : theme.colors.onSurfaceVariant} 
+        />
+      </NeumorphicView>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={styles.container}>
-      <NeumorphicView style={styles.navigationBar}>
-        <TouchableOpacity
-          style={styles.tabButton}
-          onPress={() => onTabPress('home')}
-        >
-          {renderIcon('home-outline', activeTab === 'home')}
-        </TouchableOpacity>
+    <View style={containerStyle}>
+      {renderIcon('home-outline', 'home')}
+      {renderIcon('trending-up-outline', 'progress')}
 
-        <TouchableOpacity
-          style={styles.tabButton}
-          onPress={() => onTabPress('progress')}
-        >
-          {renderIcon('stats-chart-outline', activeTab === 'progress')}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.centerButton}
-          onPress={() => onTabPress('versus')}
-        >
-          <NeumorphicView style={styles.centerButtonInner}>
-            {renderIcon('sword-cross', activeTab === 'versus')}
+      <Animatable.View 
+        animation="pulse" 
+        iterationCount="infinite" 
+        style={styles.centerButton}
+      >
+        <TouchableOpacity onPress={() => onTabPress('versus')}>
+          <NeumorphicView style={centerButtonStyle}>
+            <Ionicons 
+              name="flash-outline" 
+              size={28} 
+              color="#FFF" 
+            />
           </NeumorphicView>
         </TouchableOpacity>
+      </Animatable.View>
 
-        <TouchableOpacity
-          style={styles.tabButton}
-          onPress={() => onTabPress('bookmarks')}
-        >
-          {renderIcon('bookmark-outline', activeTab === 'bookmarks')}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.tabButton}
-          onPress={() => onTabPress('profile')}
-        >
-          {renderIcon('person-outline', activeTab === 'profile')}
-        </TouchableOpacity>
-      </NeumorphicView>
+      {renderIcon('bookmark-outline', 'bookmarks')}
+      {renderIcon('person-outline', 'profile')}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  navigationBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 70,
-    borderRadius: 35,
-    paddingHorizontal: 16,
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerButton: {
-    width: 60,
-    height: 60,
-    marginTop: -30,
-    borderRadius: 30,
-    backgroundColor: 'transparent',
-  },
-  centerButtonInner: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    //backgroundColor: theme.colors.primary,
-    //shadowColor: theme.colors.primary,
-    shadowOffset: {
-      width: 4,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-});
+export default BottomNavigation;

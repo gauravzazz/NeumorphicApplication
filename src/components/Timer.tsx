@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, Text, View, Dimensions, Platform } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 interface TimerProps {
@@ -19,6 +19,7 @@ export const Timer: React.FC<TimerProps> = ({
   isRunning = true,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(initialTime);
+  const intervalRef = useRef<NodeJS.Timeout>();
   const theme = useTheme();
 
   useEffect(() => {
@@ -26,14 +27,14 @@ export const Timer: React.FC<TimerProps> = ({
   }, [initialTime]);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
     if (isRunning && timeRemaining > 0) {
-      intervalId = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setTimeRemaining((prevTime) => {
           const newTime = prevTime - 1;
           if (newTime <= 0) {
-            clearInterval(intervalId);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+            }
             onTimeEnd?.();
             return 0;
           }
@@ -43,11 +44,11 @@ export const Timer: React.FC<TimerProps> = ({
     }
 
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, onTimeEnd]);
+  }, [isRunning, onTimeEnd, initialTime]);
 
   const formatTime = (seconds: number) => {
     if (typeof seconds !== 'number' || isNaN(seconds)) {
@@ -91,5 +92,7 @@ const styles = StyleSheet.create({
     paddingVertical: Math.round(6 * FONT_SCALE),
     borderRadius: 12,
     textAlign: 'center',
+    fontFamily: Platform.select({ ios: 'Courier', android: 'monospace' }),
+    letterSpacing: 2,
   },
 });

@@ -6,13 +6,30 @@ interface QuizOptionsProps {
   options: string[];
   selectedOption: number | null;
   onOptionSelect: (index: number) => void;
+  correctOption?: number;
+  mode: 'test' | 'practice';
 }
 
 export const QuizOptions: React.FC<QuizOptionsProps> = ({
   options,
   selectedOption,
   onOptionSelect,
+  correctOption,
+  mode,
 }) => {
+  const handleOptionSelect = (index: number) => {
+    if (selectedOption === null) {
+      onOptionSelect(index);
+      if (mode === 'practice') {
+        // In practice mode, wait for 2 seconds to show the correct answer
+        // before moving to the next question
+        setTimeout(() => {
+          onOptionSelect(index);
+        }, 2000);
+      }
+    }
+  };
+
   return (
     <View style={styles.optionsContainer}>
       {options.map((option, index) => (
@@ -21,10 +38,16 @@ export const QuizOptions: React.FC<QuizOptionsProps> = ({
           option={String.fromCharCode(65 + index)}
           text={option}
           selected={selectedOption === index}
-          onPress={() => onOptionSelect(index)}
+          onPress={() => handleOptionSelect(index)}
           style={styles.optionButton}
+          disabled={selectedOption !== null}
+          isCorrect={
+            mode === 'practice' && selectedOption !== null
+              ? index === correctOption
+              : undefined
+          }
         />
-      ))}
+      ))}    
     </View>
   );
 };

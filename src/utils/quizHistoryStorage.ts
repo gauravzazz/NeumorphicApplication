@@ -4,7 +4,7 @@ export interface QuizHistoryItem {
   id: string;
   date: string;
   topicId: string;
-  topicName: string;
+  topicTitle: string;
   mode: 'test' | 'practice';
   score: {
     correct: number;

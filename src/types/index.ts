@@ -28,7 +28,7 @@ export interface Question {
   question: string;
   options: string[];
   correctOption: number;
-  explanation?: string;
+  explanation: string;
 }
 
 export interface UserProgress {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, FlatList, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -13,9 +13,8 @@ import { SubjectGrid } from '../components/SubjectGrid';
 import { TopicGrid } from '../components/TopicGrid';
 import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
-import { Ionicons } from '@expo/vector-icons';
-import { NeumorphicView } from '../components/NeumorphicComponents';
-import { TouchableOpacity } from 'react-native';
+import { BottomNavigation } from '../components/ui/BottomNavigation';
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,19 +24,8 @@ export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const [selectedTopic, setSelectedTopic] = useState<any>(null);
   const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
 
-  const handleTopicPress = (topicId: string) => {
-    const topic = mockHotTopics.find(topic => topic.id === topicId);
-    if (!topic) {
-      console.warn(`Topic with ID ${topicId} not found`);
-      return;
-    }
-    navigation.navigate('Quiz', {
-      topicId,
-      mode: 'practice',
-      questions: topic.questions || []
-    });
-  };
 
   const handleSubjectPress = (subject: Subject) => {
     navigation.navigate('SubjectDetail', { subject });
@@ -63,25 +51,7 @@ export const HomeScreen: React.FC = () => {
     }
   };
 
-  const handleQuizStart = (config: { mode: 'test' | 'practice', questionCount: number }) => {
-    if (selectedTopic && selectedTopic.questions) {
-      navigation.navigate('Quiz', {
-        topicId: selectedTopic.id,
-        mode: config.mode,
-        questionCount: Math.min(config.questionCount, selectedTopic.questions.length),
-        timeLimit: config.mode === 'test' ? 30 : 0,
-        questions: selectedTopic.questions.map((q: { id: string; topicId: string; question: string; options: string[]; correctOption: number; explanation: string }) => ({
-          id: q.id,
-          topicId: q.topicId,
-          question: q.question,
-          options: q.options,
-          correctOption: q.correctOption,
-          explanation: q.explanation
-        }))
-      });
-    }
-    setQuizConfigVisible(false);
-  };
+
 
   function handleNotificationPress(notification: any): void {
     throw new Error('Function not implemented.');
@@ -91,31 +61,7 @@ export const HomeScreen: React.FC = () => {
     throw new Error('Function not implemented.');
   }
 
-  const handleVersusQuizPress = () => {
-    // Get first 5 questions from mock data for versus quiz
-    const versusQuizQuestions = mockQuestions.slice(0, 5).map(q => ({
-      id: q.id,
-      question: q.question,
-      options: q.options,
-      correctOption: q.correctOption
-    }));
 
-    navigation.navigate('VersusQuiz', {
-      player1: {
-        id: '1',
-        name: 'Player 1',
-        avatar: '../../../assets/default-avatar.jpeg',
-        score: 0
-      },
-      player2: {
-        id: '2',
-        name: 'Player 2',
-        avatar: '../../../assets/default-avatar.jpeg',
-        score: 0
-      },
-      questions: versusQuizQuestions
-    });
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -129,7 +75,7 @@ export const HomeScreen: React.FC = () => {
         />
       </View>
       <FlatList
-        style={styles.scrollContainer}
+        style={styles.scrollContent}
         contentContainerStyle={[styles.contentContainer, { paddingBottom: SCREEN_WIDTH * 0.25 }]}
         data={[1]}
         renderItem={() => (
@@ -144,7 +90,6 @@ export const HomeScreen: React.FC = () => {
                   topic.category.toLowerCase().includes(query)
                 );
               })} 
-              onTopicPress={handleTopicPress} 
             />
             <SubjectGrid
               subjects={mockSubjects.filter(subject => {
@@ -184,45 +129,36 @@ export const HomeScreen: React.FC = () => {
       />
       <QuizConfigModal
         visible={isQuizConfigVisible}
-        onDismiss={() => setQuizConfigVisible(false)}
-        onStart={handleQuizStart}
-        questionCount={selectedTopic?.questions?.length || 0}
+        onClose={() => setQuizConfigVisible(false)}
+        topicId={selectedTopic?.id}
+        topicTitle={selectedTopic?.title}
+        subjectName={selectedTopic?.category}
+  
       />
       <View style={styles.bottomNavContainer}>
-        <NeumorphicView style={styles.bottomNav}>
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={() => navigation.navigate('Home')}
-          >
-            <Ionicons name="home" size={24} color={theme.colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={() => navigation.navigate('Progress')}
-          >
-            <Ionicons name="trending-up" size={24} color={theme.colors.onSurfaceVariant} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.versusButton}
-            onPress={handleVersusQuizPress}
-          >
-            <NeumorphicView style={styles.versusButtonInner}>
-              <Ionicons name="people" size={32} color={theme.colors.primary} />
-            </NeumorphicView>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={() => navigation.navigate('Bookmarks')}
-          >
-            <Ionicons name="bookmark" size={24} color={theme.colors.onSurfaceVariant} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            <Ionicons name="person" size={24} color={theme.colors.onSurfaceVariant} />
-          </TouchableOpacity>
-        </NeumorphicView>
+        <BottomNavigation
+          activeTab={activeTab}
+          onTabPress={(tabName) => {
+            setActiveTab(tabName);
+            switch (tabName) {
+              case 'home':
+                navigation.navigate('Home');
+                break;
+              case 'progress':
+                navigation.navigate('Progress');
+                break;
+              case 'versus':
+               
+                break;
+              case 'bookmarks':
+                navigation.navigate('Bookmarks');
+                break;
+              case 'profile':
+                navigation.navigate('Profile');
+                break;
+            }
+          }}
+        />
       </View>
     </SafeAreaView>
   );
@@ -241,6 +177,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     paddingTop: SCREEN_WIDTH * 0.1,
     paddingHorizontal: 0,
+  },
+  scrollContent: {
+    flex: 1,
   },
   scrollContainer: {
     flex: 1,
@@ -286,26 +225,5 @@ const styles = StyleSheet.create({
     right: SCREEN_WIDTH * 0.05,
     alignItems: 'center',
   },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: SCREEN_WIDTH * 0.06,
-    paddingVertical: SCREEN_WIDTH * 0.03,
-    borderRadius: SCREEN_WIDTH * 0.08,
-    width: '100%',
-  },
-  navButton: {
-    padding: SCREEN_WIDTH * 0.02,
-  },
-  versusButton: {
-    marginTop: -SCREEN_WIDTH * 0.1,
-  },
-  versusButtonInner: {
-    width: SCREEN_WIDTH * 0.15,
-    height: SCREEN_WIDTH * 0.15,
-    borderRadius: SCREEN_WIDTH * 0.075,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
 });

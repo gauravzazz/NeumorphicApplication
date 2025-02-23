@@ -10,6 +10,7 @@ interface OptionButtonProps {
   disabled?: boolean;
   style?: ViewStyle;
   onPress?: () => void;
+  isCorrect?: boolean;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -22,14 +23,19 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   disabled = false,
   style,
   onPress,
+  isCorrect,
 }) => {
   const theme = useTheme() as CustomTheme;
   const [isPressed, setIsPressed] = React.useState(false);
 
   const getNeumorphicStyle = () => {
-    if (selected) {
+    if (selected || (isCorrect && isCorrect !== undefined)) {
+      const backgroundColor = isCorrect !== undefined
+        ? (isCorrect ? theme.colors.success : theme.colors.error)
+        : theme.colors.primaryContainer;
+
       return {
-        backgroundColor: theme.colors.primaryContainer,
+        backgroundColor,
         shadowColor: theme.colors.shadowDark,
         shadowOffset: {
           width: -3,
@@ -69,22 +75,32 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   const indicatorStyles = [
     styles.indicator,
     {
-      backgroundColor: selected ? theme.colors.primary : theme.colors.background,
-      borderColor: theme.colors.primary,
+      backgroundColor: (selected || isCorrect) ? theme.colors.background : theme.colors.background,
+      borderColor: isCorrect !== undefined
+        ? (isCorrect ? theme.colors.success : theme.colors.error)
+        : theme.colors.primary,
     },
   ];
 
   const textStyles = [
     styles.text,
     {
-      color: selected ? theme.colors.onPrimaryContainer : theme.colors.onSurface,
+      color: (selected || isCorrect)
+        ? (isCorrect !== undefined
+          ? (isCorrect ? theme.colors.success : theme.colors.error)
+          : theme.colors.onSurface)
+        : theme.colors.onSurface,
     },
   ];
 
   const optionTextStyles = [
     styles.optionText,
     {
-      color: selected ? theme.colors.onPrimary : theme.colors.primary,
+      color: (selected || isCorrect)
+        ? (isCorrect !== undefined
+          ? (isCorrect ? theme.colors.success : theme.colors.error)
+          : theme.colors.onSurface)
+        : theme.colors.onSurface,
     },
   ];
 

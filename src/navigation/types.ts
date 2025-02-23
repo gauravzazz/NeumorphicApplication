@@ -12,10 +12,12 @@ export type RootStackParamList = {
   };
   Quiz: {
     topicId: string;
+    topicTitle: string;
+    subjectName: string;
     mode: 'test' | 'practice';
     questionCount: number;
     timeLimit: number;
-    questions: Array<{
+    questions?: Array<{
       id: string;
       question: string;
       options: string[];
@@ -34,6 +36,9 @@ export type RootStackParamList = {
     }>;
     timeSpent: number;
     mode: 'test' | 'practice';
+    topicId: string;
+    topicTitle: string;
+    subjectName: string;
   };
   Profile: undefined;
   Settings: undefined;

@@ -14,7 +14,7 @@ interface Topic {
 
 interface RecentTopicsProps {
   topics: Topic[];
-  onTopicPress: (topicId: string, questionCount?: number, mode?: 'test' | 'practice') => void;
+  onTopicPress?: (topicId: string, questionCount?: number, mode?: 'test' | 'practice') => void;
 }
 
 export const RecentTopics: React.FC<RecentTopicsProps> = ({ topics, onTopicPress }) => {
@@ -27,10 +27,7 @@ export const RecentTopics: React.FC<RecentTopicsProps> = ({ topics, onTopicPress
     setModalVisible(true);
   };
 
-  const handleStartQuiz = (questionCount: number, mode: 'test' | 'practice') => {
-    if (selectedTopic) {
-      onTopicPress(selectedTopic.id, questionCount, mode);
-    }
+  const handleModalClose = () => {
     setModalVisible(false);
   };
 
@@ -59,10 +56,17 @@ export const RecentTopics: React.FC<RecentTopicsProps> = ({ topics, onTopicPress
       {selectedTopic && (
         <QuizConfigModal
           visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          onStart={handleStartQuiz}
+          onClose={handleModalClose}
+          topicId={selectedTopic.id}
           topicTitle={selectedTopic.title}
+          subjectName={selectedTopic.category}
           maxQuestions={selectedTopic.totalQuestions}
+          onSubmit={(questionCount, mode) => {
+            if (onTopicPress) {
+              onTopicPress(selectedTopic.id, questionCount, mode);
+            }
+            handleModalClose();
+          }}
         />
       )}
     </View>

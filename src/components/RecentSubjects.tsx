@@ -6,6 +6,7 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RecentSubjectCard } from './RecentSubjectCard';
 import { getRecentSubjects } from '../utils/recentSubjectsStorage';
 import { Subject } from '../types';
+import { NeumorphicView } from './NeumorphicComponents';
 
 export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const theme = useTheme();
@@ -42,12 +43,12 @@ export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery
   }
 
   return (
-    <View style={[styles.container, { paddingHorizontal: width > 600 ? 24 : 16 }]}> 
+    <NeumorphicView style={[styles.container, { paddingHorizontal: width > 600 ? 24 : 16 }]}>
       <Text style={[styles.title, { color: theme.colors.onSurface }]}>📚 Recent Subjects</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: width > 600 ? 16 : 8 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: width > 600 ? 16 : 8, gap: 16 }]}
       >
         {filteredSubjects.map((subject) => (
           <RecentSubjectCard
@@ -60,18 +61,23 @@ export const RecentSubjects: React.FC<{ searchQuery?: string }> = ({ searchQuery
           />
         ))}
       </ScrollView>
-    </View>
+    </NeumorphicView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginVertical: 16,
+    padding: 16,
+    borderRadius: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   scrollContent: {
     flexDirection: 'row',

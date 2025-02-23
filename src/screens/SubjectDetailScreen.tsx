@@ -20,10 +20,15 @@ export const SubjectDetailScreen: React.FC = () => {
   const { subject } = route.params;
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredTopics = mockHotTopics.filter(topic =>
-    topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    topic.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTopics = mockHotTopics
+    .filter(topic =>
+      topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      topic.category.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .map(topic => ({
+      ...topic,
+      totalQuestions: topic.questions?.length || 0
+    }));
 
   useEffect(() => {
     // Add the subject to recent subjects when the screen is opened
@@ -32,31 +37,32 @@ export const SubjectDetailScreen: React.FC = () => {
 
   const handleTopicPress = (topicId: string, questionCount?: number, mode?: 'test' | 'practice') => {
     if (!topicId) {
-      console.warn('Topic ID is required');
+      console.error('Topic ID is required');
       return;
     }
-
+  
     const topic = mockHotTopics.find(topic => topic.id === topicId);
     if (!topic) {
-      console.warn(`Topic with ID ${topicId} not found`);
+      console.error(`Topic with ID ${topicId} not found`);
       return;
     }
-
+  
+    const questions = topic.questions || [];
+    if (questions.length === 0) {
+      console.error(`No questions available for topic ${topic.title}`);
+      return;
+    }
+  
     if (questionCount && mode) {
-      const questions = topic.questions || [];
-      if (questions.length === 0) {
-        console.warn(`No questions available for topic ${topic.title}`);
-        return;
-      }
-
       navigation.navigate('Quiz', {
-        topicId,
+        topicId: topic.id,
+        topicTitle: topic.title,
+        subjectName: subject.name,
         questionCount: Math.min(questionCount, questions.length),
         mode,
-        timeLimit: mode === 'test' ? 30 : 60,
+        timeLimit: mode === 'test' ? 30 : 0,
         questions: questions.map(q => ({
           id: q.id,
-          topicId: q.topicId,
           question: q.question,
           options: q.options,
           correctOption: q.correctOption,

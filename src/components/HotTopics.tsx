@@ -5,6 +5,7 @@ import { scale, spacing } from '../theme/scaling';
 import { getTextStyle } from '../theme/typography';
 import { HotTopicCard } from './HotTopicCard';
 import { QuizConfigModal } from './modals/QuizConfigModal';
+
 interface HotTopic {
   id: string;
   title: string;
@@ -16,10 +17,9 @@ interface HotTopic {
 
 interface HotTopicsProps {
   topics: HotTopic[];
-  onTopicPress: (topicId: string, config?: { mode: 'test' | 'practice', questionCount: number }) => void;
 }
 
-export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) => {
+export const HotTopics: React.FC<HotTopicsProps> = ({ topics }) => {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const [selectedTopic, setSelectedTopic] = useState<HotTopic | null>(null);
@@ -32,20 +32,6 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
     } else {
       console.warn(`No questions available for topic ${topic.title}`);
     }
-  };
-
-  const handleQuizStart = (config: {
-    questionCount: number;
-    mode: 'test' | 'practice';
-    topicId: string;
-    topicTitle: string;
-    subjectName: string;
-    timeLimit: number;
-  }) => {
-    if (selectedTopic) {
-      onTopicPress(selectedTopic.id, { mode: config.mode, questionCount: config.questionCount });
-    }
-    setQuizConfigVisible(false);
   };
 
   const handleModalClose = () => {
@@ -75,7 +61,6 @@ export const HotTopics: React.FC<HotTopicsProps> = ({ topics, onTopicPress }) =>
         <QuizConfigModal
           visible={isQuizConfigVisible}
           onClose={handleModalClose}
-          onStart={handleQuizStart}
           topicId={selectedTopic.id}
           topicTitle={selectedTopic.title}
           subjectName={selectedTopic.category}

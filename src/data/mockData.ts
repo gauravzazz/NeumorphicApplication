@@ -381,6 +381,30 @@ export const mockHotTopics = [
         options: ['O(1)', 'O(n)', 'O(log n)', 'O(n log n)'],
         correctOption: 2,
         explanation: 'Binary search has logarithmic time complexity'
+      },
+      {
+        id: '26',
+        topicId: '5',
+        question: 'What is a recursive algorithm?',
+        options: ['An algorithm that never ends', 'An algorithm that calls itself', 'An algorithm that uses loops', 'An algorithm that uses variables'],
+        correctOption: 1,
+        explanation: 'A recursive algorithm is one that solves a problem by calling itself with smaller instances of the same problem'
+      },
+      {
+        id: '27',
+        topicId: '5',
+        question: 'What is the worst-case time complexity of bubble sort?',
+        options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(1)'],
+        correctOption: 2,
+        explanation: 'Bubble sort has a worst-case time complexity of O(n²) due to its nested loops'
+      },
+      {
+        id: '28',
+        topicId: '5',
+        question: 'Which algorithm is used for finding the shortest path in a weighted graph?',
+        options: ['DFS', 'BFS', 'Dijkstra\'s', 'Binary Search'],
+        correctOption: 2,
+        explanation: 'Dijkstra\'s algorithm is used to find the shortest path between nodes in a graph'
       }
     ]
   },
@@ -414,42 +438,294 @@ export const mockHotTopics = [
     title: 'Machine Learning',
     category: 'AI',
     icon: 'hardware-chip',
-    participants: 520
+    participants: 520,
+    questions: [
+      {
+        id: '29',
+        topicId: '6',
+        question: 'What is supervised learning?',
+        options: ['Learning without labels', 'Learning with labels', 'Learning by reinforcement', 'Learning by clustering'],
+        correctOption: 1,
+        explanation: 'Supervised learning is a type of machine learning where the model learns from labeled training data'
+      },
+      {
+        id: '30',
+        topicId: '6',
+        question: 'Which algorithm is used for classification problems?',
+        options: ['Linear Regression', 'K-means', 'Random Forest', 'PCA'],
+        correctOption: 2,
+        explanation: 'Random Forest is a popular algorithm for classification tasks'
+      },
+      {
+        id: '31',
+        topicId: '6',
+        question: 'What is overfitting?',
+        options: ['Model performs well on training data but poorly on new data', 'Model performs poorly on all data', 'Model performs well on all data', 'Model fails to converge'],
+        correctOption: 0,
+        explanation: 'Overfitting occurs when a model learns the training data too well, including noise and outliers'
+      },
+      {
+        id: '32',
+        topicId: '6',
+        question: 'What is the purpose of cross-validation?',
+        options: ['To speed up training', 'To evaluate model performance', 'To reduce model size', 'To increase accuracy'],
+        correctOption: 1,
+        explanation: 'Cross-validation is used to assess how well a model will generalize to new, unseen data'
+      },
+      {
+        id: '33',
+        topicId: '6',
+        question: 'Which loss function is commonly used for binary classification?',
+        options: ['Mean Squared Error', 'Cross Entropy', 'Hinge Loss', 'Huber Loss'],
+        correctOption: 1,
+        explanation: 'Cross Entropy loss is widely used for binary classification problems'
+      }
+    ]
   },
   {
     id: 'topic7',
     title: 'Web Development',
     category: 'Programming',
     icon: 'globe',
-    participants: 600
+    participants: 600,
+    questions: [
+      {
+        id: '34',
+        topicId: '7',
+        question: 'What is the purpose of the DOCTYPE declaration in HTML?',
+        options: ['To link CSS files', 'To specify the document type and version', 'To import JavaScript', 'To define metadata'],
+        correctOption: 1,
+        explanation: 'The DOCTYPE declaration tells the browser what version of HTML the page is written in'
+      },
+      {
+        id: '35',
+        topicId: '7',
+        question: 'Which CSS property is used to control the spacing between elements?',
+        options: ['spacing', 'margin', 'padding', 'gap'],
+        correctOption: 1,
+        explanation: 'The margin property controls the space between elements'
+      },
+      {
+        id: '36',
+        topicId: '7',
+        question: 'What is the purpose of the async keyword in JavaScript?',
+        options: ['To make code run faster', 'To handle asynchronous operations', 'To create loops', 'To define classes'],
+        correctOption: 1,
+        explanation: 'The async keyword is used to define asynchronous functions that can use await'
+      },
+      {
+        id: '37',
+        topicId: '7',
+        question: 'What is the role of a web server?',
+        options: ['To style web pages', 'To serve content to clients', 'To write JavaScript', 'To create databases'],
+        correctOption: 1,
+        explanation: 'A web server responds to client requests and serves web content'
+      },
+      {
+        id: '38',
+        topicId: '7',
+        question: 'What is the purpose of media queries in CSS?',
+        options: ['To play videos', 'To create responsive designs', 'To handle forms', 'To validate input'],
+        correctOption: 1,
+        explanation: 'Media queries allow you to apply different styles based on device characteristics'
+      }
+    ]
   },
   {
     id: 'topic8',
     title: 'Mobile Apps',
     category: 'Development',
     icon: 'phone-portrait',
-    participants: 430
+    participants: 430,
+    questions: [
+      {
+        id: '39',
+        topicId: '8',
+        question: 'What is the purpose of a mobile app manifest?',
+        options: ['To style the app', 'To define app metadata and configuration', 'To write code', 'To test the app'],
+        correctOption: 1,
+        explanation: 'The app manifest contains essential metadata and configuration for the mobile application'
+      },
+      {
+        id: '40',
+        topicId: '8',
+        question: 'Which programming language is primarily used for iOS development?',
+        options: ['Java', 'Swift', 'Python', 'C++'],
+        correctOption: 1,
+        explanation: 'Swift is Apple\'s primary programming language for iOS development'
+      },
+      {
+        id: '41',
+        topicId: '8',
+        question: 'What is the purpose of app permissions?',
+        options: ['To make the app faster', 'To control access to device features', 'To style the UI', 'To debug code'],
+        correctOption: 1,
+        explanation: 'App permissions control what device features and data an app can access'
+      },
+      {
+        id: '42',
+        topicId: '8',
+        question: 'What is a mobile app lifecycle?',
+        options: ['App\'s color scheme', 'States an app goes through', 'App\'s size', 'App\'s price'],
+        correctOption: 1,
+        explanation: 'The app lifecycle describes different states like foreground, background, and terminated'
+      },
+      {
+        id: '43',
+        topicId: '8',
+        question: 'What is the purpose of mobile app testing?',
+        options: ['To make the app look better', 'To ensure app quality and reliability', 'To increase app size', 'To write documentation'],
+        correctOption: 1,
+        explanation: 'Mobile app testing ensures the app works correctly and provides a good user experience'
+      }
+    ]
   },
   {
     id: 'topic9',
     title: 'Cloud Computing',
     category: 'Infrastructure',
     icon: 'cloud',
-    participants: 350
+    participants: 350,
+    questions: [
+      {
+        id: '44',
+        topicId: '9',
+        question: 'What is cloud computing?',
+        options: ['Weather forecasting', 'Internet-based computing services', 'Computer hardware', 'Local storage'],
+        correctOption: 1,
+        explanation: 'Cloud computing provides computing services over the internet'
+      },
+      {
+        id: '45',
+        topicId: '9',
+        question: 'What is IaaS in cloud computing?',
+        options: ['Software service', 'Infrastructure as a Service', 'Internet service', 'Integration service'],
+        correctOption: 1,
+        explanation: 'IaaS provides virtualized computing resources over the internet'
+      },
+      {
+        id: '46',
+        topicId: '9',
+        question: 'What is the main advantage of cloud scalability?',
+        options: ['Lower costs', 'Flexible resource adjustment', 'Better security', 'Faster internet'],
+        correctOption: 1,
+        explanation: 'Cloud scalability allows resources to be adjusted based on demand'
+      },
+      {
+        id: '47',
+        topicId: '9',
+        question: 'What is cloud storage?',
+        options: ['Local hard drive', 'Remote data storage service', 'Memory card', 'CPU cache'],
+        correctOption: 1,
+        explanation: 'Cloud storage allows data to be stored and accessed over the internet'
+      },
+      {
+        id: '48',
+        topicId: '9',
+        question: 'What is a cloud deployment model?',
+        options: ['Weather pattern', 'Way to implement cloud services', 'Computer model', 'Network cable'],
+        correctOption: 1,
+        explanation: 'Cloud deployment models define how cloud services are implemented and accessed'
+      }
+    ]
   },
   {
     id: 'topic10',
     title: 'Cybersecurity',
     category: 'Security',
     icon: 'shield',
-    participants: 480
+    participants: 480,
+    questions: [
+      {
+        id: '49',
+        topicId: '10',
+        question: 'What is encryption?',
+        options: ['Data compression', 'Data conversion to secret code', 'Data deletion', 'Data backup'],
+        correctOption: 1,
+        explanation: 'Encryption is the process of converting data into a secret code for secure transmission'
+      },
+      {
+        id: '50',
+        topicId: '10',
+        question: 'What is a firewall?',
+        options: ['Antivirus software', 'Network security system', 'Password manager', 'File system'],
+        correctOption: 1,
+        explanation: 'A firewall is a network security system that monitors and controls incoming and outgoing traffic'
+      },
+      {
+        id: '51',
+        topicId: '10',
+        question: 'What is two-factor authentication?',
+        options: ['Double password', 'Two-step verification process', 'Dual encryption', 'Two firewalls'],
+        correctOption: 1,
+        explanation: 'Two-factor authentication adds a second layer of security beyond just a password'
+      },
+      {
+        id: '52',
+        topicId: '10',
+        question: 'What is a DDoS attack?',
+        options: ['Data theft', 'System overload attack', 'Password cracking', 'Virus infection'],
+        correctOption: 1,
+        explanation: 'A DDoS attack attempts to disrupt normal traffic by overwhelming the target with traffic'
+      },
+      {
+        id: '53',
+        topicId: '10',
+        question: 'What is phishing?',
+        options: ['Password recovery', 'Fraudulent attempt to obtain sensitive information', 'Network scanning', 'Data backup'],
+        correctOption: 1,
+        explanation: 'Phishing is a cybercrime where targets are contacted by email, phone or text by someone posing as a legitimate institution'
+      }
+    ]
   },
   {
     id: 'topic11',
     title: 'Database Design',
     category: 'Data',
     icon: 'server',
-    participants: 320
+    participants: 320,
+    questions: [
+      {
+        id: '54',
+        topicId: '11',
+        question: 'What is a primary key?',
+        options: ['Foreign key', 'Unique identifier for a record', 'Table name', 'Column name'],
+        correctOption: 1,
+        explanation: 'A primary key uniquely identifies each record in a database table'
+      },
+      {
+        id: '55',
+        topicId: '11',
+        question: 'What is normalization in database design?',
+        options: ['Data backup', 'Process of organizing data efficiently', 'Data deletion', 'Table creation'],
+        correctOption: 1,
+        explanation: 'Normalization is the process of organizing data to reduce redundancy and improve data integrity'
+      },
+      {
+        id: '56',
+        topicId: '11',
+        question: 'What is a foreign key?',
+        options: ['Primary key', 'Reference to primary key in another table', 'Index', 'View'],
+        correctOption: 1,
+        explanation: 'A foreign key is a field that links to the primary key of another table'
+      },
+      {
+        id: '57',
+        topicId: '11',
+        question: 'What is an index in a database?',
+        options: ['Table name', 'Data structure to improve query speed', 'Primary key', 'Foreign key'],
+        correctOption: 1,
+        explanation: 'An index is a data structure that improves the speed of data retrieval operations'
+      },
+      {
+        id: '58',
+        topicId: '11',
+        question: 'What is ACID in database transactions?',
+        options: ['Chemical property', 'Database transaction properties', 'Data type', 'Query language'],
+        correctOption: 1,
+        explanation: 'ACID stands for Atomicity, Consistency, Isolation, and Durability - properties that guarantee reliable database transactions'
+      }
+    ]
   },
   {
     id: 'topic12',

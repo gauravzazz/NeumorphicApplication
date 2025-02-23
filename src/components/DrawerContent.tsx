@@ -16,26 +16,34 @@ const DrawerItem: React.FC<DrawerItemProps> = ({ label, icon, onPress, isActive 
   const theme = useTheme();
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
       <NeumorphicView
         style={[
-                  styles.drawerItem,
-                  isActive && { backgroundColor: `${theme.colors.primary}10` },
-              ] as unknown as ViewStyle}
+          styles.drawerItem,
+          isActive && {
+            backgroundColor: `${theme.colors.primary}10`,
+            borderColor: theme.colors.primary,
+            borderWidth: 1,
+          },
+        ] as unknown as ViewStyle}
       >
-        <Ionicons
-          name={icon as keyof typeof Ionicons.glyphMap}
-          size={24}
-          color={isActive ? theme.colors.primary : theme.colors.onSurface}
-        />
-        <Text
-          style={[
-            styles.drawerItemText,
-            { color: isActive ? theme.colors.primary : theme.colors.onSurface },
-          ]}
-        >
-          {label}
-        </Text>
+        <View style={styles.drawerItemContent}>
+          <View style={styles.iconWrapper}>
+            <Ionicons
+              name={icon as keyof typeof Ionicons.glyphMap}
+              size={24}
+              color={isActive ? theme.colors.primary : theme.colors.onSurface}
+            />
+          </View>
+          <Text
+            style={[
+              styles.drawerItemText,
+              { color: isActive ? theme.colors.primary : theme.colors.onSurface },
+            ]}
+          >
+            {label}
+          </Text>
+        </View>
       </NeumorphicView>
     </TouchableOpacity>
   );
@@ -100,6 +108,19 @@ export const DrawerContent = ({ navigation, state }: any) => {
 };
 
 const styles = StyleSheet.create({
+  drawerItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
   container: {
     flex: 1,
   },
@@ -118,6 +139,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
   },
   userName: {
     fontSize: 18,
@@ -130,8 +158,11 @@ const styles = StyleSheet.create({
   drawerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 8,
     borderRadius: 16,
+    marginVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   drawerItemText: {
     marginLeft: 12,
@@ -150,6 +181,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
   },
   logoutText: {
     marginLeft: 12,
