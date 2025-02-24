@@ -58,21 +58,29 @@ export const QuizScreen = () => {
 
   const navigateToResult = useCallback(() => {
     cleanup();
-    navigation.navigate('Result', {
-      answers,
-      questions,
-      timeSpent: Math.max(0, timeLimit * 60 - timeRemaining),
-      mode,
-      topicId,
-      topicTitle,
-      subjectName
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'Result',
+          params: {
+            answers,
+            questions,
+            timeSpent: Math.max(0, timeLimit * 60 - timeRemaining),
+            mode,
+            topicId,
+            topicTitle,
+            subjectName,
+          },
+        },
+      ],
     });
   }, [answers, questions, timeRemaining, mode, topicId, topicTitle, subjectName, navigation, timeLimit, cleanup]);
 
   const loadQuestions = useCallback(async () => {
     try {
       setIsLoading(true);
-      const fetchedQuestions = QuestionService.fetchQuizQuestions(topicId, questionCount);
+      const fetchedQuestions = await QuestionService.fetchQuizQuestions(topicId, questionCount);
       if (fetchedQuestions.length === 0) {
         throw new Error('No questions available');
       }
@@ -118,6 +126,27 @@ export const QuizScreen = () => {
     return cleanup;
   }, [mode, timeRemaining, cleanup, navigateToResult]);
 
+  // Auto-move to next question in practice mode
+  useEffect(() => {
+    if (mode === 'practice' && selectedOption !== null) {
+      setShowCorrectAnswer(true);
+      autoNavigateRef.current = setTimeout(() => {
+        if (currentQuestionIndex === questions.length - 1) {
+          navigateToResult();
+        } else {
+          setCurrentQuestionIndex(prev => prev + 1);
+          setSelectedOption(null); // Reset selected option for the next question
+          setShowCorrectAnswer(false);
+        }
+      }, 1000); // 1 second delay before moving to the next question
+    }
+    return () => {
+      if (autoNavigateRef.current) {
+        clearTimeout(autoNavigateRef.current);
+      }
+    };
+  }, [selectedOption, currentQuestionIndex, questions, mode, navigateToResult]);
+
   const handleOptionSelect = useCallback((optionIndex: number) => {
     const currentQuestion = questions[currentQuestionIndex];
     if (!currentQuestion) return;
@@ -127,21 +156,7 @@ export const QuizScreen = () => {
       ...prev,
       [currentQuestion.id]: optionIndex
     }));
-
-    if (mode === 'practice') {
-      setShowCorrectAnswer(true);
-      
-      autoNavigateRef.current = setTimeout(() => {
-        if (currentQuestionIndex === questions.length - 1) {
-          navigateToResult();
-        } else {
-          setCurrentQuestionIndex(prev => prev + 1);
-          setSelectedOption(null);
-          setShowCorrectAnswer(false);
-        }
-      }, 2000);
-    }
-  }, [currentQuestionIndex, questions, mode, navigateToResult]);
+  }, [currentQuestionIndex, questions]);
 
   const handleNextQuestion = useCallback(() => {
     if (mode === 'test' && currentQuestionIndex < questions.length - 1) {
