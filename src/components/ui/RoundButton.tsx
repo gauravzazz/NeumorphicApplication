@@ -20,17 +20,19 @@ export const RoundButton: React.FC<RoundButtonProps> = ({
   disabled = false,
 }) => {
   const theme = useTheme() as CustomTheme;
+  const [isPressed, setIsPressed] = React.useState(false);
 
   const getNeumorphicStyle = () => ({
     backgroundColor: theme.colors.background,
-    shadowColor: theme.colors.shadowDark,
+    shadowColor: isPressed ? theme.colors.buttonShadowDark : theme.colors.buttonShadowLight,
     shadowOffset: {
-      width: 4,
-      height: 4,
+      width: isPressed ? 4 : -4,
+      height: isPressed ? 4 : -4,
     },
-    shadowOpacity: disabled ? 0.2 : 0.5,
-    shadowRadius: 6,
-    elevation: disabled ? 2 : 8,
+    shadowOpacity: isPressed ? 0.5 : 1,
+    shadowRadius: 8,
+    elevation: isPressed ? 2 : 8,
+    transform: [{ scale: isPressed ? 0.98 : 1 }],
   });
 
   return (
@@ -43,13 +45,15 @@ export const RoundButton: React.FC<RoundButtonProps> = ({
         style,
       ]}
       onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
       disabled={disabled}
-      activeOpacity={0.7}
+      activeOpacity={1}
     >
       <Ionicons
         name={icon}
         size={size * 0.5}
-        color={disabled ? theme.colors.onSurfaceVariant : theme.colors.primary}
+        color={disabled ? theme.colors.buttonDisabled : theme.colors.primary}
       />
     </TouchableOpacity>
   );
@@ -60,6 +64,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   disabled: {
     opacity: 0.6,

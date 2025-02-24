@@ -3,6 +3,8 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Modal } from 'rea
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { CustomTheme } from '../../theme/theme';
+import { NeumorphicView } from '../NeumorphicComponents';
 
 interface TimeSettingModalProps {
   visible: boolean;
@@ -19,9 +21,7 @@ export const TimeSettingModal: React.FC<TimeSettingModalProps> = ({
   currentTime,
   onTimeChange,
 }) => {
-  const theme = useTheme();
-
-  if (!visible) return null;
+  const theme = useTheme() as CustomTheme;
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -29,61 +29,86 @@ export const TimeSettingModal: React.FC<TimeSettingModalProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  if (!visible) return null;
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
       statusBarTranslucent
     >
       <TouchableOpacity
-        style={styles.modalOverlay}
+        style={[styles.modalOverlay, { backgroundColor: theme.colors.backdrop }]}
         activeOpacity={1}
         onPress={onClose}
       >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
-        >
-          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
-            <View style={[styles.modalHeader, styles.modalHeaderShadow]}>
-              <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Set Time per Question</Text>
-              <TouchableOpacity 
-                onPress={onClose} 
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color={theme.colors.onSurface} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.timeContainer}>
-              <View style={styles.timeValueContainer}>
-                <Text style={[styles.timeValue, { color: theme.colors.onSurface }]}>
-                  {formatTime(currentTime)}
-                </Text>
-                <Text style={[styles.timeLabel, { color: theme.colors.onSurfaceVariant }]}>
-                  per question
-                </Text>
-              </View>
-              <Slider
-                style={styles.timeSlider}
-                minimumValue={30}
-                maximumValue={300}
-                step={30}
-                value={currentTime}
-                onValueChange={onTimeChange}
-                minimumTrackTintColor={theme.colors.primary}
-                maximumTrackTintColor={theme.colors.onSurfaceVariant}
-                thumbTintColor={theme.colors.primary}
-              />
-              <View style={styles.sliderLabels}>
-                <Text style={[styles.sliderLabel, { color: theme.colors.onSurfaceVariant }]}>30s</Text>
-                <Text style={[styles.sliderLabel, { color: theme.colors.onSurfaceVariant }]}>5m</Text>
-              </View>
-            </View>
+        <NeumorphicView style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: theme.colors.primary }]}>
+              Set Time Limit
+            </Text>
+            <TouchableOpacity onPress={onClose}>
+              <NeumorphicView style={styles.closeButton}>
+                <Ionicons name="close" size={24} color={theme.colors.primary} />
+              </NeumorphicView>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+
+          <View style={styles.timeDisplay}>
+            <NeumorphicView style={styles.timeBox}>
+              <Text style={[styles.timeText, { color: theme.colors.primary }]}>
+                {formatTime(currentTime)}
+              </Text>
+            </NeumorphicView>
+          </View>
+
+          <NeumorphicView style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={30}
+              maximumValue={3600}
+              step={30}
+              value={currentTime}
+              onValueChange={onTimeChange}
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.buttonDisabled}
+              thumbTintColor={theme.colors.primary}
+            />
+          </NeumorphicView>
+
+          <View style={styles.presetContainer}>
+            {[1, 2, 5, 10, 15, 30].map((minutes) => (
+              <TouchableOpacity
+                key={minutes}
+                onPress={() => onTimeChange(minutes * 60)}
+              >
+                <NeumorphicView 
+                  style={[
+                    styles.presetButton,
+                    currentTime === minutes * 60 && {
+                      backgroundColor: `${theme.colors.primary}15`,
+                    }
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.presetText,
+                      { 
+                        color: currentTime === minutes * 60
+                          ? theme.colors.primary
+                          : theme.colors.onSurface
+                      }
+                    ]}
+                  >
+                    {minutes}m
+                  </Text>
+                </NeumorphicView>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </NeumorphicView>
       </TouchableOpacity>
     </Modal>
   );
@@ -92,7 +117,6 @@ export const TimeSettingModal: React.FC<TimeSettingModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: SCREEN_WIDTH * 0.04,
@@ -102,31 +126,12 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     borderRadius: 28,
     padding: SCREEN_WIDTH * 0.06,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 12,
-    transform: [{ scale: 1 }],
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SCREEN_WIDTH * 0.06,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
-    paddingBottom: SCREEN_WIDTH * 0.05,
-  },
-  modalHeaderShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 3,
   },
   modalTitle: {
     fontSize: SCREEN_WIDTH * 0.055,
@@ -134,44 +139,48 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   closeButton: {
-    padding: 10,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.06)',
-  },
-  timeContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: SCREEN_WIDTH * 0.05,
   },
-  timeValueContainer: {
+  timeDisplay: {
     alignItems: 'center',
-    marginBottom: SCREEN_WIDTH * 0.07,
+    marginVertical: SCREEN_WIDTH * 0.06,
   },
-  timeValue: {
-    fontSize: SCREEN_WIDTH * 0.14,
+  timeBox: {
+    paddingHorizontal: SCREEN_WIDTH * 0.08,
+    paddingVertical: SCREEN_WIDTH * 0.04,
+    borderRadius: 16,
+  },
+  timeText: {
+    fontSize: SCREEN_WIDTH * 0.08,
     fontWeight: '700',
-    marginBottom: SCREEN_WIDTH * 0.03,
-    letterSpacing: 1,
   },
-  timeLabel: {
-    fontSize: SCREEN_WIDTH * 0.04,
-    opacity: 0.75,
-    letterSpacing: 0.5,
+  sliderContainer: {
+    padding: SCREEN_WIDTH * 0.04,
+    borderRadius: 16,
+    marginBottom: SCREEN_WIDTH * 0.06,
   },
-  timeSlider: {
+  slider: {
     width: '100%',
-    height: 48,
+    height: 40,
   },
-  sliderLabels: {
+  presetContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: SCREEN_WIDTH * 0.02,
-    marginTop: SCREEN_WIDTH * 0.03,
+    gap: SCREEN_WIDTH * 0.02,
   },
-  sliderLabel: {
-    fontSize: SCREEN_WIDTH * 0.038,
-    opacity: 0.8,
-    fontWeight: '500',
-    letterSpacing: 0.3,
+  presetButton: {
+    width: SCREEN_WIDTH * 0.25,
+    paddingVertical: SCREEN_WIDTH * 0.03,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  presetText: {
+    fontSize: SCREEN_WIDTH * 0.04,
+    fontWeight: '600',
   },
 });

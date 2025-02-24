@@ -42,9 +42,51 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
   const theme = useTheme() as CustomTheme;
   const [showPanel, setShowPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const slideAnim = React.useRef(new Animated.Value(SCREEN_WIDTH)).current;
+  const slideAnim = React.useRef(new Animated.Value(-SCREEN_HEIGHT)).current;
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
+
+  const getTypeColor = (type?: string) => {
+    switch (type) {
+      case 'success': return theme.colors.success;
+      case 'warning': return theme.colors.warning;
+      case 'error': return theme.colors.error;
+      default: return theme.colors.info;
+    }
+  };
+
+  const renderNeumorphicView = (style: any, children: React.ReactNode) => (
+    <View style={[
+      {
+        backgroundColor: theme.colors.background,
+        shadowColor: theme.dark ? theme.colors.shadowDark : theme.colors.shadowLight,
+        shadowOffset: {
+          width: theme.dark ? 2 : 4,
+          height: theme.dark ? 2 : 4,
+        },
+        shadowOpacity: theme.dark ? 0.3 : 0.5,
+        shadowRadius: theme.dark ? 3 : 4,
+        elevation: theme.dark ? 4 : 8,
+      },
+      style
+    ]}>
+      {children}
+    </View>
+  );
+
+  const getTypeIcon = (type?: string) => {
+    switch (type) {
+      case 'success': return 'checkmark-circle';
+      case 'warning': return 'warning';
+      case 'error': return 'alert-circle';
+      default: return 'information-circle';
+    }
+  };
+
+  const filteredNotifications = notifications.filter(notification =>
+    notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    notification.message.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handlePress = () => {
     Animated.sequence([
@@ -57,11 +99,12 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
         useNativeDriver: true,
       }),
     ]).start();
-
+  
     if (showPanel) {
       Animated.parallel([
-        Animated.spring(slideAnim, {
-          toValue: SCREEN_WIDTH,
+        Animated.timing(slideAnim, {
+          toValue: -SCREEN_HEIGHT,
+          duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
@@ -91,44 +134,19 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
     }
   };
 
-  const getTypeColor = (type?: string) => {
-    switch (type) {
-      case 'success': return '#4CAF50';
-      case 'warning': return '#FFC107';
-      case 'error': return '#F44336';
-      default: return '#2196F3';
-    }
-  };
-
-  const getTypeIcon = (type?: string) => {
-    switch (type) {
-      case 'success': return 'checkmark-circle';
-      case 'warning': return 'warning';
-      case 'error': return 'alert-circle';
-      default: return 'information-circle';
-    }
-  };
-
-  const filteredNotifications = notifications.filter(notification =>
-    notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    notification.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderNeumorphicView = (style: any, children: React.ReactNode) => (
-    <View style={[styles.neumorphic, style]}>
-      {children}
-    </View>
-  );
-
   return (
     <>
       <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           {renderNeumorphicView(styles.iconContainer, (
             <>
-              <Ionicons name="notifications" size={size - 16} color="#9D4EDD" />
+              <Ionicons 
+                name="notifications" 
+                size={size - 16} 
+                color={theme.colors.primary} 
+              />
               {unreadCount > 0 && (
-                <View style={styles.badge}>
+                <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
                   <Text style={styles.badgeText}>
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </Text>
@@ -140,7 +158,7 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
       </TouchableOpacity>
 
       {showPanel && (
-        <View style={styles.overlay}>
+        <View style={[styles.overlay, { backgroundColor: theme.colors.backdrop }]}>
           <TouchableOpacity 
             style={StyleSheet.absoluteFill} 
             onPress={handlePress} 
@@ -150,7 +168,8 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
               style={[
                 styles.panel,
                 {
-                  transform: [{ translateX: slideAnim }],
+                  backgroundColor: theme.colors.background,
+                  transform: [{ translateY: slideAnim }],
                   opacity: fadeAnim,
                 }
               ]}
@@ -158,21 +177,31 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
               {renderNeumorphicView(styles.panelContent, (
                 <>
                   <View style={styles.header}>
-                    <Text style={styles.title}>Notifications</Text>
+                    <Text style={[styles.title, { color: theme.colors.primary }]}>
+                      Notifications
+                    </Text>
                     <TouchableOpacity onPress={handlePress}>
                       {renderNeumorphicView(styles.closeButton, (
-                        <Ionicons name="close" size={24} color="#9D4EDD" />
+                        <Ionicons 
+                          name="close" 
+                          size={24} 
+                          color={theme.colors.primary} 
+                        />
                       ))}
                     </TouchableOpacity>
                   </View>
 
                   {renderNeumorphicView(styles.searchContainer, (
                     <>
-                      <Ionicons name="search" size={20} color="#6C757D" />
+                      <Ionicons 
+                        name="search" 
+                        size={20} 
+                        color={theme.colors.onSurfaceVariant} 
+                      />
                       <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, { color: theme.colors.onSurface }]}
                         placeholder="Search notifications..."
-                        placeholderTextColor="#6C757D"
+                        placeholderTextColor={theme.colors.onSurfaceVariant}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                       />
@@ -199,13 +228,22 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
                                 />
                               ))}
                               <View style={styles.notificationContent}>
-                                <Text style={styles.notificationTitle}>
+                                <Text style={[
+                                  styles.notificationTitle,
+                                  { color: theme.colors.primary }
+                                ]}>
                                   {notification.title}
                                 </Text>
-                                <Text style={styles.notificationMessage}>
+                                <Text style={[
+                                  styles.notificationMessage,
+                                  { color: theme.colors.onSurface }
+                                ]}>
                                   {notification.message}
                                 </Text>
-                                <Text style={styles.timestamp}>
+                                <Text style={[
+                                  styles.timestamp,
+                                  { color: theme.colors.onSurfaceVariant }
+                                ]}>
                                   {notification.timestamp}
                                 </Text>
                               </View>
@@ -214,7 +252,10 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
                         </TouchableOpacity>
                       ))
                     ) : (
-                      <Text style={styles.emptyText}>
+                      <Text style={[
+                        styles.emptyText,
+                        { color: theme.colors.onSurfaceVariant }
+                      ]}>
                         No notifications found
                       </Text>
                     )}
@@ -230,17 +271,6 @@ export const NotificationIcon: React.FC<NotificationIconProps> = ({
 };
 
 const styles = StyleSheet.create({
-  neumorphic: {
-    backgroundColor: '#1A1B1E',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 4,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
   iconContainer: {
     width: 50,
     height: 50,
@@ -252,7 +282,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -5,
     right: -5,
-    backgroundColor: '#F44336',
     minWidth: 20,
     height: 20,
     borderRadius: 10,
@@ -269,18 +298,17 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1,
+    zIndex: 999,
   },
   panel: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 120 : 100,
-    right: 0,
-    width: SCREEN_WIDTH * 0.85,
-    height: SCREEN_HEIGHT - (Platform.OS === 'ios' ? 120 : 100),
-    backgroundColor: '#1A1B1E',
-    borderTopLeftRadius: 25,
+    top: 0,
+    left: 0,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    zIndex: 1000,
   },
   panelContent: {
     flex: 1,
@@ -345,38 +373,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 15,
-    backgroundColor: '#2A2B2E',
-    marginBottom: 25,
-    marginTop: 10,
-  },
   searchInput: {
     flex: 1,
     marginLeft: 12,
     fontSize: 16,
     color: '#FFFFFF',
     padding: Platform.OS === 'ios' ? 8 : 4,
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    backgroundColor: '#2A2B2E',
-  },
-  iconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-    backgroundColor: '#1A1B1E',
   },
   emptyText: {
     textAlign: 'center',
@@ -392,13 +394,4 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 8,
   },
-  // Remove duplicate style definitions for:
-  // - searchContainer
-  // - searchInput
-  // - notificationItem
-  // - iconWrapper
-  // - notificationTitle
-  // - notificationMessage
-  // - timestamp
-  // Keep the latest versions of these styles
 });

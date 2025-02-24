@@ -10,6 +10,13 @@ export interface CustomTheme extends MD3Theme {
     success: string;
     warning: string;
     info: string;
+    buttonText: string;
+    buttonDisabled: string;
+    buttonShadowLight: string;
+    buttonShadowDark: string;
+    buttonPressed: string;
+    buttonOutline: string;
+
   };
 }
 
@@ -17,22 +24,28 @@ export const lightTheme: CustomTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#6200ee',
-    secondary: '#03dac4',
-    background: '#E0E5EC',
-    surface: '#E0E5EC',
-    onSurface: '#000000',
-    onSurfaceDisabled: '#999999',
-    onSurfaceVariant: '#666666',
-    backdrop: 'rgba(0, 0, 0, 0.5)',
+    primary: '#0066FF',
+    secondary: '#6B7280',
+    background: '#F0F2F5',
+    surface: '#F0F2F5',
+    onSurface: '#6B7280',
+    onSurfaceDisabled: '#A7B1C2',
+    onSurfaceVariant: '#8895A7',
+    backdrop: 'rgba(167, 177, 194, 0.3)',
     error: '#f50057',
     success: '#4caf50',
     warning: '#ff9800',
     info: '#2196f3',
     shadowLight: '#FFFFFF',
-    shadowDark: '#A3B1C6',
-    highlightLight: 'rgba(255, 255, 255, 0.3)',
-    highlightDark: 'rgba(0, 0, 0, 0.05)'
+    shadowDark: '#A7B1C2',
+    highlightLight: '#FFFFFF',
+    highlightDark: 'rgba(167, 177, 194, 0.5)',
+    buttonText: '#6B7280',
+    buttonDisabled: '#A7B1C2',
+    buttonShadowLight: '#FFFFFF',
+    buttonShadowDark: '#A7B1C2',
+    buttonPressed: '#E8EBF0',
+    buttonOutline: '#E8EBF0'
   }
 };
 
@@ -41,20 +54,26 @@ export const darkTheme: CustomTheme = {
   colors: {
     ...MD3DarkTheme.colors,
     primary: '#BB86FC',
-    secondary: '#03dac4',
-    background: '#2D3440',
-    surface: '#2D3440',
-    onSurface: '#F0F0F0',
+    secondary: '#03DAC6',
+    background: '#1A1B1E',
+    surface: '#2A2B2E',
+    onSurface: '#E1E1E1',
     onSurfaceDisabled: '#666666',
     onSurfaceVariant: '#999999',
-    backdrop: 'rgba(0, 0, 0, 0.5)',
-    error: '#cf6679',
-    success: '#81c784',
-    warning: '#ffb74d',
-    info: '#64b5f6',
-    shadowLight: '#353B46',
-    shadowDark: '#23282F',
+    backdrop: 'rgba(0, 0, 0, 0.7)',
+    error: '#CF6679',
+    success: '#03DAC6',
+    warning: '#FFB74D',
+    info: '#64B5F6',
+    shadowLight: '#2A2B2E',
+    shadowDark: '#121212',
     highlightLight: 'rgba(255, 255, 255, 0.05)',
-    highlightDark: 'rgba(0, 0, 0, 0.2)'
+    highlightDark: 'rgba(0, 0, 0, 0.2)',
+    buttonText: '#E1E1E1',
+    buttonDisabled: '#666666',
+    buttonShadowLight: '#2A2B2E',
+    buttonShadowDark: '#121212',
+    buttonPressed: '#353535',
+    buttonOutline: '#2A2B2E'
   }
 };
