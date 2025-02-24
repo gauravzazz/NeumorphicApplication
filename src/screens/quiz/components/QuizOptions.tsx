@@ -20,13 +20,6 @@ export const QuizOptions: React.FC<QuizOptionsProps> = ({
   const handleOptionSelect = (index: number) => {
     if (selectedOption === null) {
       onOptionSelect(index);
-      if (mode === 'practice') {
-        // In practice mode, wait for 2 seconds to show the correct answer
-        // before moving to the next question
-        setTimeout(() => {
-          onOptionSelect(index);
-        }, 2000);
-      }
     }
   };
 
