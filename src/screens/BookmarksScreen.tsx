@@ -10,9 +10,10 @@ import { BookmarkedQuestion, getBookmarkedQuestions, removeBookmarkedQuestion } 
 import Markdown from 'react-native-markdown-display';
 import { FilterModal } from '../components/FilterModal';
 import { initializeFilterData } from '../utils/filterStorage';
+import { CustomTheme } from '../theme/theme';
 
 export const BookmarksScreen = () => {
-  const theme = useTheme();
+  const theme = useTheme() as CustomTheme;
   const navigation = useNavigation();
   const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
   const [questionDifficulties, setQuestionDifficulties] = useState<{ [key: string]: 'easy' | 'hard' | null }>({});
@@ -65,6 +66,20 @@ export const BookmarksScreen = () => {
     setShowFilterModal(false);
   };
 
+  const getNeumorphicStyle = (isPressed?: boolean) => ({
+    backgroundColor: theme.colors.background,
+    shadowColor: isPressed ? theme.colors.neumorphicDark : theme.colors.neumorphicLight,
+    shadowOffset: {
+      width: isPressed ? -3 : 6,
+      height: isPressed ? -3 : 6,
+    },
+    shadowOpacity: isPressed ? 0.4 : 0.7,
+    shadowRadius: isPressed ? 3 : 8,
+    elevation: isPressed ? 2 : 8,
+    borderWidth: 1,
+    borderColor: theme.colors.neumorphicHighlight,
+  });
+
   if (bookmarks.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -89,7 +104,7 @@ export const BookmarksScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, getNeumorphicStyle()]}>
         <RoundButton
           icon="chevron-back"
           onPress={() => navigation.goBack()}
@@ -98,7 +113,7 @@ export const BookmarksScreen = () => {
         />
         <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Bookmarks</Text>
         <TouchableOpacity
-          style={styles.filterButton}
+          style={[styles.filterButton, getNeumorphicStyle()]}
           onPress={() => setShowFilterModal(true)}
         >
           <Ionicons name="filter" size={24} color={theme.colors.primary} />
@@ -117,7 +132,10 @@ export const BookmarksScreen = () => {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {filteredBookmarks.map((bookmark) => (
-          <NeumorphicView key={bookmark.id} style={styles.questionCard}>
+          <View 
+            key={bookmark.id} 
+            style={[styles.questionCard, getNeumorphicStyle()]}
+          >
             <View style={styles.questionContent}>
               <Markdown style={{
                 body: { color: theme.colors.onSurface, fontSize: 16, lineHeight: 24 },
@@ -129,22 +147,25 @@ export const BookmarksScreen = () => {
 
             <View style={styles.optionsContainer}>
               {bookmark.options.map((option, optionIndex) => (
-                <TouchableOpacity
+                <View
                   key={optionIndex}
                   style={[
                     styles.optionItem,
-                    optionIndex === bookmark.correctOption && styles.correctOption,
+                    getNeumorphicStyle(),
+                    optionIndex === bookmark.correctOption && {
+                      backgroundColor: 'rgba(75, 181, 67, 0.1)',
+                      borderColor: theme.colors.success,
+                    },
                   ]}
-                  disabled
                 >
                   <Text style={[
                     styles.optionText,
                     { color: theme.colors.onSurface },
-                    optionIndex === bookmark.correctOption && styles.correctOptionText
+                    optionIndex === bookmark.correctOption && { color: theme.colors.success }
                   ]}>
                     {String.fromCharCode(65 + optionIndex)}. {option}
                   </Text>
-                </TouchableOpacity>
+                </View>
               ))}
             </View>
 
@@ -180,19 +201,26 @@ export const BookmarksScreen = () => {
                 </View>
               </View>
 
-            <View style={styles.cardFooter}>
+            <View style={[styles.cardFooter, { borderTopColor: theme.colors.neumorphicDark }]}>
               <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
                 Bookmarked on: {new Date(bookmark.dateBookmarked).toLocaleDateString()}
               </Text>
               <View style={styles.actionButtons}>
                 <TouchableOpacity
-                  style={[styles.actionButton, questionDifficulties[bookmark.id] === 'easy' && styles.actionButtonActive]}
+                  style={[
+                    styles.actionButton,
+                    getNeumorphicStyle(questionDifficulties[bookmark.id] === 'easy'),
+                    questionDifficulties[bookmark.id] === 'easy' && {
+                      backgroundColor: theme.colors.primary + '20',
+                    }
+                  ]}
                   onPress={() => handleDifficultyChange(bookmark.id, 'easy')}
                 >
                   <Ionicons
                     name="thumbs-up"
                     size={24}
-                    color={questionDifficulties[bookmark.id] === 'easy' ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                    color={questionDifficulties[bookmark.id] === 'easy' ? 
+                      theme.colors.primary : theme.colors.onSurfaceVariant}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -213,7 +241,7 @@ export const BookmarksScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          </NeumorphicView>
+          </View>
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -264,23 +292,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   questionCard: {
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-  },
-  questionContent: {
-    marginBottom: 16,
-  },
-  optionsContainer: {
-    marginBottom: 16,
+    marginBottom: SCREEN_WIDTH * 0.04,
+    padding: SCREEN_WIDTH * 0.04,
+    borderRadius: 20,
   },
   optionItem: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    padding: SCREEN_WIDTH * 0.03,
+    borderRadius: 12,
+    marginBottom: SCREEN_WIDTH * 0.02,
   },
+  actionButton: {
+    padding: SCREEN_WIDTH * 0.02,
+    borderRadius: 12,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   correctOption: {
     backgroundColor: 'rgba(75, 181, 67, 0.1)',
     borderColor: '#4BB543',
@@ -337,9 +366,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  actionButton: {
-    padding: 4,
-  },
+
   actionButtonActive: {
     backgroundColor: 'rgba(98, 0, 238, 0.1)',
     borderRadius: 8,
@@ -403,5 +430,15 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: SCREEN_WIDTH * 0.035,
     fontWeight: '600',
+  },
+  questionContent: {
+    marginBottom: SCREEN_WIDTH * 0.04,
+    padding: SCREEN_WIDTH * 0.02,
+    borderRadius: 12,
+  },
+  optionsContainer: {
+    marginTop: SCREEN_WIDTH * 0.02,
+    marginBottom: SCREEN_WIDTH * 0.04,
+    gap: SCREEN_WIDTH * 0.02,
   },
 });

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions, Animated } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { NeumorphicView } from '../NeumorphicComponents';
-import { Button } from '../ui//Button';
+import { CustomTheme } from '../../theme/theme';
+import { Button } from '../ui/Button';
 import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
 import { getQuizSettings } from '../../utils/quizSettingsStorage';
+import { NeumorphicSlider } from '../ui/NeumorphicSlider';
 
 interface QuizConfigModalProps {
   visible: boolean;
@@ -27,10 +28,11 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
   subjectName,
   maxQuestions = 10
 }) => {
-  const theme = useTheme();
+  const theme = useTheme() as CustomTheme;
   const navigation = useNavigation();
   const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(5);
   const [mode, setMode] = useState<'test' | 'practice'>('practice');
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   const handleQuestionCountChange = (value: number) => {
     setSelectedQuestionCount(Math.min(Math.max(Math.round(value), 5), maxQuestions));
@@ -64,91 +66,118 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
     onClose();
   };
 
+  React.useEffect(() => {
+    if (visible) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible]);
+
   return (
     <Modal
-      animationType="slide"
+      animationType="none"
       transparent={true}
       visible={visible}
       onRequestClose={handleModalClose}
       statusBarTranslucent={true}
     >
-      <TouchableOpacity
-        style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}
-        activeOpacity={1}
-        onPress={handleModalClose}
+      <Animated.View 
+        style={[
+          styles.modalOverlay,
+          { 
+            backgroundColor: theme.colors.backdrop,
+            opacity: fadeAnim 
+          }
+        ]}
       >
         <TouchableOpacity
+          style={styles.modalWrapper}
           activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
+          onPress={handleModalClose}
         >
-          <View style={styles.modalContainer}>
-            <NeumorphicView
-              style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                  Configure Quiz
-                </Text>
-                <TouchableOpacity
-                  onPress={handleModalClose}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={24} color={theme.colors.onSurface} />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalBody}>
-                <View style={styles.sliderSection}>
-                  <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
-                    Number of Questions: {selectedQuestionCount}
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.modalContainer}>
+              <View
+                style={[
+                  styles.modalContent,
+                  {
+                    backgroundColor: theme.colors.background,
+                    borderColor: theme.colors.neumorphicHighlight,
+                    shadowColor: theme.colors.neumorphicShadow,
+                  }
+                ]}
+              >
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: theme.colors.primary }]}>
+                    Configure Quiz
                   </Text>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={5}
-                    maximumValue={maxQuestions}
-                    step={1}
-                    value={selectedQuestionCount}
-                    onValueChange={handleQuestionCountChange}
-                    minimumTrackTintColor={theme.colors.primary}
-                    maximumTrackTintColor={theme.colors.onSurfaceVariant}
-                    thumbTintColor={theme.colors.primary}
-                  />
+                  <TouchableOpacity
+                    onPress={handleModalClose}
+                    style={styles.closeButton}
+                  >
+                    <View style={[styles.iconWrapper, { backgroundColor: theme.colors.background }]}>
+                      <Ionicons name="close" size={24} color={theme.colors.primary} />
+                    </View>
+                  </TouchableOpacity>
                 </View>
 
-                <View style={styles.modeSection}>
-                  <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
-                    Select Mode:
-                  </Text>
-                  <View style={styles.modeButtonsContainer}>
-                    <Button
-                      variant={mode === 'practice' ? 'primary' : 'outline'}
-                      onPress={() => handleModeChange('practice')}
-                      title="Practice"
-                      style={styles.modeButton}
-                    />
+                <View style={styles.modalBody}>
+                  <View style={styles.sliderSection}>
+                    <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+                      Number of Questions: {selectedQuestionCount}
+                    </Text>
+                    <View style={styles.sliderWrapper}>
+                      <NeumorphicSlider
+                        value={selectedQuestionCount}
+                        onValueChange={handleQuestionCountChange}
+                        minimumValue={5}
+                        maximumValue={maxQuestions}
+                        step={1}
+                        style={styles.slider}
+                        trackColor={theme.colors.primary}
+                        thumbColor={theme.colors.primary}
+                      />
+                    </View>
+                  </View>
 
+                  <View style={styles.modeSection}>
+                    <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>
+                      Select Mode:
+                    </Text>
+                    <View style={styles.modeButtonsContainer}>
+                      <Button
+                        variant={mode === 'practice' ? 'primary' : 'outline'}
+                        onPress={() => handleModeChange('practice')}
+                        title="Practice"
+                        style={styles.modeButton}
+                      />
+                      <Button
+                        variant={mode === 'test' ? 'primary' : 'outline'}
+                        onPress={() => handleModeChange('test')}
+                        title="Test"
+                        style={styles.modeButton}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.startButtonContainer}>
                     <Button
-                      variant={mode === 'test' ? 'primary' : 'outline'}
-                      onPress={() => handleModeChange('test')}
-                      title="Test"
-                      style={styles.modeButton}
+                      variant="primary"
+                      onPress={handleStartQuiz}
+                      title="Start Quiz"
+                      style={styles.startButton}
+                      size="large"
                     />
                   </View>
                 </View>
-
-                <View style={styles.startButtonContainer}>
-                  <Button
-                    variant="primary"
-                    onPress={handleStartQuiz}
-                    title="Start Quiz"
-                    style={styles.startButton}
-                  />
-                </View>
               </View>
-            </NeumorphicView>
-          </View>
+            </View>
+          </TouchableOpacity>
         </TouchableOpacity>
-      </TouchableOpacity>
+      </Animated.View>
     </Modal>
   );
 };
@@ -156,7 +185,12 @@ export const QuizConfigModal: React.FC<QuizConfigModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalWrapper: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     padding: SCREEN_WIDTH * 0.04,
@@ -164,57 +198,68 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: SCREEN_WIDTH * 0.9,
     maxWidth: 400,
-    padding: SCREEN_WIDTH * 0.04,
   },
   modalContent: {
     borderRadius: 28,
     padding: SCREEN_WIDTH * 0.06,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#000',
     shadowOffset: {
-      width: 4,
-      height: 4,
+      width: 8,
+      height: 8,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SCREEN_WIDTH * 0.06,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
-    paddingBottom: SCREEN_WIDTH * 0.05,
   },
   modalTitle: {
-    fontSize: SCREEN_WIDTH * 0.055,
+    fontSize: SCREEN_WIDTH * 0.06,
     fontWeight: '700',
-    letterSpacing: 0.2,
-    flex: 1,
-    marginRight: SCREEN_WIDTH * 0.04,
+    letterSpacing: 0.5,
+  },
+  closeButton: {
+    padding: 4,
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   modalBody: {
     gap: SCREEN_WIDTH * 0.06,
   },
   sliderSection: {
-    marginBottom: SCREEN_WIDTH * 0.02,
-  },
-  modeSection: {
     marginBottom: SCREEN_WIDTH * 0.04,
   },
+  sliderWrapper: {
+    padding: SCREEN_WIDTH * 0.02,
+    borderRadius: 16,
+    backgroundColor: 'transparent',
+  },
   sectionLabel: {
-    fontSize: SCREEN_WIDTH * 0.042,
+    fontSize: SCREEN_WIDTH * 0.045,
     fontWeight: '600',
     marginBottom: SCREEN_WIDTH * 0.03,
-    letterSpacing: 0.2,
+    letterSpacing: 0.5,
   },
   slider: {
     width: '100%',
-    height: SCREEN_WIDTH * 0.1,
-    transform: [{ scale: 0.95 }],
+    height: SCREEN_WIDTH * 0.12,
+  },
+  modeSection: {
+    marginBottom: SCREEN_WIDTH * 0.04,
   },
   modeButtonsContainer: {
     flexDirection: 'row',
@@ -223,43 +268,11 @@ const styles = StyleSheet.create({
   },
   modeButton: {
     flex: 1,
-    paddingVertical: SCREEN_WIDTH * 0.03,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  modeButtonText: {
-    fontSize: SCREEN_WIDTH * 0.042,
-    fontWeight: '600',
-    textAlign: 'center',
-    letterSpacing: 0.2,
   },
   startButtonContainer: {
-    alignItems: 'center',
-    width: '100%',
     marginTop: SCREEN_WIDTH * 0.02,
   },
   startButton: {
     width: '100%',
-    paddingVertical: SCREEN_WIDTH * 0.035,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  startButtonText: {
-    fontSize: SCREEN_WIDTH * 0.042,
-    fontWeight: '600',
-    textAlign: 'center',
-    letterSpacing: 0.2,
   },
 });
