@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
   import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
   import { Toast } from '../../components/ui/Toast';
   import { CustomAlert } from '../../components/ui/CustomAlert';
@@ -12,7 +12,7 @@
   import { QuestionSummaryModal } from '../../components/modals/QuestionSummaryModal';
   import { QuestionService, Question } from '../../services/questionService';
   import { logger } from '../../utils/logger';
-
+  import { getQuizSettings } from '../../utils/quizSettingsStorage';
   type QuizScreenRouteProp = RouteProp<{
     Quiz: {
       topicId: string;
@@ -28,34 +28,60 @@
     const theme = useTheme();
     const route = useRoute<QuizScreenRouteProp>();
     const navigation = useNavigation();
-    const { mode, timeLimit, topicId, topicTitle, subjectName, questionCount } = route.params;
+    const { mode, topicId, topicTitle, subjectName, questionCount } = route.params;
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const autoNavigateRef = useRef<NodeJS.Timeout | null>(null);
-
+  
+    // Add timePerQuestion state
+    const [timePerQuestion, setTimePerQuestion] = useState(60);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [answers, setAnswers] = useState<{ [key: string]: number }>({});
-    const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60);
+    const [timeRemaining, setTimeRemaining] = useState(0);
     const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isQuestionTrayVisible, setIsQuestionTrayVisible] = useState(false);
     const [showSubmitAlert, setShowSubmitAlert] = useState(false);
     const [showToast, setShowToast] = useState(true);
-
-    const cleanup = useCallback(() => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+  
+    // Add useEffect to load quiz settings
+    useEffect(() => {
+      const loadSettings = async () => {
+        const settings = await getQuizSettings();
+        setTimePerQuestion(settings.timePerQuestion);
+        setTimeRemaining(questionCount * settings.timePerQuestion);
+      };
+      loadSettings();
+    }, [questionCount]);
+  
+    // Update loadQuestions
+    const loadQuestions = useCallback(async () => {
+      try {
+        setIsLoading(true);
+        const fetchedQuestions = await QuestionService.fetchQuizQuestions(topicId, questionCount);
+        if (fetchedQuestions.length === 0) {
+          throw new Error('No questions available');
+        }
+        setQuestions(fetchedQuestions);
+        setCurrentQuestionIndex(0);
+        setSelectedOption(null);
+        setAnswers({});
+        setTimeRemaining(questionCount * timePerQuestion);
+        setShowCorrectAnswer(false);
+        setShowToast(true);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load questions';
+        setError(errorMessage);
+        navigation.goBack();
+      } finally {
+        setIsLoading(false);
       }
-      if (autoNavigateRef.current) {
-        clearTimeout(autoNavigateRef.current);
-        autoNavigateRef.current = null;
-      }
-    }, []);
-
+    }, [topicId, questionCount, timePerQuestion, navigation]);
+  
+    // Update navigateToResult
     const navigateToResult = useCallback(() => {
       cleanup();
       navigation.reset({
@@ -66,7 +92,7 @@
             params: {
               answers,
               questions,
-              timeSpent: Math.max(0, timeLimit * 60 - timeRemaining),
+              timeSpent: Math.max(0, questionCount * timePerQuestion - timeRemaining),
               mode,
               topicId,
               topicTitle,
@@ -75,30 +101,18 @@
           },
         ],
       });
-    }, [answers, questions, timeRemaining, mode, topicId, topicTitle, subjectName, navigation, timeLimit, cleanup]);
-
-    const loadQuestions = useCallback(async () => {
-      try {
-        setIsLoading(true);
-        const fetchedQuestions = await QuestionService.fetchQuizQuestions(topicId, questionCount);
-        if (fetchedQuestions.length === 0) {
-          throw new Error('No questions available');
-        }
-        setQuestions(fetchedQuestions);
-        setCurrentQuestionIndex(0);
-        setSelectedOption(null); // Reset selected option
-        setAnswers({});
-        setTimeRemaining(timeLimit * 60);
-        setShowCorrectAnswer(false);
-        setShowToast(true);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load questions';
-        setError(errorMessage);
-        navigation.goBack();
-      } finally {
-        setIsLoading(false);
+    }, [answers, questions, timeRemaining, mode, topicId, topicTitle, subjectName, navigation, questionCount, timePerQuestion, cleanup]);
+  
+    const cleanup = useCallback(() => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-    }, [topicId, questionCount, timeLimit, navigation]);
+      if (autoNavigateRef.current) {
+        clearTimeout(autoNavigateRef.current);
+        autoNavigateRef.current = null;
+      }
+    }, []);
 
     const resetQuiz = useCallback(() => {
       cleanup();
@@ -111,7 +125,7 @@
     }, [loadQuestions, cleanup]);
 
     useEffect(() => {
-      if (mode === 'test' && timeRemaining > 0) {
+      if ( timeRemaining > 0) {
         timerRef.current = setInterval(() => {
           setTimeRemaining(prev => {
             if (prev <= 1) {
@@ -206,13 +220,7 @@
 
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <Toast 
-          visible={showToast} 
-          message={`Starting ${mode} mode quiz for ${topicTitle}`} 
-          onHide={() => setShowToast(false)} 
-          style={styles.toast} 
-        />
-        
+      
         <QuizHeader 
           currentQuestion={currentQuestionIndex + 1} 
           totalQuestions={questionCount} 
