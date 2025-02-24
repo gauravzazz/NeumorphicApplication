@@ -17,7 +17,8 @@ interface QuestionSummaryModalProps {
   }>;
   currentQuestionIndex: number;
   answers: (number | null)[];
-  onQuestionSelect: (index: number) => void;
+  onQuestionSelect?: (index: number) => void; // Make optional for practice mode
+  mode?: 'test' | 'practice';
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -29,6 +30,7 @@ export const QuestionSummaryModal: React.FC<QuestionSummaryModalProps> = ({
   currentQuestionIndex,
   answers,
   onQuestionSelect,
+  mode = 'test'
 }) => {
   const theme = useTheme() as CustomTheme;
   const [filterSkipped, setFilterSkipped] = React.useState(false);
@@ -38,15 +40,19 @@ export const QuestionSummaryModal: React.FC<QuestionSummaryModalProps> = ({
     : questions;
 
   const getQuestionStatus = (index: number) => {
-    if (answers[index] === null) return 'skipped';
-    if (answers[index] === questions[index].correctOption) return 'correct';
-    return 'incorrect';
+    if (mode === 'practice') {
+      if (answers[index] === null) return 'skipped';
+      return answers[index] === questions[index].correctOption ? 'correct' : 'incorrect';
+    } else {
+      return answers[index] === null ? 'skipped' : 'answered';
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'correct': return theme.colors.success;
       case 'incorrect': return theme.colors.error;
+      case 'answered': return theme.colors.primary;
       default: return theme.colors.warning;
     }
   };
@@ -55,7 +61,14 @@ export const QuestionSummaryModal: React.FC<QuestionSummaryModalProps> = ({
     switch (status) {
       case 'correct': return 'checkmark-circle';
       case 'incorrect': return 'close-circle';
+      case 'answered': return 'radio-button-on';
       default: return 'help-circle';
+    }
+  };
+
+  const handleQuestionSelect = (index: number) => {
+    if (mode === 'test' && onQuestionSelect) {
+      onQuestionSelect(index);
     }
   };
 
@@ -106,8 +119,12 @@ export const QuestionSummaryModal: React.FC<QuestionSummaryModalProps> = ({
               return (
                 <TouchableOpacity
                   key={question.id}
-                  onPress={() => onQuestionSelect(index)}
-                  style={styles.questionItem}
+                  onPress={() => handleQuestionSelect(index)}
+                  disabled={mode === 'practice'}
+                  style={[
+                    styles.questionItem,
+                    mode === 'practice' && styles.practiceQuestionItem
+                  ]}
                 >
                   <NeumorphicView 
                     style={[
@@ -213,5 +230,8 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: SCREEN_WIDTH * 0.038,
     lineHeight: SCREEN_WIDTH * 0.05,
+  },
+  practiceQuestionItem: {
+    opacity: 0.8,
   },
 });

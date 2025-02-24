@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { NeumorphicButton } from './NeumorphicComponents';
 import { typography } from '../theme/typography';
@@ -12,6 +12,7 @@ interface QuizOptionProps {
   onSelect: () => void;
   isCorrect?: boolean;
   isDisabled?: boolean;
+  showCorrectness?: boolean;
 }
 
 export const QuizOption: React.FC<QuizOptionProps> = ({
@@ -19,16 +20,37 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
   index,
   isSelected,
   onSelect,
+  isCorrect,
+  isDisabled,
+  showCorrectness,
 }) => {
   const theme = useTheme();
+
+  const getBackgroundColor = () => {
+    if (showCorrectness) {
+      if (isCorrect) return theme.colors.success;
+      if (isSelected) return theme.colors.error;
+    }
+    return isSelected ? theme.colors.primary : '#F0F0F3';
+  };
+
+  const getTextColor = () => {
+    if (showCorrectness && (isCorrect || isSelected)) {
+      return theme.colors.background;
+    }
+    return isSelected ? theme.colors.background : theme.colors.onSurface;
+  };
 
   return (
     <NeumorphicButton
       style={[
         styles.optionButton,
+        {
+          backgroundColor: getBackgroundColor(),
+          opacity: isDisabled ? 0.7 : 1,
+        },
         isSelected && {
-          backgroundColor: theme.colors.primary,
-          shadowColor: theme.colors.primary,
+          shadowColor: getBackgroundColor(),
           shadowOpacity: 0.3,
           shadowOffset: { width: scale.shadow(3), height: scale.shadow(3) },
           shadowRadius: scale.shadow(6),
@@ -36,6 +58,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
         },
       ]}
       onPress={onSelect}
+      disabled={isDisabled}
     >
       <View style={styles.optionContent}>
         <View
@@ -43,7 +66,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
             styles.optionLabel,
             isSelected && { 
               backgroundColor: theme.colors.background,
-              shadowColor: theme.colors.primary,
+              shadowColor: getBackgroundColor(),
               shadowOpacity: 0.4,
             },
           ]}
@@ -51,7 +74,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
           <Text
             style={[
               styles.optionLabelText,
-              { color: isSelected ? theme.colors.primary : theme.colors.onSurface },
+              { color: getTextColor() },
               typography.titleMedium
             ]}
           >
@@ -61,7 +84,7 @@ export const QuizOption: React.FC<QuizOptionProps> = ({
         <Text
           style={[
             styles.optionText,
-            { color: isSelected ? theme.colors.background : theme.colors.onSurface },
+            { color: getTextColor() },
             typography.titleMedium
           ]}
         >

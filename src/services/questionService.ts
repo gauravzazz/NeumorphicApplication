@@ -19,26 +19,28 @@ export class QuestionService {
       throw new Error('Invalid question count');
     }
 
-    // Get questions from both mockQuestions and mockHotTopics
+    // Add debug logs
+    console.log('Fetching questions for topic:', topicId);
+    console.log('Requested count:', count);
+
     const mockTopicQuestions = mockQuestions.filter(q => q.topicId === topicId);
+    console.log('Mock questions found:', mockTopicQuestions.length);
     
-    // Find the hot topic and get its questions
     const hotTopic = mockHotTopics.find(topic => topic.id === topicId);
     const hotTopicQuestions = hotTopic?.questions || [];
+    console.log('Hot topic questions found:', hotTopicQuestions.length);
 
-    // Combine questions from both sources
     const allQuestions = [...mockTopicQuestions, ...hotTopicQuestions];
+    console.log('Total questions available:', allQuestions.length);
 
     if (allQuestions.length === 0) {
       throw new Error('No questions available for this topic');
     }
 
-    // Ensure we don't request more questions than available
     const requestedCount = Math.min(count, allQuestions.length);
-
-    // Randomly select questions
-    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
-    const selectedQuestions = shuffled.slice(0, requestedCount);
+    const selectedQuestions = [...allQuestions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, requestedCount);
 
     return selectedQuestions;
   }
