@@ -29,7 +29,7 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
   return (
     <View style={styles.navigationWrapper}>
       <View style={styles.navigationContainer}>
-        {mode === 'test' && (
+        {mode === 'test' ? (
           <>
             {onPrevious && (
               <RoundButton
@@ -44,6 +44,7 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
               onPress={onSkip}
               style={styles.skipButton}
               title='Skip'
+              disabled={isLastQuestion}
             />
             {onNext && (
               <RoundButton
@@ -54,28 +55,18 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
               />
             )}
           </>
-        )}
-        
-        {mode === 'practice' && isLastQuestion && (
-          <Button
-            mode="contained"
-            onPress={onReset}
-            style={styles.resetButton}
-            title="Try Again"
-          />
+        ) : (
+          // Practice mode - only skip button centered
+          <View style={styles.practiceContainer}>
+            <Button
+              mode="outlined"
+              onPress={onSkip}
+              style={styles.skipButton}
+              title='Skip'
+            />
+          </View>
         )}
       </View>
-      
-      {isLastQuestion && mode === 'test' && (
-        <View style={styles.footer}>
-          <Button
-            mode="contained"
-            onPress={onSubmit}
-            style={styles.submitButton}
-            title="Submit Quiz"
-          />
-        </View>
-      )}
     </View>
   );
 };
@@ -90,6 +81,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.sm,
+  },
+  practiceContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   skipButton: {
     minWidth: scale.button(120),

@@ -165,17 +165,50 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
       const currentQuestion = questions[currentQuestionIndex];
       if (!currentQuestion) return;
 
-      setSelectedOption(optionIndex);
-      setAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: optionIndex
-      }));
-    }, [currentQuestionIndex, questions]);
+      if (mode === 'practice') {
+        if (selectedOption !== null) return;
+        setShowCorrectAnswer(true);
+        setSelectedOption(optionIndex);
+        setAnswers(prev => ({
+          ...prev,
+          [currentQuestion.id]: optionIndex
+        }));
+      } else {
+        // Test mode - allow changing selection at any time
+        setSelectedOption(optionIndex);
+        setAnswers(prev => ({
+          ...prev,
+          [currentQuestion.id]: optionIndex
+        }));
+      }
+    }, [currentQuestionIndex, questions, mode]);
+
+    useEffect(() => {
+      if (mode === 'practice' && selectedOption !== null) {
+        setShowCorrectAnswer(true);
+        autoNavigateRef.current = setTimeout(() => {
+          if (currentQuestionIndex === questions.length - 1) {
+            navigateToResult();
+          } else {
+            setCurrentQuestionIndex(prev => prev + 1);
+            setSelectedOption(null);
+            setShowCorrectAnswer(false);
+          }
+        }, 1500);
+    
+        return () => {
+          if (autoNavigateRef.current) {
+            clearTimeout(autoNavigateRef.current);
+          }
+        };
+      }
+    }, [selectedOption, currentQuestionIndex, questions.length, mode, navigateToResult]);
 
     const handleNextQuestion = useCallback(() => {
       if (mode === 'test' && currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedOption(answers[questions[currentQuestionIndex + 1]?.id] ?? null);
+        setShowCorrectAnswer(false);
       }
     }, [currentQuestionIndex, questions, mode, answers]);
 
@@ -183,22 +216,26 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
       if (mode === 'test' && currentQuestionIndex > 0) {
         setCurrentQuestionIndex(prev => prev - 1);
         setSelectedOption(answers[questions[currentQuestionIndex - 1]?.id] ?? null);
+        setShowCorrectAnswer(false);
       }
     }, [currentQuestionIndex, mode, answers, questions]);
 
     const handleSkipQuestion = useCallback(() => {
-      if (mode === 'test') {
-        const currentQuestion = questions[currentQuestionIndex];
-        if (currentQuestion) {
-          setAnswers(prev => {
-            const updatedAnswers = { ...prev };
-            delete updatedAnswers[currentQuestion.id];
-            return updatedAnswers;
-          });
-        }
-        handleNextQuestion();
+      const currentQuestion = questions[currentQuestionIndex];
+      if (currentQuestion) {
+        setAnswers(prev => {
+          const updatedAnswers = { ...prev };
+          delete updatedAnswers[currentQuestion.id];
+          return updatedAnswers;
+        });
       }
-    }, [currentQuestionIndex, questions, mode, handleNextQuestion]);
+      
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedOption(null);
+        setShowCorrectAnswer(false);
+      }
+    }, [currentQuestionIndex, questions]);
 
     if (isLoading) {
       return (
@@ -244,7 +281,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
               selectedOption={selectedOption} 
               onOptionSelect={handleOptionSelect} 
               mode={mode}
-              correctOption={showCorrectAnswer ? currentQuestion.correctOption : undefined}
+              correctOption={mode === 'practice' && showCorrectAnswer ? currentQuestion.correctOption : undefined}
               disabled={mode === 'practice' && selectedOption !== null}
             />
           </View>
@@ -263,7 +300,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
           />
         ) : (
           <QuizNavigation 
-            onSkip={() => {}}
+            onSkip={handleSkipQuestion}  // Remove duplicate onSkip and fix the empty one
             onSubmit={() => {}}
             onReset={resetQuiz}
             isFirstQuestion={currentQuestionIndex === 0}

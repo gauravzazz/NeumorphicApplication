@@ -69,7 +69,7 @@ export const Timer: React.FC<TimerProps> = ({
           styles.timerValue,
           {
             color: isLowTime ? theme.colors.error : theme.colors.primary,
-            backgroundColor: `${isLowTime ? theme.colors.error : theme.colors.primary}10`,
+            //backgroundColor: `${isLowTime ? theme.colors.error : theme.colors.primary}10`,
             fontSize: dynamicFontSize,
           },
         ]}

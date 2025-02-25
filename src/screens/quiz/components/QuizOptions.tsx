@@ -18,9 +18,8 @@ export const QuizOptions: React.FC<QuizOptionsProps> = ({
   mode,
 }) => {
   const handleOptionSelect = (index: number) => {
-    if (selectedOption === null) {
-      onOptionSelect(index);
-    }
+    // Remove the selectedOption check to allow multiple selections in test mode
+    onOptionSelect(index);
   };
 
   return (
@@ -33,7 +32,8 @@ export const QuizOptions: React.FC<QuizOptionsProps> = ({
           selected={selectedOption === index}
           onPress={() => handleOptionSelect(index)}
           style={styles.optionButton}
-          disabled={selectedOption !== null}
+          // Only disable in practice mode when an option is selected
+          disabled={mode === 'practice' && selectedOption !== null}
           isCorrect={
             mode === 'practice' && selectedOption !== null
               ? index === correctOption
