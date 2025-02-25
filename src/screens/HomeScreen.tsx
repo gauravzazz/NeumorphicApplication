@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { Subject } from '../types';
-import { mockSubjects, mockHotTopics, mockQuestions } from '../data/mockData';
+import { mockSubjects, mockHotTopics,  } from '../data/mockData';
 import { Header} from '../components/Header';
 import { RecentSubjects } from '../components/RecentSubjects';
 import { HotTopics } from '../components/HotTopics';
@@ -15,6 +15,7 @@ import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { DatabaseService } from '../services/database/DatabaseService';
+import { ActivityIndicator } from 'react-native-paper';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -27,15 +28,8 @@ export const HomeScreen: React.FC = () => {
   const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
 
-  useEffect(() => {
-    const verifyDatabase = async () => {
-      const db = DatabaseService.getInstance();
-      await db.verifyTables();
-    };
-    
-    verifyDatabase();
-  }, []);
 
+  
   const handleSubjectPress = (subject: Subject) => {
     navigation.navigate('SubjectDetail', { subject });
   };

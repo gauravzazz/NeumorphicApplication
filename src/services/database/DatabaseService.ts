@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SQLError {
   message: string;
@@ -17,12 +18,35 @@ interface SQLiteResponse {
 }
 
 export class DatabaseService {
+  getQuestions() {
+    throw new Error('Method not implemented.');
+  }
+  getTopics() {
+    throw new Error('Method not implemented.');
+  }
   private db: SQLite.SQLiteDatabase;
   private static instance: DatabaseService;
+  private static DB_INITIALIZED_KEY = 'db_initialized';
 
   private constructor() {
     this.db = SQLite.openDatabaseSync('revise.db');
-    this.initializeTables();
+    this.checkAndInitializeTables();
+  }
+
+  private async checkAndInitializeTables(): Promise<void> {
+    try {
+      const isInitialized = await AsyncStorage.getItem(DatabaseService.DB_INITIALIZED_KEY);
+      
+      if (!isInitialized) {
+        await this.initializeTables();
+        await this.insertMockData();  // Add mock data only on first initialization
+        await AsyncStorage.setItem(DatabaseService.DB_INITIALIZED_KEY, 'true');
+        console.log('Database initialized successfully with mock data');
+      }
+    } catch (error: unknown) {
+      const sqlError = error as SQLError;
+      console.error('Database initialization error:', sqlError.message);
+    }
   }
 
   static getInstance(): DatabaseService {
@@ -141,6 +165,18 @@ export class DatabaseService {
 
   async insertSubject(subject: any): Promise<void> {
     try {
+      // First check if subject exists
+      const existingSubject = await this.db.execAsync(
+        `SELECT id FROM subjects WHERE id = '${subject.id}'`
+      ) as unknown as SQLiteResponse;
+  
+      if (existingSubject?.result?.[0]?.rows?.length > 0) {
+        // Subject exists, update it instead
+        await this.updateSubject(subject);
+        return;
+      }
+  
+      // Subject doesn't exist, insert new
       const query = `INSERT INTO subjects (id, name, description, icon, imageUrl, color, totalTopics, progress, order_index, created_at, updated_at) 
                      VALUES ('${subject.id}', '${subject.name}', '${subject.description}', '${subject.icon}', '${subject.imageUrl}', 
                              '${subject.color}', ${subject.totalTopics || 0}, ${subject.progress || 0}, ${subject.order_index}, 

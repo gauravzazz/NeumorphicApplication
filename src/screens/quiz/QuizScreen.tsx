@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
   import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
-  import { Toast } from '../../components/ui/Toast';
   import { CustomAlert } from '../../components/ui/CustomAlert';
   import { useTheme } from 'react-native-paper';
   import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +10,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
   import { QuizNavigation } from './components/QuizNavigation';
   import { QuestionSummaryModal } from '../../components/modals/QuestionSummaryModal';
   import { QuestionService, Question } from '../../services/questionService';
-  import { logger } from '../../utils/logger';
   import { getQuizSettings } from '../../utils/quizSettingsStorage';
   type QuizScreenRouteProp = RouteProp<{
     Quiz: {
@@ -101,7 +99,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
           },
         ],
       });
-    }, [answers, questions, timeRemaining, mode, topicId, topicTitle, subjectName, navigation, questionCount, timePerQuestion, cleanup]);
+    }, [answers, questions, timeRemaining, mode, topicId, topicTitle, subjectName, navigation, questionCount, timePerQuestion,]);
   
     const cleanup = useCallback(() => {
       if (timerRef.current) {
@@ -282,7 +280,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
               onOptionSelect={handleOptionSelect} 
               mode={mode}
               correctOption={mode === 'practice' && showCorrectAnswer ? currentQuestion.correctOption : undefined}
-              disabled={mode === 'practice' && selectedOption !== null}
+              
             />
           </View>
         </View>
