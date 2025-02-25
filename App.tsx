@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -18,6 +18,7 @@ import { QuizHistoryScreen } from './src/screens/QuizHistoryScreen';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DatabaseService } from './src/services/database/DatabaseService';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,6 +28,21 @@ const AppContent = () => {
 
   React.useEffect(() => {
     checkOnboardingStatus();
+  }, []);
+
+  useEffect(() => {
+    const initDB = async () => {
+      try {
+        const db = DatabaseService.getInstance();
+        await db.verifyTables();
+        await db.insertMockData();
+        console.log('Database initialized with mock data');
+      } catch (error) {
+        console.error('Database initialization error:', error);
+      }
+    };
+  
+    initDB();
   }, []);
 
   const checkOnboardingStatus = async () => {

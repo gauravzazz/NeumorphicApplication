@@ -352,11 +352,20 @@ export const ResultScreen: React.FC = () => {
                   ))}
                 </View>
 
-                <View style={styles.explanationContainer}>
-                  <Text style={[styles.explanationTitle, { color: theme.colors.primary }]}>Explanation: </Text>
+                <NeumorphicView style={styles.explanationContainer}>
+                  <View style={styles.explanationHeader}>
+                    <Ionicons 
+                      name="information-circle" 
+                      size={24} 
+                      color={theme.colors.primary} 
+                    />
+                    <Text style={[styles.explanationTitle, { color: theme.colors.primary }]}>
+                      Explanation
+                    </Text>
+                  </View>
                   <View style={styles.explanationTextContainer}>
                     <Text 
-                      numberOfLines={expandedExplanations[question.id] ? undefined : 2}
+                      numberOfLines={expandedExplanations[question.id] ? undefined : 3}
                       style={[styles.explanationText, { color: theme.colors.onSurface }]}
                     >
                       {question.explanation}
@@ -364,25 +373,27 @@ export const ResultScreen: React.FC = () => {
                     {!expandedExplanations[question.id] && (
                       <TouchableOpacity
                         onPress={() => toggleExplanation(question.id)}
-                        style={styles.showMoreButton}
+                        style={[styles.showMoreButton, { backgroundColor: theme.colors.primary + '10' }]}
                       >
                         <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
                           Show More
                         </Text>
+                        <Ionicons name="chevron-down" size={16} color={theme.colors.primary} />
                       </TouchableOpacity>
                     )}
                     {expandedExplanations[question.id] && (
                       <TouchableOpacity
                         onPress={() => toggleExplanation(question.id)}
-                        style={styles.showLessButton}
+                        style={[styles.showLessButton, { backgroundColor: theme.colors.primary + '10' }]}
                       >
                         <Text style={[styles.showMoreText, { color: theme.colors.primary }]}>
                           Show Less
                         </Text>
+                        <Ionicons name="chevron-up" size={16} color={theme.colors.primary} />
                       </TouchableOpacity>
                     )}
                   </View>
-                </View>
+                </NeumorphicView>
 
                 <View style={styles.questionActions}>
                   <TouchableOpacity
@@ -574,55 +585,55 @@ const styles = StyleSheet.create({
     lineHeight: SCREEN_WIDTH * 0.042,
   },
   explanationContainer: {
-    marginTop: SCREEN_WIDTH * 0.02,
-    backgroundColor: 'rgba(98, 0, 238, 0.03)',
+    marginTop: SCREEN_WIDTH * 0.03,
+    padding: SCREEN_WIDTH * 0.04,
     borderRadius: SCREEN_WIDTH * 0.02,
-    borderWidth: 1,
-    borderColor: 'rgba(98, 0, 238, 0.15)',
-    padding: SCREEN_WIDTH * 0.035,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+  },
+  explanationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SCREEN_WIDTH * 0.02,
+    marginBottom: SCREEN_WIDTH * 0.02,
   },
   explanationTitle: {
-    fontSize: SCREEN_WIDTH * 0.034,
-    fontWeight: '700',
+    fontSize: SCREEN_WIDTH * 0.04,
+    fontWeight: '600',
     letterSpacing: 0.3,
-    marginBottom: SCREEN_WIDTH * 0.01,
+  },
+  explanationTextContainer: {
+    paddingHorizontal: SCREEN_WIDTH * 0.01,
   },
   explanationText: {
-    fontSize: SCREEN_WIDTH * 0.032,
-    lineHeight: SCREEN_WIDTH * 0.045,
-    opacity: 0.95,
+    fontSize: SCREEN_WIDTH * 0.035,
+    lineHeight: SCREEN_WIDTH * 0.05,
     letterSpacing: 0.2,
     fontWeight: '400',
   },
-  showMoreText: {
-    fontSize: SCREEN_WIDTH * 0.03,
-    fontWeight: '600',
-    marginLeft: SCREEN_WIDTH * 0.01,
-    color: 'rgba(98, 0, 238, 0.8)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
   showMoreButton: {
-    paddingLeft: SCREEN_WIDTH * 0.015,
-    paddingVertical: SCREEN_WIDTH * 0.01,
-    backgroundColor: 'rgba(98, 0, 238, 0.05)',
-    borderRadius: SCREEN_WIDTH * 0.01,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: SCREEN_WIDTH * 0.02,
+    paddingHorizontal: SCREEN_WIDTH * 0.03,
+    paddingVertical: SCREEN_WIDTH * 0.015,
+    borderRadius: SCREEN_WIDTH * 0.015,
+    gap: SCREEN_WIDTH * 0.01,
   },
   showLessButton: {
-    alignSelf: 'flex-end',
-    marginTop: SCREEN_WIDTH * 0.015,
-    paddingHorizontal: SCREEN_WIDTH * 0.02,
-    paddingVertical: SCREEN_WIDTH * 0.01,
-    backgroundColor: 'rgba(98, 0, 238, 0.05)',
-    borderRadius: SCREEN_WIDTH * 0.01,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: SCREEN_WIDTH * 0.02,
+    paddingHorizontal: SCREEN_WIDTH * 0.03,
+    paddingVertical: SCREEN_WIDTH * 0.015,
+    borderRadius: SCREEN_WIDTH * 0.015,
+    gap: SCREEN_WIDTH * 0.01,
+  },
+  showMoreText: {
+    fontSize: SCREEN_WIDTH * 0.032,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   correctOption: {
     backgroundColor: 'rgba(75, 181, 67, 0.08)',
@@ -662,9 +673,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: SCREEN_WIDTH * 0.01,
   },
-  explanationTextContainer: {
-    flex: 1,
-  },
+
   explanationInlineContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',

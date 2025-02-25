@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, FlatList, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import { TopicGrid } from '../components/TopicGrid';
 import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
+import { DatabaseService } from '../services/database/DatabaseService';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -26,6 +27,14 @@ export const HomeScreen: React.FC = () => {
   const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
 
+  useEffect(() => {
+    const verifyDatabase = async () => {
+      const db = DatabaseService.getInstance();
+      await db.verifyTables();
+    };
+    
+    verifyDatabase();
+  }, []);
 
   const handleSubjectPress = (subject: Subject) => {
     navigation.navigate('SubjectDetail', { subject });
