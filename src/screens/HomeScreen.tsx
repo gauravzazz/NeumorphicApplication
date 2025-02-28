@@ -15,7 +15,7 @@ import { QuizConfigModal } from '../components/modals/QuizConfigModal';
 import { dummyNotifications } from '../data/notificationData';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { DatabaseService } from '../services/database/DatabaseService';
-import { ActivityIndicator } from 'react-native-paper';
+
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -27,7 +27,24 @@ export const HomeScreen: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<any>(null);
   const [isQuizConfigVisible, setQuizConfigVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const db = DatabaseService.getInstance();
+        const dbSubjects = await db.getSubjects();
+        setSubjects(dbSubjects);
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   
   const handleSubjectPress = (subject: Subject) => {
@@ -84,8 +101,7 @@ export const HomeScreen: React.FC = () => {
         renderItem={() => (
           <>
             <RecentSubjects searchQuery={searchQuery} />
-            <HotTopics 
-              topics={mockHotTopics.filter(topic => {
+            <HotTopics topics={mockHotTopics.filter(topic => {
                 if (!searchQuery) return true;
                 const query = searchQuery.toLowerCase();
                 return (
@@ -95,12 +111,12 @@ export const HomeScreen: React.FC = () => {
               })} 
             />
             <SubjectGrid
-              subjects={mockSubjects.filter(subject => {
+              subjects={mockSubjects.filter(subjects => {
                 if (!searchQuery) return true;
                 const query = searchQuery.toLowerCase();
                 return (
-                  subject.name.toLowerCase().includes(query) ||
-                  subject.description.toLowerCase().includes(query)
+                  subjects.name.toLowerCase().includes(query) ||
+                  subjects.description.toLowerCase().includes(query)
                 );
               })}
               onSubjectPress={handleSubjectPress}

@@ -33,12 +33,20 @@ const AppContent = () => {
   useEffect(() => {
     const initDB = async () => {
       try {
-        const db = DatabaseService.getInstance();
-        await db.verifyTables();
-        await db.insertMockData();
-        console.log('Database initialized with mock data');
+        const hasInitialized = await AsyncStorage.getItem('DB_INITIALIZED');
+        console.log('hasInitialized:', hasInitialized);
+        if (!hasInitialized) {
+          const db = DatabaseService.getInstance();
+          await AsyncStorage.setItem('DB_INITIALIZED', 'true');
+          console.log('Database initialized with mock data for the first time');
+        } else {
+          DatabaseService.getInstance();
+          console.log('Database already initialized, skipping mock data insertion');
+        }
       } catch (error) {
         console.error('Database initialization error:', error);
+        // If there's an error, remove the initialization flag to retry next time
+        await AsyncStorage.removeItem('DB_INITIALIZED');
       }
     };
   

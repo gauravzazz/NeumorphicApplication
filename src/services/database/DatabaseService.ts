@@ -1,5 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Question } from '../questionService';
+import { mockSubjects, mockTopics, mockQuestions } from '../../data/mockData';
 
 interface SQLError {
   message: string;
@@ -18,31 +20,76 @@ interface SQLiteResponse {
 }
 
 export class DatabaseService {
-  getQuestions() {
-    throw new Error('Method not implemented.');
-  }
-  getTopics() {
-    throw new Error('Method not implemented.');
-  }
+
   private db: SQLite.SQLiteDatabase;
   private static instance: DatabaseService;
   private static DB_INITIALIZED_KEY = 'db_initialized';
 
   private constructor() {
     this.db = SQLite.openDatabaseSync('revise.db');
-    this.checkAndInitializeTables();
+    this.initializeDatabase();
   }
 
-  private async checkAndInitializeTables(): Promise<void> {
+  private async initializeDatabase(): Promise<void> {
     try {
       const isInitialized = await AsyncStorage.getItem(DatabaseService.DB_INITIALIZED_KEY);
       
       if (!isInitialized) {
+        console.log('First time initialization...');
+        await this.dropAllTables();
         await this.initializeTables();
-        await this.insertMockData();  // Add mock data only on first initialization
+        await this.insertMockData();
         await AsyncStorage.setItem(DatabaseService.DB_INITIALIZED_KEY, 'true');
         console.log('Database initialized successfully with mock data');
+      } else {
+        console.log('Database already initialized, skipping initialization');
       }
+    } catch (error: unknown) {
+      const sqlError = error as SQLError;
+      console.error('Database initialization error:', sqlError.message);
+      // If there's an error, remove the initialization flag to retry next time
+      await AsyncStorage.removeItem(DatabaseService.DB_INITIALIZED_KEY);
+    }
+  }
+
+  // Remove the checkAndInitializeTables method as it's no longer needed
+  private async dropAllTables(): Promise<void> {
+    const tables = [
+      'question_feedback',
+      'bookmarks',
+      'user_progress',
+      'questions',
+      'topics',
+      'subjects'
+    ];
+  
+    for (const table of tables) {
+      try {
+        await this.db.execAsync(`DROP TABLE IF EXISTS ${table}`);
+        console.log(`Dropped table: ${table}`);
+      } catch (error: unknown) {
+        const sqlError = error as SQLError;
+        console.error(`Error dropping table ${table}:`, sqlError.message);
+      }
+    }
+  }
+
+  private async checkAndInitializeTables(): Promise<void> {
+    try {
+      // Force clean start by dropping all tables
+      console.log('Dropping all existing tables...');
+      await this.dropAllTables();
+      
+      console.log('Initializing database...');
+      await this.initializeTables();
+      console.log('Tables created, inserting mock data...');
+      await this.insertMockData();
+      await AsyncStorage.setItem(DatabaseService.DB_INITIALIZED_KEY, 'true');
+      console.log('Database initialized successfully with mock data');
+      
+      // Verify data insertion
+      const subjects = await this.getSubjects();
+      console.log('Verification - Inserted subjects:', subjects);
     } catch (error: unknown) {
       const sqlError = error as SQLError;
       console.error('Database initialization error:', sqlError.message);
@@ -51,6 +98,7 @@ export class DatabaseService {
 
   static getInstance(): DatabaseService {
     if (!DatabaseService.instance) {
+      console.log('Creating new DatabaseService instance');
       DatabaseService.instance = new DatabaseService();
     }
     return DatabaseService.instance;
@@ -147,44 +195,56 @@ export class DatabaseService {
 
   async getSubjects(): Promise<any[]> {
     try {
-      const response = await this.db.execAsync(
+      const rows = await this.db.getAllAsync(
         'SELECT * FROM subjects ORDER BY order_index'
-      ) as unknown as SQLiteResponse;
-      
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      return response.result[0]?.rows || [];
+      );
+      console.log('Fetched subjects:', rows);
+      return rows;
     } catch (error: unknown) {
       const sqlError = error as SQLError;
-      console.error('Error fetching subjects:', sqlError.message);
+      console.error('SQL Error in getSubjects:', sqlError.message);
       throw error;
     }
   }
 
   async insertSubject(subject: any): Promise<void> {
     try {
-      // First check if subject exists
-      const existingSubject = await this.db.execAsync(
-        `SELECT id FROM subjects WHERE id = '${subject.id}'`
-      ) as unknown as SQLiteResponse;
+      // Check if subject exists using getAllAsync
+      const existingSubjects = await this.db.getAllAsync(
+        'SELECT id FROM subjects WHERE id = ?',
+        [subject.id]
+      );
   
-      if (existingSubject?.result?.[0]?.rows?.length > 0) {
-        // Subject exists, update it instead
+      if (existingSubjects.length > 0) {
         await this.updateSubject(subject);
         return;
       }
   
-      // Subject doesn't exist, insert new
-      const query = `INSERT INTO subjects (id, name, description, icon, imageUrl, color, totalTopics, progress, order_index, created_at, updated_at) 
-                     VALUES ('${subject.id}', '${subject.name}', '${subject.description}', '${subject.icon}', '${subject.imageUrl}', 
-                             '${subject.color}', ${subject.totalTopics || 0}, ${subject.progress || 0}, ${subject.order_index}, 
-                             ${Date.now()}, ${Date.now()})`;
-      await this.db.execAsync(query);
+      // Subject doesn't exist, insert new using runAsync with parameters
+      const query = `INSERT INTO subjects (
+        id, name, description, icon, imageUrl, color, 
+        totalTopics, progress, order_index, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+      const params = [
+        subject.id,
+        subject.name,
+        subject.description,
+        subject.icon,
+        subject.imageUrl,
+        subject.color,
+        subject.totalTopics || 0,
+        subject.progress || 0,
+        subject.order_index,
+        Date.now(),
+        Date.now()
+      ];
+  
+      await this.db.runAsync(query, params);
+      console.log(`Inserted subject with id ${subject.id}`);
     } catch (error: unknown) {
       const sqlError = error as SQLError;
-      console.error('Error inserting subject:', sqlError.message);
+      console.error('SQL Error in insertSubject:', sqlError.message);
       throw error;
     }
   }
@@ -192,148 +252,118 @@ export class DatabaseService {
   async updateSubject(subject: any): Promise<void> {
     try {
       const query = `UPDATE subjects 
-                     SET name = '${subject.name}', 
-                         description = '${subject.description}', 
-                         icon = '${subject.icon}', 
-                         imageUrl = '${subject.imageUrl}', 
-                         color = '${subject.color}', 
-                         totalTopics = ${subject.totalTopics}, 
-                         progress = ${subject.progress}, 
-                         order_index = ${subject.order_index}, 
-                         updated_at = ${Date.now()}
-                     WHERE id = '${subject.id}'`;
-      await this.db.execAsync(query);
+                     SET name = ?, 
+                         description = ?, 
+                         icon = ?, 
+                         imageUrl = ?, 
+                         color = ?, 
+                         totalTopics = ?, 
+                         progress = ?, 
+                         order_index = ?, 
+                         updated_at = ?
+                     WHERE id = ?`;
+  
+      const params = [
+        subject.name,
+        subject.description,
+        subject.icon,
+        subject.imageUrl,
+        subject.color,
+        subject.totalTopics,
+        subject.progress,
+        subject.order_index,
+        Date.now(),
+        subject.id
+      ];
+  
+      await this.db.runAsync(query, params);
+      console.log(`Updated subject with id ${subject.id}`);
     } catch (error: unknown) {
       const sqlError = error as SQLError;
-      console.error('Error updating subject:', sqlError.message);
+      console.error('SQL Error in updateSubject:', sqlError.message);
       throw error;
     }
   }
 
   async deleteSubject(id: string): Promise<void> {
     try {
-      await this.db.execAsync(`DELETE FROM subjects WHERE id = '${id}'`);
+      await this.db.runAsync('DELETE FROM subjects WHERE id = ?', [id]);
+      console.log(`Deleted subject with id ${id}`);
     } catch (error: unknown) {
       const sqlError = error as SQLError;
-      console.error('Error deleting subject:', sqlError.message);
+      console.error('SQL Error in deleteSubject:', sqlError.message);
       throw error;
     }
   }
 
   async insertMockData(): Promise<void> {
     try {
-      // Mock Subjects
-      const subjects = [
-        {
-          id: '1',
-          name: 'Mathematics',
-          description: 'Basic to advanced mathematics concepts',
-          icon: 'calculator',
-          imageUrl: 'https://example.com/math.jpg',
-          color: '#FF5733',
-          totalTopics: 3,
-          progress: 0,
-          order_index: 1
-        },
-        {
-          id: '2',
-          name: 'Physics',
-          description: 'Fundamental physics principles',
-          icon: 'atom',
-          imageUrl: 'https://example.com/physics.jpg',
-          color: '#33FF57',
-          totalTopics: 2,
-          progress: 0,
-          order_index: 2
-        }
-      ];
-  
-      // Mock Topics
-      const topics = [
-        {
-          id: '1',
-          subject_id: '1',
-          name: 'Algebra',
-          description: 'Basic algebraic concepts',
-          icon: 'function',
-          imageUrl: 'https://example.com/algebra.jpg',
-          color: '#5733FF',
-          total_questions: 5,
-          completed_questions: 0,
-          difficulty: 'beginner',
-          estimated_time: 1800,
-          order_index: 1
-        },
-        {
-          id: '2',
-          subject_id: '1',
-          name: 'Geometry',
-          description: 'Basic geometric principles',
-          icon: 'shape',
-          imageUrl: 'https://example.com/geometry.jpg',
-          color: '#33FFFF',
-          total_questions: 5,
-          completed_questions: 0,
-          difficulty: 'intermediate',
-          estimated_time: 2400,
-          order_index: 2
-        }
-      ];
-  
-      // Mock Questions
-      const questions = [
-        {
-          id: '1',
-          topic_id: '1',
-          question: 'What is the value of x in 2x + 4 = 10?',
-          options: JSON.stringify(['2', '3', '4', '5']),
-          correct_option: 1,
-          explanation: 'Subtract 4 from both sides: 2x = 6, then divide by 2: x = 3',
-          difficulty: 'medium',
-          times_attempted: 0,
-          times_correct: 0
-        },
-        {
-          id: '2',
-          topic_id: '1',
-          question: 'Solve for y: 3y - 6 = 15',
-          options: JSON.stringify(['5', '7', '8', '9']),
-          correct_option: 2,
-          explanation: 'Add 6 to both sides: 3y = 21, then divide by 3: y = 7',
-          difficulty: 'medium',
-          times_attempted: 0,
-          times_correct: 0
-        }
-      ];
-  
-      // Insert subjects
-      for (const subject of subjects) {
-        await this.insertSubject(subject);
+      // Insert subjects from mockData.ts
+      for (const subject of mockSubjects) {
+        // Map the subject properties to match the database schema
+        console.log("Inserting subject :"+subject);
+        const dbSubject = {
+          id: subject.id,
+          name: subject.name,
+          description: subject.description,
+          icon: subject.icon,
+          imageUrl: subject.imageUrl,
+          color: '#' + Math.floor(Math.random()*16777215).toString(16), // Generate random color if needed
+          totalTopics: subject.topicsCount,
+          progress: subject.progress,
+          order_index: parseInt(subject.id) // Use ID as order index for simplicity
+        };
+        
+        await this.insertSubject(dbSubject);
       }
   
-      // Insert topics
-      for (const topic of topics) {
-        await this.db.execAsync(`
-          INSERT INTO topics (id, subject_id, name, description, icon, imageUrl, color, 
-                            total_questions, completed_questions, difficulty, estimated_time, 
-                            order_index, created_at, updated_at)
-          VALUES ('${topic.id}', '${topic.subject_id}', '${topic.name}', '${topic.description}',
-                  '${topic.icon}', '${topic.imageUrl}', '${topic.color}', ${topic.total_questions},
-                  ${topic.completed_questions}, '${topic.difficulty}', ${topic.estimated_time},
-                  ${topic.order_index}, ${Date.now()}, ${Date.now()})
-        `);
+      // Insert topics using mockTopics
+      for (const topic of mockTopics) {
+        const query = `INSERT INTO topics (
+          id, subject_id, name, description, imageUrl,
+          total_questions, difficulty, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+        const params = [
+          topic.id,
+          topic.subjectId,
+          topic.name,
+          topic.description,
+          topic.imageUrl || '',
+          topic.questionsCount,
+          topic.difficulty === 'hard' ? 'advanced' : 
+            topic.difficulty === 'medium' ? 'intermediate' : 'beginner',
+          Date.now(),
+          Date.now()
+        ];
+  
+        await this.db.runAsync(query, params);
+        console.log(`Inserted topic with id ${topic.id}`);
       }
   
-      // Insert questions
-      for (const question of questions) {
-        await this.db.execAsync(`
-          INSERT INTO questions (id, topic_id, question, options, correct_option, explanation,
-                             difficulty, times_attempted, times_correct, created_at, updated_at)
-          VALUES ('${question.id}', '${question.topic_id}', '${question.question}', 
-                  '${question.options}', ${question.correct_option}, '${question.explanation}',
-                  '${question.difficulty}', ${question.times_attempted}, ${question.times_correct},
-                  ${Date.now()}, ${Date.now()})
-        `);
+      // Insert questions using mockQuestions
+      for (const question of mockQuestions) {
+        const query = `INSERT INTO questions (
+          id, topic_id, question, options, correct_option, explanation,
+          difficulty, times_attempted, times_correct, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+        const params = [
+          question.id,
+          question.topicId,
+          question.question,
+          JSON.stringify(question.options), // Store options as JSON string
+          question.correctOption,
+          question.explanation,
+          'medium', // Default difficulty
+          0, // times_attempted
+          0, // times_correct
+          Date.now(),
+          Date.now()
+        ];
+  
+        await this.db.runAsync(query, params);
+        console.log(`Inserted question with id ${question.id}`);
       }
   
       console.log('Mock data inserted successfully');
@@ -344,37 +374,20 @@ export class DatabaseService {
     }
   }
 
-  async verifyTables(): Promise<void> {
-    const tables = ['subjects', 'topics', 'questions', 'user_progress', 'bookmarks', 'question_feedback'];
-    
-    for (const table of tables) {
-      try {
-        const response = await this.db.execAsync(
-          `SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='${table}';`
-        ) as unknown as SQLiteResponse;
-        
-        if (response?.result?.[0]?.rows) {
-          const count = response.result[0].rows[0]?.count;
-          
-          if (count > 0) {
-            console.log(`✅ Table ${table} exists`);
-            
-            // Get table info
-            const tableInfo = await this.db.execAsync(
-              `PRAGMA table_info('${table}');`
-            ) as unknown as SQLiteResponse;
-            
-            if (tableInfo?.result?.[0]?.rows) {
-              console.log(`Columns in ${table}:`, tableInfo.result[0].rows);
-            }
-          } else {
-            console.error(`❌ Table ${table} does not exist`);
-          }
-        }
-      } catch (error: unknown) {
-        const sqlError = error as SQLError;
-        console.error(`Error verifying table ${table}:`, sqlError.message);
-      }
+ 
+
+  async getTopics(): Promise<any[]> {
+    try {
+      const rows = await this.db.getAllAsync(
+        'SELECT * FROM topics ORDER BY order_index'
+      );
+      console.log('Fetched topics:', rows);
+      return rows;
+    } catch (error: unknown) {
+      const sqlError = error as SQLError;
+      console.error('SQL Error in getTopics:', sqlError.message);
+      throw error;
     }
   }
+
 }
